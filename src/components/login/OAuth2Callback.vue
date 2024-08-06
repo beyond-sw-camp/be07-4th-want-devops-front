@@ -47,7 +47,6 @@ export default {
         // 서버의 응답 처리
         this.tokenData = validateResponse.data;
 
-        //TODO 응답을 토큰 저장 하기 
 
         // 로그인 후 홈 페이지로 리디렉션
         this.$router.push('/home');
