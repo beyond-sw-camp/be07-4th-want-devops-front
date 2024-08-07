@@ -9,17 +9,8 @@
 </template>
 
 <script>
-// export default {
-//   name: 'App',
-//   components: {
-//     HeaderComponent: () => import('./components/head_and_foot/HeaderComponent.vue'),
-//     // FooterComponent: () => import('./components/head_and_foot/FooterComponent.vue'),
-//     // HomeComponent: () => import('./components/HomeComponent.vue')
-//   }
-// }
+
 import HeaderComponent from './components/head_and_foot/HeaderComponent.vue'
-// import FooterComponent from './components/head_and_foot/FooterComponent.vue'
-// import HomeComponent from './components/HomeComponent.vue'
 
 
 
@@ -27,9 +18,6 @@ export default {
   name: 'App',
   components: {
     HeaderComponent,
-    // FooterComponent,
-    // HomeComponent
-
   }
 }
 </script>

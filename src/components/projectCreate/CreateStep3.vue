@@ -1,39 +1,26 @@
 <template>
     <div class="backArea">
         <div class="question">
-            <v-col>
                 <v-row justify="center">
                 <p class="question-title">이번 여행의 제목을 지어주세요</p>
                 </v-row>
                 <v-row justify="center">
                     <div class="question-input">
-                        <p>Country</p>
+                        <p>Title</p>
                         <input
                         v-model="country"
                         class="form-control"
-                        placeholder="국가"
+                        placeholder="제목"
                         type="text"
-                        />
-                    </div>
-                    <div class="question-input">
-                        <p>City</p>
-                        <input
-                        v-model="city"
-                        class="form-control"
-                        placeholder="도시"
-                        type="text"
+                        style="width: 400px;"
                         />
                     </div>
                 </v-row>
                 <v-row justify="center">
-                    <v-btn color="secondary" type="submit">NEXT</v-btn>
+                    <v-btn color="primary" type="submit">DONE!</v-btn>
                 </v-row>
-            </v-col>
         </div> 
-    </div>
-        
-        
-    
+    </div>  
 </template>
 <script>
 </script>

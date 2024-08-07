@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@vuepic/vue-datepicker": "^9.0.1",
     "axios": "^1.7.3",
     "bootstrap": "^5.0.0-beta3",
     "bootstrap-vue-3": "^0.5.1",
