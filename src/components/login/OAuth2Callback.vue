@@ -8,6 +8,7 @@
 
 <script>
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
 
 export default {
   data() {
@@ -45,11 +46,21 @@ export default {
         });
 
         // 서버의 응답 처리
+        const accessToken = validateResponse.data.result.accessToken;
+        console.log('Access Token:', accessToken);
+        const refreshToken = validateResponse.data.result.refreshToken;
+        console.log('Refresh Token:', refreshToken);
+        const role = jwtDecode(accessToken).auth;
+        console.log('Role:', role);
+
         this.tokenData = validateResponse.data;
+        localStorage.setItem('token', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('role', role);
 
 
         // 로그인 후 홈 페이지로 리디렉션
-        this.$router.push('/home');
+        this.$router.push('/');
       } catch (error) {
         console.error('Error processing login:', error);
         this.error = 'Login failed!';
