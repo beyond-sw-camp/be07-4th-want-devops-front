@@ -3,7 +3,6 @@
     <v-main>
       <v-container>
         <HeaderComponent/>
-        <HomeComponent/>
         <router-view/>
         <FooterComponent/>
       </v-container>
@@ -12,13 +11,11 @@
 </template>
 
 <script>
-
 export default {
   name: 'App',
   components: {
     HeaderComponent: () => import('./components/head_and_foot/HeaderComponent.vue'),
     FooterComponent: () => import('./components/head_and_foot/FooterComponent.vue'),
-    HomeComponent: () => import('./components/HomeComponent.vue')
   }
 }
 </script>
