@@ -1,7 +1,9 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {practiceRouter} from "@/router/practiceRouter";
-import HomeComponent from "@/components/HomeComponent";
-import { projectRouter } from '@/router/projectRouter';
+// import HomeComponent from "@/components/HomeComponent";
+// import GoogleLogin from "@/components/login/GoogleLogin";
+import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
+import FirstPage from "@/views/FirstPage";
 //@는 src 디렉토리를 의미한다.
 //파일 내부에 export default 있는 경우에는 {} 가 필요없고, 그러지 않으면 {}가 필요하다.
 // import 하는 요소가 여러개 있을때에도 {}를 사용한다.
@@ -11,12 +13,27 @@ import { projectRouter } from '@/router/projectRouter';
 
 
 const routes = [
+    // {
+    //     //path로도 라우팅이 가능라고 name으로도 라우팅이 가능하다.
+    //     //name으로 라우팅하는 경우는 js 코드 내에서 직접적으로 라우팅을 할 때 사용한다.
+    //     path: '/home',
+    //     name: 'Home',
+    //     component: HomeComponent
+    // },
     {
-        //path로도 라우팅이 가능라고 name으로도 라우팅이 가능하다.
-        //name으로 라우팅하는 경우는 js 코드 내에서 직접적으로 라우팅을 할 때 사용한다.
-        path: '/home',
+        path: '/',
         name: 'Home',
-        component: HomeComponent
+        component: FirstPage
+    },
+    // {
+    //     path: '/',
+    //     name: 'GoogleLogin',
+    //     component: GoogleLogin
+    // },
+    {
+        path: '/oauth2/callback',
+        name: 'Oauth2Callback',
+        component: Oauth2Callback
     },
     ...practiceRouter,
     ...projectRouter

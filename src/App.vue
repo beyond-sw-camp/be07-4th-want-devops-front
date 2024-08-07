@@ -2,7 +2,6 @@
   <v-app>
     <v-main>
         <HeaderComponent/>
-        <!-- <HomeComponent/> -->
         <router-view/>
         <!-- <FooterComponent/> -->
     </v-main>
