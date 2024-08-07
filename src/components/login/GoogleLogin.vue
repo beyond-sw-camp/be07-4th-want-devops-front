@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <button @click="redirectToGoogle">Login with Google</button>
+    <v-btn class="start-button" @click="redirectToGoogle">Login with Google</v-btn>
   </div>
 </template>
 
@@ -22,3 +22,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.start-button {
+  background-color: #4285F4;
+  color: white;
+}
+
+</style>
