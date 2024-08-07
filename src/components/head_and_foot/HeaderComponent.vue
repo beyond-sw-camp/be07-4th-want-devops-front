@@ -1,9 +1,11 @@
 <template>
   <v-app-bar app color="white" elevate-on-scroll>
     <v-toolbar-title>
-      <router-link to="/" class="text-primary font-weight-bold logo">WANT</router-link>
+      <span class="text-primary font-weight-bold">WANT</span>
     </v-toolbar-title>
     <v-spacer></v-spacer>
+    <v-btn stacked>여행지 추천</v-btn>
+    <v-btn stacked>나의 일정</v-btn>
     <v-btn stacked>여행지 추천</v-btn>
     <v-btn stacked>나의 일정</v-btn>
 
@@ -28,16 +30,12 @@ export default {
       const redirectUri = process.env.VUE_APP_GOOGLE_REDIRECT_URI;
       const responseType = 'code'; // 인가 코드 요청
       const scope = 'openid profile email';
-      
+
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
-      
+
       window.location.href = googleAuthUrl;
+    }
     }
   }
 };
 </script>
-<style>
-.logo {
-  text-decoration-line: none;
-}
-</style>
