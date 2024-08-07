@@ -1,12 +1,10 @@
 <template>
   <v-app>
     <v-main>
-      <v-container>
         <HeaderComponent/>
         <!-- <HomeComponent/> -->
         <router-view/>
         <!-- <FooterComponent/> -->
-      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -16,8 +14,8 @@
 //   name: 'App',
 //   components: {
 //     HeaderComponent: () => import('./components/head_and_foot/HeaderComponent.vue'),
-//     FooterComponent: () => import('./components/head_and_foot/FooterComponent.vue'),
-//     HomeComponent: () => import('./components/HomeComponent.vue')
+//     // FooterComponent: () => import('./components/head_and_foot/FooterComponent.vue'),
+//     // HomeComponent: () => import('./components/HomeComponent.vue')
 //   }
 // }
 import HeaderComponent from './components/head_and_foot/HeaderComponent.vue'
@@ -43,5 +41,6 @@ export default {
   font-family: "Montserrat", "IBM Plex Sans KR";
   font-optical-sizing: auto;
   font-style: normal;
+  
 }
 </style>
