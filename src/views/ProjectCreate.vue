@@ -13,6 +13,20 @@
 
   <!-- Step 1 -->
   <div class="backArea" ref="CreateStep1">
+  <div class="selectStep">
+      <li @click="scrollToSection('CreateStep1')">
+          STEP 1<br/>지역 선택
+      </li>
+      <li @click="scrollToSection('CreateStep2')">
+          STEP 2<br/>기간 선택
+      </li>
+      <li @click="scrollToSection('CreateStep3')">
+          STEP 3<br/>제목 설정
+      </li>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="backArea" ref="CreateStep1">
     <div class="question">
       <v-row justify="center">
         <p class="question-title">어디로 여행 가시나요?</p>
@@ -98,13 +112,30 @@
         <p class="question-title">이번 여행의 제목을 지어주세요</p>
         </v-row>
         <v-row justify="center">
+        </v-row>
+        <v-row justify="center">
+            <v-btn color="secondary" @click="scrollToSection('CreateStep3')">NEXT</v-btn>
+        </v-row>
+    </div>
+  </div>
+
+  <!-- Step 3  -->
+  <div class="backArea" ref="CreateStep3">
+    <div class="question">
+        <v-row justify="center">
+        <p class="question-title">이번 여행의 제목을 지어주세요</p>
+        </v-row>
+        <v-row justify="center">
             <div class="question-input">
+                <p>Title</p>
                 <p>Title</p>
                 <input
                 v-model="title"
                 class="form-control"
                 placeholder="제목"
+                placeholder="제목"
                 type="text"
+                style="width: 400px;"
                 style="width: 400px;"
                 />
             </div>
@@ -112,6 +143,9 @@
         <v-row justify="center">
             <v-btn color="primary" @click="submitProject">DONE!</v-btn>
         </v-row>
+    </div> 
+  </div>
+</template>
     </div> 
   </div>
 </template>
@@ -241,5 +275,36 @@ export default {
 }
 
 
+}
+.backArea{
+  height: 100vh;
+  padding: 45px 0 0;
+}
+.question {
+  position: relative;
+  margin: 15vh auto 0;
+  height: 50vh;
+  width: 50vw;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 20px;
+}
+.question a {
+  font-size: 13px;
+  padding: 0 20px;
+}
+.question-title {
+  padding: 80px 0 30px;
+  font-size: 40px;
+}
+.question-input {
+  margin: 20px;
+  padding-bottom: 60px;
+  font-size: 36px;
+}
+
+
+
+</style>
 
 </style>
