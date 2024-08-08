@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <HeaderComponent :isLogin="isLogin" :profileUrl="profileUrl"/>
+    <HeaderComponent :isLogin="isLogin" :profileUrl="profileUrl" @logout="handleLogout"/>
 
     <v-container class="fill-height d-flex justify-center align-center">
       <v-row>
@@ -52,7 +52,7 @@ export default {
 
       window.location.href = googleAuthUrl;
     },
-    doLogout() {
+    handleLogout() {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
@@ -62,6 +62,7 @@ export default {
     },
     startMyRoad() {
       // 마이로드 시작하기 로직
+      console.log("마이로드 시작하기");
     }
   },
   components: {

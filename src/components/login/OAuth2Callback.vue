@@ -51,7 +51,7 @@ export default {
         const refreshToken = validateResponse.data.result.refreshToken;
         console.log('Refresh Token:', refreshToken);
         const role = jwtDecode(accessToken).auth;
-        console.log('Role:', role);
+        console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqq" + jwtDecode(accessToken));
         const profileUrl = jwtDecode(accessToken).profileUrl;
 
         this.tokenData = validateResponse.data;
