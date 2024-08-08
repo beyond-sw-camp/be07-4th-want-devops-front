@@ -7,34 +7,33 @@
     <v-btn stacked>여행지 추천</v-btn>
     <v-btn stacked>나의 일정</v-btn>
 
-    <!--    v-if 를 사용하여 로그인 여부에 따라 다른 버튼을 보여줌-->
-    <v-btn stacked v-if="!isLogin" @click="redirectToGoogle" >로그인</v-btn>
+    <!-- v-if 를 사용하여 로그인 여부에 따라 다른 버튼을 보여줌 -->
+    <v-btn stacked v-if="!isLogin" @click="redirectToGoogle">로그인</v-btn>
 
-    <!--    로그인이 되어있을때만 보여지는 버튼-->
-    <v-btn stacked v-if="isLogin" @click="doLogout" >로그아웃</v-btn>
-    <v-avatar stacked>
-      <v-img src="https://randomuser.me/api/portraits" alt="avatar"></v-img>
-    </v-avatar>
-
+    <!-- 로그인이 되어있을때만 보여지는 버튼과 프로필 이미지 -->
+    <template v-if="isLogin">
+      <v-btn stacked @click="doLogout">로그아웃</v-btn>
+      <v-avatar class="ml-2">
+        <v-img :src="profileUrl" alt="avatar"></v-img>
+      </v-avatar>
+    </template>
   </v-app-bar>
 </template>
 
 <script>
+
 export default {
   name: 'HeaderComponent',
-  data() {
-    return {
-      isLogin: false,
-      userRole: null
+  props: {
+    isLogin: {
+      type: Boolean,
+      required: true
+    },
+    profileUrl: {
+      type: String,
+      default: ''
     }
   },
-  created(){
-    const token = localStorage.getItem('token');
-    if(token){
-      this.isLogin = true;
-    }
-  },
-
   methods: {
     redirectToGoogle() {
       const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
@@ -50,6 +49,7 @@ export default {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
+      localStorage.removeItem('profileUrl')
       window.location.reload();
     }
   }
