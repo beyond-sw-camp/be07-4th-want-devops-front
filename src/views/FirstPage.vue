@@ -1,7 +1,5 @@
 <template>
   <v-app>
-    <HeaderComponent />
-
     <v-container class="fill-height d-flex justify-center align-center">
       <v-row>
         <v-col cols="12" md="6" class="content">
@@ -15,21 +13,16 @@
         </v-col>
       </v-row>
     </v-container>
-    <FooterComponent />
   </v-app>
 </template>
 
 <script>
 import GoogleLogin from '@/components/login/GoogleLogin.vue';
-import HeaderComponent from '@/components/head_and_foot/HeaderComponent.vue';
-import FooterComponent from '@/components/head_and_foot/FooterComponent.vue';
 
 export default {
   name: 'TravelPlanner',
   components: {
     GoogleLogin,
-    HeaderComponent,
-    FooterComponent
   },
   methods: {
     startMyRoad() {

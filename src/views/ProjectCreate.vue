@@ -70,11 +70,19 @@
         <v-row justify="center">
             <div class="question-input" style="padding: 20px;">
                 <p>Start Date</p>
-                <input type="date" style="font-size: 22px;">
+                <input 
+                  type="date" 
+                  style="font-size: 22px;" 
+                  v-model="startTravel"
+                >
             </div>
             <div class="question-input" style="padding: 20px;">
                 <p>End Date</p>
-                <input type="date" style="font-size: 22px;">
+                <input 
+                  type="date" 
+                  style="font-size: 22px;" 
+                  v-model="endTravel"
+                >
             </div>
         </v-row>
         <v-row justify="center">
@@ -93,7 +101,7 @@
             <div class="question-input">
                 <p>Title</p>
                 <input
-                v-model="country"
+                v-model="title"
                 class="form-control"
                 placeholder="제목"
                 type="text"
@@ -102,7 +110,7 @@
             </div>
         </v-row>
         <v-row justify="center">
-            <v-btn color="primary" type="submit">DONE!</v-btn>
+            <v-btn color="primary" @click="submitProject">DONE!</v-btn>
         </v-row>
     </div> 
   </div>
@@ -117,7 +125,10 @@ export default {
       countryList: [],
       cityList: [],
       selectedCountry: null,
-      selectedCity: null
+      selectedCity: null,
+      startTravel: null,
+      endTravel: null,
+      title: ''
     };
   },
   async created() {
@@ -130,26 +141,46 @@ export default {
   },
   methods: {
     async loadCityList() {
-    if (!this.selectedCountry) return;
+      if (!this.selectedCountry) return;
 
-    try {
-      const responseCity = await axios.get('http://localhost:8088/api/v1/state/city', {
-        params: {
-          countryName: this.selectedCountry // 프론트엔드에서 'countryName'으로 전달
-        }
-      });
-      this.cityList = responseCity.data.result;
-      this.selectedCity = null; // 국가 변경 시 선택된 도시 초기화
-    } catch (e) {
-      console.log(e);
-    }
-  },
+      try {
+        const responseCity = await axios.get('http://localhost:8088/api/v1/state/city', {
+          params: {
+            countryName: this.selectedCountry
+          }
+        });
+        this.cityList = responseCity.data.result;
+        this.selectedCity = null;
+      } catch (e) {
+        console.log(e);
+      }
+    },
     scrollToSection(refName) {
       this.$refs[refName].scrollIntoView({ behavior: "smooth" });
+    },
+    async submitProject() {
+      const projectData = {
+        title: this.title,
+        startTravel: this.startTravel,
+        endTravel: this.endTravel,
+        state: {
+          country: this.selectedCountry,
+          city: this.selectedCity
+        }
+      };
+
+      try {
+        const response = await axios.post('http://localhost:8088/api/v1/project/create', projectData);
+        console.log('Project created:', response.data);
+        // 성공 시 처리 (예: 알림, 페이지 이동 등)
+      } catch (e) {
+        console.log('Error creating project:', e);
+      }
     }
   }
 };
 </script>
+
 
 <style>
 .selectStep{
