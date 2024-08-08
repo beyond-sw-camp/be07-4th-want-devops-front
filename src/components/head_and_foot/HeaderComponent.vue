@@ -11,7 +11,7 @@
     <v-btn stacked v-if="!isLogin" @click="redirectToGoogle" >로그인</v-btn>
 
     <!--    로그인이 되어있을때만 보여지는 버튼-->
-    <v-btn stacked v-if="isLogin">로그아웃</v-btn>
+    <v-btn stacked v-if="isLogin" @click="doLogout" >로그아웃</v-btn>
     <v-avatar stacked>
       <v-img src="https://randomuser.me/api/portraits" alt="avatar"></v-img>
     </v-avatar>
@@ -22,6 +22,19 @@
 <script>
 export default {
   name: 'HeaderComponent',
+  data() {
+    return {
+      isLogin: false,
+      userRole: null
+    }
+  },
+  created(){
+    const token = localStorage.getItem('token');
+    if(token){
+      this.isLogin = true;
+    }
+  },
+
   methods: {
     redirectToGoogle() {
       const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
@@ -32,6 +45,12 @@ export default {
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
 
       window.location.href = googleAuthUrl;
+    },
+    doLogout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
+      window.location.reload();
     }
   }
 };
