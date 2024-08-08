@@ -41,10 +41,9 @@ export default{
     },
     async created(){
         try{
-            const responseCountry = await axios.get('http://localhost:8088/api/v1/state/country');
-            this.countryList = responseCountry.data.result.content;
-            const responseCity = await axios.get('http://localhost:8088/api/v1/state/city');
-            this.cityList = responseCity.data.result.content;
+            const response= await axios.get('http://localhost:8088/api/v1/state/country');
+            this.countryList = response.data.result;
+            console.log(this.countryList);
         }catch(e){
             console.log(e);
         }
