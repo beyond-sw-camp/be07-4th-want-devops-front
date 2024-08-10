@@ -5,7 +5,7 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn>여행지 추천</v-btn>
-    <v-btn>나의 일정</v-btn>
+    <v-btn to="/myPage">나의 일정</v-btn>
 
     <!-- 로그인 여부에 따라 다른 버튼을 보여줌 -->
     <v-btn v-if="!isLogin" @click="redirectToGoogle">로그인</v-btn>
