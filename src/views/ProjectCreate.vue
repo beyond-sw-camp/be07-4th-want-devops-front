@@ -1,4 +1,5 @@
 <template>
+  <HeaderComponent :isLogin="isLogin" :profileUrl="profileUrl" @logout="handleLogout"/>
   <div class="selectStep">
       <li @click="scrollToSection('CreateStep1')">
           STEP 1<br/>지역 선택
@@ -117,6 +118,7 @@
 </template>
   
 <script>
+import HeaderComponent from '@/components/head_and_foot/HeaderComponent.vue';
 import axios from 'axios';
 
 export default {
@@ -130,6 +132,9 @@ export default {
       endTravel: null,
       title: ''
     };
+  },
+  components: {
+    HeaderComponent
   },
   async created() {
     try {
