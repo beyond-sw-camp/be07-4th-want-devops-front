@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app color="white" elevate-on-scroll>
     <v-toolbar-title>
-      <span class="text-primary font-weight-bold">WANT</span>
+      <router-link to="/" class="text-primary font-weight-bold logo">WANT</router-link>
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn>여행지 추천</v-btn>
@@ -46,7 +46,13 @@ export default {
     },
     doLogout() {
       this.$emit('logout');
-    }
+    },
+
   }
 };
 </script>
+<style>
+.logo {
+  text-decoration-line: none;
+}
+</style>
