@@ -51,12 +51,14 @@ export default {
         const refreshToken = validateResponse.data.result.refreshToken;
         console.log('Refresh Token:', refreshToken);
         const role = jwtDecode(accessToken).auth;
-        console.log('Role:', role);
+        console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqq" + jwtDecode(accessToken));
+        const profileUrl = jwtDecode(accessToken).profileUrl;
 
         this.tokenData = validateResponse.data;
         localStorage.setItem('token', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('role', role);
+        localStorage.setItem('profileUrl', profileUrl);
 
 
         // 로그인 후 홈 페이지로 리디렉션
