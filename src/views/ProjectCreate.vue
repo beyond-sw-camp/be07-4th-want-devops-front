@@ -214,15 +214,13 @@ export default {
   font-weight: 700;
   color: #004B6B;
 }
-.v-main{
+.backArea{
   background-image: url("/src/assets/img/airplane.jpg");
   height: 100%;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
   background-size: cover;
-}
-.backArea{
   height: 100vh;
   padding: 45px 0 0;
 }
