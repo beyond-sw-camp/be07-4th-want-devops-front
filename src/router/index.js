@@ -13,7 +13,6 @@ import { myPageRouter } from './myPageRouter';
 // import TestComponent from '@/components/TestComponent.vue'
 
 
-
 const routes = [
     // {
     //     //path로도 라우팅이 가능라고 name으로도 라우팅이 가능하다.
@@ -37,12 +36,22 @@ const routes = [
         name: 'Oauth2Callback',
         component: Oauth2Callback
     },
+    {
+        path: '/map',
+        name: 'GoogleMap',
+        component: () => import('@/components/GoogleMap.vue')
+    },
+    {
+        path: '/second',
+        name: 'SecondPage',
+        component: () => import('@/views/SecondTestPage.vue')
+    },
     ...practiceRouter,
     ...projectRouter,
     ...myPageRouter
 
 
-]
+];
 
 const router = new createRouter(
     {
