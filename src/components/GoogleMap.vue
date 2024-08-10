@@ -2,6 +2,7 @@
   <div class="container">
     <div class="map-container" ref="mapContainer"></div>
     <div class="search-container">
+      <input id="country" type="text" placeholder="Enter a country code (e.g., tw)" v-model="country" @input="updateCountry" />
       <input id="place" type="text" placeholder="Enter a location" />
       <div v-if="placeInfo" class="place-info">
         <p><strong>Place Name:</strong> {{ placeInfo.name }}</p>
@@ -21,6 +22,8 @@ export default {
     const mapContainer = ref(null);
     const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY; // 환경 변수에서 API 키 가져오기
     const placeInfo = ref(null); // 핀의 정보를 저장할 변수
+    const country = ref('kr'); // 기본 나라 코드
+    let map, autocomplete, marker; // map, autocomplete, marker 변수 선언
 
     onMounted(async () => {
       try {
@@ -29,8 +32,8 @@ export default {
         console.log('Google Maps API loaded:', googleMaps);
 
         // 지도 생성
-        const map = new googleMaps.Map(mapContainer.value, {
-          center: {lat: 37.5665, lng: 126.9780}, // 서울의 위도와 경도
+        map = new googleMaps.Map(mapContainer.value, {
+          center: { lat: 37.5665, lng: 126.9780 }, // 서울의 위도와 경도
           zoom: 10,
         });
         console.log('Map initialized:', map);
@@ -49,17 +52,14 @@ export default {
         }
 
         const options = {
-          // 범위 제거 (전 세계적으로 검색 가능)
           types: ['establishment'], // 필요에 따라 다른 타입으로 변경 가능
-          componentRestrictions: {country: 'tw'}, // 전 세계 검색을 위한 설정
+          componentRestrictions: { country: country.value }, // 기본 나라 설정
           fields: ['address_components', 'geometry', 'icon', 'name'],
-          strictBounds: false, // 범위 제한하지 않음
+          strictBounds: false,
         };
 
-        const autocomplete = new Places.Autocomplete(input, options);
+        autocomplete = new Places.Autocomplete(input, options);
         console.log('Autocomplete instance:', autocomplete);
-
-        let marker; // 마커를 저장할 변수
 
         // 장소 변경 이벤트 리스너 추가
         autocomplete.addListener('place_changed', () => {
@@ -104,7 +104,38 @@ export default {
       }
     });
 
-    return {mapContainer, placeInfo};
+    // 나라 입력 시 변경하는 메소드
+    const updateCountry = () => {
+      if (autocomplete) {
+        const options = {
+          types: ['establishment'],
+          componentRestrictions: { country: country.value }, // 사용자가 입력한 나라 코드로 변경
+          fields: ['address_components', 'geometry', 'icon', 'name'],
+          strictBounds: false,
+        };
+
+        autocomplete.setOptions(options);
+
+        // 나라에 따라 지도의 중심 변경 (기본적으로 나라 코드에 따라 대표 도시의 위도를 설정해 줍니다.)
+        const centers = {
+          'kr': { lat: 37.5665, lng: 126.9780 }, // 서울
+          'us': { lat: 37.7749, lng: -122.4194 }, // 샌프란시스코
+          'jp': { lat: 35.6895, lng: 139.6917 }, // 도쿄
+          'fr': { lat: 48.8566, lng: 2.3522 }, // 파리
+          'tw': { lat: 25.0330, lng: 121.5654 }, // 타이베이
+          // 필요에 따라 더 많은 나라의 위도를 추가할 수 있습니다.
+        };
+
+        if (centers[country.value]) {
+          map.setCenter(centers[country.value]);
+          map.setZoom(10); // 기본 줌 레벨 설정
+        } else {
+          console.warn('No center defined for the selected country.');
+        }
+      }
+    };
+
+    return { mapContainer, placeInfo, country, updateCountry };
   }
 };
 </script>
@@ -127,5 +158,11 @@ export default {
 
 .place-info {
   margin-top: 20px;
+}
+
+input {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 5px;
 }
 </style>

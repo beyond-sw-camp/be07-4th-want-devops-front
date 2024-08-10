@@ -39,6 +39,11 @@ const routes = [
         name: 'GoogleMap',
         component: () => import('@/components/GoogleMap.vue')
     },
+    {
+        path: '/second',
+        name: 'SecondPage',
+        component: () => import('@/views/SecondTestPage.vue')
+    },
     ...practiceRouter
 
 
