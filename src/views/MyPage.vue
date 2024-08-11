@@ -32,6 +32,9 @@
 
   <div class="section">
     <div class="section2">
+      <div class="project addBtn">
+        <router-link to="project/create">새로운 프로젝트 생성하기</router-link>
+      </div>
       <div
         class="project"
         v-for="project in filteredProjects"
@@ -54,7 +57,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      projectList: [], // 전체 프로젝트 목록
+      projectList: [],
       filteredProjects: [], // 필터링된 프로젝트 목록
       sortOption: 'createdAtDesc', // 정렬 옵션
       filterOption: 'all', // 필터 옵션
@@ -73,7 +76,7 @@ export default {
             filter: this.filterOption,
           },
         });
-        this.projectList = response.data.result.content; // 올바른 데이터 경로로 수정
+        this.projectList = response.data.result.content;
         this.filterProjects(); // 데이터를 필터링하고 정렬 수행
       } catch (e) {
         console.log(e);
@@ -81,6 +84,9 @@ export default {
     },
 
     filterProjects() {
+      // invitationAccepted가 'N'인 경우만 필터링
+      // this.filteredProjects = this.projectList.filter(project => project.invitationAccepted !== 'N');
+      console.log(this.projectList)
       if (this.filterOption === 'completed') {
         this.filteredProjects = this.projectList.filter((project) => project.isDone === 'Y');
       } else if (this.filterOption === 'incomplete') {
@@ -111,12 +117,10 @@ export default {
   <style>
   .section {
     display: flex;
-    justify-content: center; 
-    align-items: center;    
+    justify-content: center;   
     height: 100vh;
     width: 100vw;
     background-color: #f0f0f0;
-    height: auto;
   }
   .section2 {
     display: flex;
