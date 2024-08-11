@@ -61,6 +61,7 @@ export default {
       invitationList: [],
       modalCheck: false,
       selectedInvitation: null,
+      profileUrl: localStorage.getItem('profileUrl')
     };
   },
   computed: {

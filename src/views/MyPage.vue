@@ -12,7 +12,6 @@
   </div>
 
   
-
   <div class="section">
     
     <div class="section2">
@@ -62,6 +61,7 @@ export default {
       filteredProjects: [], // 필터링된 프로젝트 목록
       sortOption: 'createdAtDesc', // 정렬 옵션
       filterOption: 'all', // 필터 옵션
+      profileUrl: localStorage.getItem('profileUrl')
     };
   },
   async created() {
