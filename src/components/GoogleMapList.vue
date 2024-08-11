@@ -29,7 +29,7 @@ export default {
     const fetchBlocks = async () => {
       try {
         const response = await axios.get(apiUrl);
-        blocks.value = response.data.result.content; // API 응답 구조 확인 필요
+        blocks.value = response.data.result; // API 응답 구조 확인 필요
         initMap(); // 데이터 로드 후 지도 초기화
       } catch (error) {
         console.error('Error fetching blocks:', error);
