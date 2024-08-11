@@ -1,5 +1,4 @@
 <template>
-  <h1>This is MyPage</h1>
   <div class="profile">
     <v-avatar class="ml-2">
       <v-img :src="profileUrl"></v-img>
@@ -12,26 +11,28 @@
     <router-link to="myInvitation">My Invitation</router-link>
   </div>
 
-  <!-- 정렬 및 필터링 선택 -->
-  <div class="controls">
-    <label for="sort">Sort by:</label>
-    <select v-model="sortOption" @change="sortProjects">
-      <option value="createdAtDesc">최근 생성순</option>
-      <option value="createdAtAsc">오래전에 생성된 순</option>
-      <option value="startTravelAsc">가까운 여행일순</option>
-      <option value="startTravelDesc">가장 먼 여행일 순</option>
-    </select>
-
-    <label for="filter">Filter by status:</label>
-    <select v-model="filterOption" @change="filterProjects">
-      <option value="all">전체</option>
-      <option value="completed">완료된 여행</option>
-      <option value="incomplete">완료되지 않은 여행</option>
-    </select>
-  </div>
+  
 
   <div class="section">
+    
     <div class="section2">
+      <!-- 정렬 및 필터링 선택 -->
+      <div class="controls">
+        <label for="sort">Sort by:</label>
+        <select v-model="sortOption" @change="sortProjects">
+          <option value="createdAtDesc">최근 생성순</option>
+          <option value="createdAtAsc">오래전에 생성된 순</option>
+          <option value="startTravelAsc">가까운 여행일순</option>
+          <option value="startTravelDesc">가장 먼 여행일 순</option>
+        </select>
+
+        <label for="filter">Filter by status:</label>
+        <select v-model="filterOption" @change="filterProjects">
+          <option value="all">전체</option>
+          <option value="completed">완료된 여행</option>
+          <option value="incomplete">완료되지 않은 여행</option>
+        </select>
+      </div>
       <div class="project addBtn">
         <router-link to="project/create">새로운 프로젝트 생성하기</router-link>
       </div>
@@ -132,7 +133,6 @@ export default {
     background-color: white;
     border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
-
   }
   
   .project {

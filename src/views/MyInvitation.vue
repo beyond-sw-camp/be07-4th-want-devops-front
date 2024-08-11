@@ -1,41 +1,46 @@
 <template>
-  <h1>This is MyPage</h1>
   <div class="profile">
     <v-avatar class="ml-2">
       <v-img :src="profileUrl"></v-img>
     </v-avatar>
   </div>
   <div class="title">
-      <router-link to="myPage">My Page</router-link>
+      <router-link to="myPage">My Project</router-link>
   </div>
   <div class="title">
-      <p>My Project</p>
+      <p>My Invitation</p>
   </div>
 
   <div class="section">
     <div class="section2">
-        <div
+      <!-- 초대가 없는 경우 -->
+      <div v-if="filteredInvitations.length === 0" class="no-invitations">
+        초대받은 프로젝트가 없습니다
+      </div>
+      <!-- 초대가 있는 경우 -->
+      <div
+        v-else
         class="invitation"
         v-for="invitation in filteredInvitations"
         :key="invitation.projectId"
         @click="openModal(invitation)"
-        >
-            <div class="projectInfo">
-              <div class="projectTitle">
-                title: {{ invitation.projectTitle }}
-              </div>
-              <div class="projectEtc">
-                추가할 내용: 여행 일정, 나라, 초대한 사람
-              </div>
-            </div>
+      >
+        <div class="projectInfo">
+          <div class="projectTitle">
+            title: {{ invitation.projectTitle }}
+          </div>
+          <div class="projectEtc">
+            추가할 내용: 여행 일정, 나라, 초대한 사람
+          </div>
+        </div>
       </div>
     </div>
   </div>
   
   <div class="modal-wrap" v-show="modalCheck">
     <div class="modal-container">
-      <span class="closeBtn" @click="modalOpen">
-        &times; <!-- 또는 적절한 닫기 기호를 사용하세요 -->
+      <span class="material-symbols-outlined closeBtn" @click="modalOpen">
+        close
       </span>
       <div v-if="selectedInvitation">
         <h2>{{ selectedInvitation.projectTitle }}</h2> <!-- 선택된 초대의 projectTitle 표시 -->
