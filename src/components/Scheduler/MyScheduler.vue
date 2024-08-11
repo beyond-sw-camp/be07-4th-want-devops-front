@@ -87,6 +87,7 @@ import DxScheduler, {
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
 import HeaderComponent from "@/components/head_and_foot/HeaderComponent.vue";
+import axios from "axios";
 
 // Vuex 스토어와 필요한 변수들 설정
 const store = useStore();
@@ -183,28 +184,48 @@ async function onAppointmentAdd(e) {
     if (index >= 0) {
       tasks.value.splice(index, 1);
 
-      const originalStartTime = e.itemData.startDate;
-      const originalEndTime = e.itemData.endDate;
+      const blockId = e.itemData.blockId;
+      const originalStartTime = e.itemData.startDate.toISOString();
+      const originalEndTime = e.itemData.endDate.toISOString();
 
       console.log("Start DateTime:", originalStartTime);
       console.log("End DateTime:", originalEndTime);
 
-      const updatedAppointment = await store.dispatch("updateBlockDates", {
-        blockId: e.fromData.blockId,
-        startTime: e.itemData.startDate,
-        endTime: e.itemData.endDate,
-      });
+      console.log(
+        "list : " +
+          {
+            blockId: e.fromData.blockId,
+            startTime: e.itemData.startDate,
+            endTime: e.itemData.endDate,
+          }
+      );
 
-      console.log("Updated Appointment Dispatch:", updatedAppointment);
+      // const updatedAppointment = await store.dispatch(
+      //   "updateBlockDates",
+      //   e.fromData.blockId,
+      //   originalStartTime,
+      //   originalEndTime
+      // );
 
-      if (updatedAppointment) {
-        appointments.value.push({
-          ...updatedAppointment,
-          startDate: updatedAppointment.startDate,
-          endDate: updatedAppointment.endDate,
-        });
-        console.log("Appointment added:", updatedAppointment);
-      }
+      const response = await axios.patch(
+        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
+        {
+          blockId: blockId,
+          startTime: originalStartTime,
+          endTime: originalEndTime,
+        }
+      );
+
+      console.log(response);
+
+      // if (updatedAppointment) {
+      // appointments.value.push({
+      // ...updatedAppointment,
+      // startDate: updatedAppointment.startDate,
+      // endDate: updatedAppointment.endDate,
+      // });
+      // console.log("Appointment added:", updatedAppointment);
+      // }
     }
   } else {
     console.error("fromData is null or undefined in onAppointmentAdd");

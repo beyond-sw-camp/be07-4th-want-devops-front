@@ -65,36 +65,30 @@ export default createStore({
         return [];
       }
     },
-
-    // 새로운 액션 추가
-    async updateBlockDates({ blockId, startTime, endTime }) {
-      try {
-        // 로그로 현재 값을 확인합니다.
-        console.log("Original Start Time:", startTime);
-        console.log("Original End Time:", endTime);
-
-        // Date 객체로 변환합니다.
-        // const formattedStartTime = startTime instanceof Date ? startTime.toISOString() : new Date(startTime).toISOString();
-        // const formattedEndTime = endTime instanceof Date ? endTime.toISOString() : new Date(endTime).toISOString();
-
-        // console.log("Formatted Start Time:", formattedStartTime);
-        // console.log("Formatted End Time:", formattedEndTime);
-
-        const response = await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
-          {
-            blockId: blockId,
-            startTime: startTime,
-            endTime: endTime,
-          }
-        );
-        return response.data.result;
-      } catch (error) {
-        console.error("Error updating block dates:", error);
-        return null;
-      }
-    },
   },
+  // 새로운 액션 추가
+  //   async updateBlockDates({ commit }, blockId, startTime, endTime) {
+  //     try {
+  //       // 로그로 현재 값을 확인합니다.
+  //       console.log("block Id ", blockId);
+  //       console.log("Original Start Time:", startTime);
+  //       console.log("Original End Time:", endTime);
+
+  //       const response = await axios.patch(
+  //         `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
+  //         {
+  //           blockId: blockId,
+  //           startTime: startTime,
+  //           endTime: endTime,
+  //         }
+  //       );
+  //       return response.data.result;
+  //     } catch (error) {
+  //       console.error("Error updating block dates:", error);
+  //       return null;
+  //     }
+  //   },
+  // },
   getters: {
     projectDetail(state) {
       return state.projectDetail;
