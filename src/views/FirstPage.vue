@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <HeaderComponent :isLogin="isLogin" :profileUrl="profileUrl" @logout="handleLogout"/>
 
     <v-container class="fill-height d-flex justify-center align-center">
       <v-row>
@@ -15,13 +14,10 @@
         </v-col>
       </v-row>
     </v-container>
-    <FooterComponent/>
   </v-app>
 </template>
 
 <script>
-import HeaderComponent from '@/components/head_and_foot/HeaderComponent.vue';
-import FooterComponent from '@/components/head_and_foot/FooterComponent.vue';
 
 export default {
   name: 'TravelPlanner',
@@ -65,9 +61,5 @@ export default {
       console.log("마이로드 시작하기");
     }
   },
-  components: {
-    HeaderComponent,
-    FooterComponent
-  }
 };
 </script>
