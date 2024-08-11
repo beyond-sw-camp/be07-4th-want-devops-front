@@ -134,7 +134,7 @@ export default {
 .mainTitle {
   font-weight: 700;
   background-color: #f0f0f0;
-  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
   box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1);
 }
 .mainTitle p {
@@ -168,7 +168,7 @@ export default {
   box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
 }
 
-.project {
+.invitation {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -177,16 +177,34 @@ export default {
   padding: 10px;
   border-radius: 4px; 
 }
-
-.projectImage img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 50%;
+.modal-wrap {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
 }
-
-.projectTitle {
-  font-size: 16px;
-  color: #333;
+/* modal or popup */
+.modal-container {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 550px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24.
+}
+.closeBtn:hover{
+  cursor: pointer;
 }
 </style>

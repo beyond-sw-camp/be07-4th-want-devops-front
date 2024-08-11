@@ -68,17 +68,26 @@ export default {
       filteredProjects: [], // 필터링된 프로젝트 목록
       sortOption: 'createdAtDesc', // 정렬 옵션
       filterOption: 'all', // 필터 옵션
-      profileUrl: localStorage.getItem('profileUrl'),
-      userName: localStorage.getItem('name'),
-      userEmail: localStorage.getItem('email'),
+      profileUrl: "",
+      userName: "",
+      userEmail: ""
     };
   },
   async created() {
     await this.fetchProjects(); // 페이지 로드 시 프로젝트를 가져옴
-    console.log(localStorage.getItem('name')); // 올바른 값이 출력되는지 확인
-    console.log(localStorage.getItem('email')); // 올바른 값이 출력되는지 확인
+    await this.getMyInfo();
   },
   methods: {
+    async getMyInfo(){
+      try {
+        const response = await axios.get('http://localhost:8088/member/me');
+        this.profileUrl = response.data.profileUrl;
+        this.userName = response.data.name;
+        this.userEmail = response.data.email;
+      } catch(e) {
+        console.log(e);
+      }
+    },
     toCreateProject(){
       this.$router.push({ path: '/project/create' });
     },
