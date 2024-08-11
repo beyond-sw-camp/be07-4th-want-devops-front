@@ -14,7 +14,7 @@ const app = createApp(App);
 //axios 요청 인터셉터를 설정하여 모든 요청에 엑세스 토큰을 포함
 axios.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('token');
         if(token){
             config.headers.Authorization = `Bearer ${token}`;
         }
