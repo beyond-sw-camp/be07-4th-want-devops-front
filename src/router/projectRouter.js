@@ -6,4 +6,9 @@ export const projectRouter = [
         name: 'ProjectCreate',
         component: ProjectCreate
     },
+    {
+        path: '/project/detail/:projectId',
+        name: 'ProjectDetail',
+        component: () => import('@/views/ProjectDetailTestPage.vue')
+    }
 ]
