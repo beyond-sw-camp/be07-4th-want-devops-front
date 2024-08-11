@@ -1,8 +1,5 @@
 <template>
   <v-app>
-    <!-- Header Section -->
-    <HeaderComponent :isLogin="isLogin" :profileUrl="profileUrl" @logout="handleLogout" />
-
     <v-container>
       <!-- Project Detail -->
       <v-row v-if="projectDetail" class="header-row">
@@ -89,7 +86,6 @@ import DxScheduler, {
 } from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
-import HeaderComponent from "@/components/head_and_foot/HeaderComponent.vue";
 import axios from "axios";
 
 // Vuex 스토어와 필요한 변수들 설정
@@ -114,19 +110,6 @@ const isLogin = ref(false);
 const profileUrl = ref("");
 
 onMounted(async () => {
-  // Check if the user is logged in and fetch profile data
-
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
-  document.head.appendChild(link);
-
-  const token = localStorage.getItem("token");
-  if (token) {
-    isLogin.value = true;
-    profileUrl.value = localStorage.getItem("profileUrl");
-  }
-
   try {
     console.log("Fetching project details...");
     await store.dispatch("fetchProjectDetail", projectId); // projectId만 전달
@@ -158,15 +141,6 @@ onMounted(async () => {
   }
 });
 
-// Logout handler
-function handleLogout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("profileUrl");
-  isLogin.value = false;
-  profileUrl.value = "";
-  // Additional logout handling if necessary
-}
-
 async function onAppointmentRemove({ itemData }) {
   console.log("Removing appointment:", itemData);
 
@@ -176,6 +150,8 @@ async function onAppointmentRemove({ itemData }) {
     const blockId = itemData.blockId;
     const originalStartTime = itemData.startDate.toISOString();
     const originalEndTime = itemData.endDate.toISOString();
+
+    console.log("Sending to server:", { blockId, originalStartTime, originalEndTime });
 
     try {
       const response = await axios.patch(
@@ -273,6 +249,26 @@ function onItemDragEnd(e) {
     e.cancel = true;
   }
 }
+
+function loadStylesheet() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
+  document.head.appendChild(link);
+}
+
+function checkLoginStatus() {
+  const token = localStorage.getItem("token");
+  if (token) {
+    isLogin.value = true;
+    profileUrl.value = localStorage.getItem("profileUrl");
+  }
+}
+
+onMounted(() => {
+  loadStylesheet();
+  checkLoginStatus();
+});
 </script>
 
 <style scoped>
@@ -333,5 +329,22 @@ function onItemDragEnd(e) {
 
 .dx-draggable-dragging > * {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.empty-list {
+  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
+  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
+  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
+  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
+  user-select: none; /* 텍스트가 선택되지 않도록 */
+  pointer-events: none; /* 클릭 이벤트 무시 */
+  -webkit-user-drag: none; /* 드래그 방지 */
 }
 </style>
