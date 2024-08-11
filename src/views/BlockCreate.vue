@@ -1,11 +1,9 @@
 <template>
     <v-app>
-        <!-- 헤더 추가 -->
         <HeaderComponent />
 
         <v-container class="fill-height">
             <v-row>
-                <!-- 스케줄러 컴포넌트 -->
                 <v-col cols="12" md="8" class="scheduler-container">
                     <DxScheduler
                         :data-source="dataSource"
@@ -15,7 +13,6 @@
                     />
                 </v-col>
 
-                <!-- 생성된 블럭 목록 -->
                 <v-col cols="12" md="4" class="block-list" ref="blockList">
                     <h2>생성된 블럭들</h2>
                     <v-list>
@@ -28,41 +25,43 @@
                         >
                             {{ block.title }}
                         </v-list-item>
-                        <!-- 스크롤 밖에 꺼내둘지 블럭들 아래로 위치할지 -->
-                        <v-btn @click="createTemporaryBlock" color="primary">블럭 생성</v-btn>
                     </v-list>
-                </v-col>
-            </v-row>
-
-            <!-- 블럭 수정 폼 -->
-            <v-row v-if="selectedBlock">
-                <v-col cols="12">
-                    <v-card>
-                        <v-card-title>블럭 정보 입력</v-card-title>
-                        <v-card-subtitle>
-                            <v-form>
-                                <v-text-field
-                                    v-model="selectedBlock.projectId"
-                                    label="프로젝트 ID"
-                                    required
-                                />
-                                <v-text-field
-                                    v-model="selectedBlock.category"
-                                    label="카테고리"
-                                    required
-                                />
-                                <v-btn @click="saveBlock" color="primary">저장</v-btn>
-                            </v-form>
-                        </v-card-subtitle>
-                    </v-card>
+                    <v-btn @click="createTemporaryBlock" color="primary" class="create-button">블럭 생성</v-btn>
                 </v-col>
             </v-row>
         </v-container>
 
-        <!-- 푸터 추가 -->
+        <!-- 블록 정보 입력 모달 -->
+        <v-dialog v-model="dialog" max-width="600px">
+            <v-card>
+                <v-card-title>
+                    <span class="headline">블럭 정보 입력</span>
+                </v-card-title>
+                <v-card-subtitle>
+                    <v-form v-if="selectedBlock">
+                        <v-text-field
+                            v-model="selectedBlock.projectId"
+                            label="프로젝트 ID"
+                            required
+                        />
+                        <v-text-field
+                            v-model="selectedBlock.category"
+                            label="카테고리"
+                            required
+                        />
+                        <v-btn @click="saveBlock" color="primary">저장</v-btn>
+                        <v-btn @click="closeDialog" color="secondary">취소</v-btn>
+                    </v-form>
+                </v-card-subtitle>
+            </v-card>
+        </v-dialog>
+
         <FooterComponent />
     </v-app>
 </template>
+
+
+
 
 <script>
 import "devextreme/dist/css/dx.light.css";
@@ -79,63 +78,62 @@ export default {
     },
     data() {
         return {
-            dataSource: [],
+            dataSource: [], // 초기값을 빈 배열로 설정
             currentDate: new Date(),
             temporaryBlockId: 0,
-            selectedBlock: null,
+            selectedBlock: {
+                projectId: '',
+                category: '',
+                title: ''
+            }, // 기본값 설정
             maxHeartCount: 10,
-            page: 0,
             pageSize: 10,
             hasMoreData: true,
+            dialog: false, // 모달 창 상태 관리
         };
     },
+
     computed: {
         sortedDataSource() {
-            return this.dataSource.slice().sort((a, b) => b.heartCount - a.heartCount);
+            return this.dataSource ? this.dataSource.slice().sort((a, b) => b.heartCount - a.heartCount) : [];
         }
     },
     methods: {
         async fetchData() {
-    if (!this.hasMoreData) return;
+            if (!this.hasMoreData) return;
 
-    try {
-        const projectId = 1;
-        const token = localStorage.getItem("token");
+            try {
+                const projectId = 1;
+                const token = localStorage.getItem("token");
 
-        const response = await axios.get(
-            `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                params: {
-                    page: this.page,
-                    size: this.pageSize,
-                },
-            }
-        );
+                const response = await axios.get(
+                    `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        params: {
+                            page: 0,  // 페이지 관련 파라미터 제거
+                            size: this.pageSize,
+                        },
+                    }
+                );
 
-        const blockList = response.data.result;
+                const blockList = response.data.result;
 
-        if (blockList.content.length < this.pageSize) {
-            this.hasMoreData = false;
-        }
-
-        this.dataSource = [...this.dataSource, ...blockList.content];
-        this.page += 1;
-    } catch (error) {
-        console.error("데이터 가져오기 오류:", error);
-    }
-},
-
-        handleScroll() {
-            const blockList = this.$refs.blockList;
-            if (blockList && blockList.scrollTop + blockList.clientHeight >= blockList.scrollHeight - 10) {
-                if (this.hasMoreData) {
-                    this.fetchData();
+                if (blockList && Array.isArray(blockList)) {
+                    console.log("Fetched data:", blockList);
+                    this.dataSource = blockList;
+                } else {
+                    console.error("Invalid data format:", blockList);
                 }
+
+                this.hasMoreData = false; // 더 이상의 데이터는 없음
+            } catch (error) {
+                console.error("데이터 가져오기 오류:", error);
             }
         },
+
         async onAppointmentUpdated(e) {
             const updatedBlock = e.appointmentData;
             const url = updatedBlock.active
@@ -157,8 +155,9 @@ export default {
                 heartCount: 0
             };
             this.dataSource.push(newBlock);
-            this.selectedBlock = newBlock;
-        },
+            this.selectedBlock = { ...newBlock }; // 새로운 객체로 설정
+            this.dialog = true; // 모달 창 열기
+    },
         async saveBlock() {
             if (!this.selectedBlock.category) {
                 alert("카테고리를 입력해주세요.");
@@ -186,8 +185,9 @@ export default {
                 if (response.status === 200) {
                     alert("블럭이 성공적으로 생성되었습니다.");
                     this.selectedBlock.id = response.data.result;
-                    this.fetchData();
+                    this.fetchData(); // 블럭 생성 후 데이터 새로고침
                     this.selectedBlock = null;
+                    this.dialog = false; // 모달 창 닫기
                 }
             } catch (error) {
                 console.error(
@@ -200,6 +200,9 @@ export default {
                 );
             }
         },
+        closeDialog() {
+            this.dialog = false; // 모달 창 닫기
+        },
 
         appointmentTemplate(data) {
             return {
@@ -207,48 +210,47 @@ export default {
             };
         },
 
+
         getStyle(category, heartCount) {
-            const baseColor = {
-                SPOT: [255, 182, 193], // 분홍
-                CAFE: [255, 255, 102], // 노랑
-                RESTAURANT: [152, 251, 152], // 초록
-                ETC: [192, 192, 192],
-            };
+        // 기본 색상 설정
+        const baseColor = {
+            SPOT: [255, 182, 193], // 분홍
+            CAFE: [255, 255, 102], // 노랑
+            RESTAURANT: [152, 251, 152], // 초록
+            ETC: [192, 192, 192], // 회색
+        };
 
-            const color = baseColor[category] || [192, 192, 192];
+        // 선택된 카테고리의 기본 색상 가져오기
+        const color = baseColor[category] || baseColor['ETC'];
 
-            const minFactor = 1.4;
-            const maxFactor = 0.5;
+        // 색상의 밝기를 조정하기 위한 변수 설정
+        const minFactor = 0.5; // 최소 밝기 계수 (0일 때 색상이 보이도록 설정)
+        const maxFactor = 1.2; // 최대 밝기 계수 (좋아요가 많을 때 색상이 진함)
 
-            const lightnessFactor = heartCount === 0 ? minFactor : minFactor + (heartCount / this.maxHeartCount) * (maxFactor - minFactor);
-            const [r, g, b] = color.map(c => Math.round(c * Math.max(maxFactor, Math.min(lightnessFactor, minFactor))));
+        // 밝기 계수를 계산 (heartCount에 따라 조정)
+        const lightnessFactor = minFactor + ((this.maxHeartCount - heartCount) / this.maxHeartCount) * (maxFactor - minFactor);
 
-            return {
-                backgroundColor: `rgb(${r}, ${g}, ${b})`,
-                padding: "20px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                color: "#000",
-            };
-        }
+        // 색상 조정
+        const [r, g, b] = color.map(c => Math.round(c * lightnessFactor));
+
+        // 스타일 객체 반환
+        return {
+            backgroundColor: `rgb(${r}, ${g}, ${b})`,
+            padding: "20px",
+            margin: "10px 0",
+            borderRadius: "5px",
+            color: "#000",
+        };
+    }
     },
     mounted() {
         this.fetchData();
-        this.$nextTick(() => {
-            const blockList = this.$refs.blockList;
-            if (blockList) {
-                blockList.addEventListener('scroll', this.handleScroll);
-            }
-        });
-    },
-    beforeUnmount() {
-        const blockList = this.$refs.blockList;
-        if (blockList) {
-            blockList.removeEventListener('scroll', this.handleScroll);
-        }
-    },
+    }
 };
 </script>
+
+
+
 
 <style scoped>
 .scheduler-container {
@@ -273,4 +275,10 @@ export default {
     border-radius: 4px;
     text-align: center;
 }
+
+.create-button {
+    margin-top: 10px;
+    width: 100%;
+}
 </style>
+
