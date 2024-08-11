@@ -14,16 +14,18 @@
                 <v-col cols="12" md="4" class="block-list" ref="blockList">
                     <h2>BLOCK LIST</h2>
                     <!-- 카테고리 필터 버튼 추가 -->
-                    <div class="category-buttons">
-                        <v-btn
-                            v-for="(color, category) in categoryColors"
-                            :key="category"
-                            :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
-                            @click="filterByCategory(category)"
-                        >
-                            #{{ category }}
-                        </v-btn>
-                        <v-btn @click="filterByCategory(null)" color="secondary">All</v-btn>
+                    <div class="category-buttons-wrapper">
+                        <div class="category-buttons">
+                            <v-btn
+                                v-for="(color, category) in categoryColors"
+                                :key="category"
+                                :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+                                @click="filterByCategory(category)"
+                            >
+                                #{{ category }}
+                            </v-btn>
+                            <v-btn @click="filterByCategory(null)" color="secondary">All</v-btn>
+                        </div>
                     </div>
                     <v-list>
                         <v-list-item
@@ -290,6 +292,20 @@ export default {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+}
+
+.category-buttons .v-btn {
+    margin: 0 5px;
+}
+
+.category-buttons-wrapper {
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 20px;
+}
+
+.category-buttons {
+    display: inline-flex; /* 버튼들을 가로로 나열 */
 }
 
 .category-buttons .v-btn {
