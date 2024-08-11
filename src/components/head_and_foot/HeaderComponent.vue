@@ -5,13 +5,14 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn>여행지 추천</v-btn>
-    <v-btn to="/myPage">나의 일정</v-btn>
+    
 
     <!-- 로그인 여부에 따라 다른 버튼을 보여줌 -->
     <v-btn v-if="!isLogin" @click="redirectToGoogle">로그인</v-btn>
 
     <!-- 로그인이 되어있을 때만 보여지는 버튼과 프로필 이미지 -->
     <template v-if="isLogin">
+      <v-btn to="/myPage">나의 일정</v-btn>
       <v-btn @click="doLogout">로그아웃</v-btn>
       <v-avatar class="ml-2">
         <v-img :src="profileUrl"></v-img>
@@ -46,6 +47,7 @@ export default {
     },
     doLogout() {
       this.$emit('logout');
+      window.location.href="/"
     },
 
   }

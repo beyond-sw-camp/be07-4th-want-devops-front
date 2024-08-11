@@ -90,16 +90,15 @@ export default {
     },
     async handleInvitation(action) {
       if (!this.selectedInvitation) return;
-      console.log(this.selectedInvitation)
       try {
         await axios.post('http://localhost:8088/member/invitations/response', {
           projectId: this.selectedInvitation.projectId,
-          invitationCode: this.selectedInvitation.invitationCode,
           action: action
           });
 
         // 초대 응답 후 처리
         this.invitationList = this.invitationList.filter(invitation => invitation.projectId !== this.selectedInvitation.projectId);
+        console.log(this.invitationList)
         this.modalOpen(); // 모달 닫기
       } catch (e) {
         console.error(e.response?.data || e.message); // 에러 메시지 로그 추가
