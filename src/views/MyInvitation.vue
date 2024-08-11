@@ -1,15 +1,19 @@
 <template>
-  <div class="profile">
-    <v-avatar class="ml-2">
-      <v-img :src="profileUrl"></v-img>
+  <div class="profile" align="center">
+    <v-avatar style="width: 100px; height: 100px;" >
+      <img :src="profileUrl"/>
     </v-avatar>
+    <p class="userName" >{{userName}} </p>
+    <p class="userEmail" >{{userEmail}}</p>
   </div>
-  <div class="title">
+  <v-row>
+    <v-col class="secondTitle" cols="6" align="center">
       <router-link to="myPage">My Project</router-link>
-  </div>
-  <div class="title">
+    </v-col>
+    <v-col class="mainTitle" cols="6" align="center">
       <p>My Invitation</p>
-  </div>
+    </v-col>
+  </v-row>
 
   <div class="section">
     <div class="section2">
@@ -61,7 +65,9 @@ export default {
       invitationList: [],
       modalCheck: false,
       selectedInvitation: null,
-      profileUrl: localStorage.getItem('profileUrl')
+      profileUrl: localStorage.getItem('profileUrl'),
+      userName: localStorage.getItem('name'),
+      userEmail: localStorage.getItem('email'),
     };
   },
   computed: {
@@ -114,11 +120,40 @@ export default {
 };
 </script>
 <style>
+.profile img {
+  width: 100px;
+  height: 100px;
+}
+.profile p {
+  margin: 0;
+}
+.profile .userName {
+  font-weight: 700;
+  font-size: 18px;
+}
+.mainTitle {
+  font-weight: 700;
+  background-color: #f0f0f0;
+  border-top-right-radius: 15px;
+  box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1);
+}
+.mainTitle p {
+  font-size: 18px;
+}
+.secondTitle a{
+  text-decoration-line: none;
+  color: #333;
+}
+.secondTitle a:hover{
+  font-weight: 700;
+  color: #004B6B;
+}
 .section {
   display: flex;
   justify-content: center;   
   height: 100vh;
   width: 100vw;
+  padding: 30px;
   background-color: #f0f0f0;
 }
 .section2 {
@@ -131,10 +166,10 @@ export default {
   background-color: white;
   border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
   box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
-
 }
-.invitation {
-  display: block;
+
+.project {
+  display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -142,34 +177,16 @@ export default {
   padding: 10px;
   border-radius: 4px; 
 }
-.modal-wrap {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+
+.projectImage img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
 }
-/* modal or popup */
-.modal-container {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 550px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24.
-}
-.closeBtn:hover{
-  cursor: pointer;
+
+.projectTitle {
+  font-size: 16px;
+  color: #333;
 }
 </style>

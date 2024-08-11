@@ -1,40 +1,47 @@
 <template>
-  <div class="profile">
-    <v-avatar class="ml-2">
-      <v-img :src="profileUrl"></v-img>
+  <div class="profile" align="center">
+    <v-avatar style="width: 100px; height: 100px;" >
+      <img :src="profileUrl"/>
     </v-avatar>
+    <p class="userName" >{{userName}} </p>
+    <p class="userEmail" >{{userEmail}}</p>
   </div>
-  <div class="title">
-    <p>My Project</p>
-  </div>
-  <div class="title">
-    <router-link to="myInvitation">My Invitation</router-link>
-  </div>
-
+  <v-row>
+    <v-col class="mainTitle" cols="6" align="center">
+      <p>My Project</p>
+    </v-col>
+    <v-col class="secondTitle" cols="6" align="center">
+      <router-link to="myInvitation">My Invitation</router-link>
+    </v-col>
+  </v-row>
   
   <div class="section">
-    
     <div class="section2">
       <!-- 정렬 및 필터링 선택 -->
-      <div class="controls">
-        <label for="sort">Sort by:</label>
-        <select v-model="sortOption" @change="sortProjects">
+      <div class="controls" style="margin: 0 0 0 auto;">
+        <select class="form-select mt-2" v-model="sortOption" @change="sortProjects">
           <option value="createdAtDesc">최근 생성순</option>
           <option value="createdAtAsc">오래전에 생성된 순</option>
           <option value="startTravelAsc">가까운 여행일순</option>
           <option value="startTravelDesc">가장 먼 여행일 순</option>
         </select>
 
-        <label for="filter">Filter by status:</label>
-        <select v-model="filterOption" @change="filterProjects">
+        <select class="form-select mt-2" style="margin-right: 0;" v-model="filterOption" @change="filterProjects">
           <option value="all">전체</option>
           <option value="completed">완료된 여행</option>
           <option value="incomplete">완료되지 않은 여행</option>
         </select>
       </div>
-      <div class="project addBtn">
-        <router-link to="project/create">새로운 프로젝트 생성하기</router-link>
+
+      <!-- 새로운 프로젝트 생성하기 버튼 -->
+      <div class="project plusBtn" @click="toCreateProject">
+          <div class="material-symbols-outlined">
+            add_box
+          </div>
+          <div>새로운 프로젝트 생성하기</div>
       </div>
+
+      <!-- 내 프로젝트 리스트 -->
       <div
         class="project"
         v-for="project in filteredProjects"
@@ -61,13 +68,20 @@ export default {
       filteredProjects: [], // 필터링된 프로젝트 목록
       sortOption: 'createdAtDesc', // 정렬 옵션
       filterOption: 'all', // 필터 옵션
-      profileUrl: localStorage.getItem('profileUrl')
+      profileUrl: localStorage.getItem('profileUrl'),
+      userName: localStorage.getItem('name'),
+      userEmail: localStorage.getItem('email'),
     };
   },
   async created() {
     await this.fetchProjects(); // 페이지 로드 시 프로젝트를 가져옴
+    console.log(localStorage.getItem('name')); // 올바른 값이 출력되는지 확인
+    console.log(localStorage.getItem('email')); // 올바른 값이 출력되는지 확인
   },
   methods: {
+    toCreateProject(){
+      this.$router.push({ path: '/project/create' });
+    },
     async fetchProjects() {
       try {
         const response = await axios.get('http://localhost:8088/api/v1/project/list', {
@@ -114,46 +128,84 @@ export default {
 };
 </script>
 
-  
-  <style>
-  .section {
-    display: flex;
-    justify-content: center;   
-    height: 100vh;
-    width: 100vw;
-    background-color: #f0f0f0;
-  }
-  .section2 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-    width: 60%;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
-  }
-  
-  .project {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    background-color: #e0e0e0;
-    padding: 10px;
-    border-radius: 4px; 
-  }
-  
-  .projectImage img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-  
-  .projectTitle {
-    font-size: 16px;
-    color: #333;
-  }
-  </style>
+<style>
+.profile {
+  padding: 40px;
+}
+.profile img {
+  width: 100px;
+  height: 100px;
+}
+.profile p {
+  margin: 0;
+}
+.profile .userName {
+  font-weight: 700;
+  font-size: 18px;
+}
+.mainTitle {
+  font-weight: 700;
+  background-color: #f0f0f0;
+  border-top-right-radius: 15px;
+  box-shadow: 4px -4px 8px rgba(0, 0, 0, 0.1);
+}
+.mainTitle p {
+  font-size: 18px;
+}
+.secondTitle a{
+  text-decoration-line: none;
+  color: #333;
+}
+.secondTitle a:hover{
+  font-weight: 700;
+  color: #004B6B;
+}
+.section {
+  display: flex;
+  justify-content: center;   
+  height: 100vh;
+  width: 100vw;
+  padding: 30px;
+  background-color: #f0f0f0;
+}
+.section2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 60%;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
+}
+.controls .form-select {
+  font-size: 12px;
+}
+.project {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-radius: 4px; 
+}
+.plusBtn {
+  justify-content: center; 
+}
+.plusBtn:hover {
+  cursor: pointer;
+}
+.projectImage img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.projectTitle {
+  font-size: 16px;
+  color: #333;
+}
+</style>

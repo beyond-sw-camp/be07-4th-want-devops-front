@@ -53,13 +53,16 @@ export default {
         const role = jwtDecode(accessToken).auth;
         console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqq" + jwtDecode(accessToken));
         const profileUrl = jwtDecode(accessToken).profileUrl;
+        const name = jwtDecode(accessToken).name;
+        const email = jwtDecode(accessToken).email;
 
         this.tokenData = validateResponse.data;
         localStorage.setItem('token', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('role', role);
         localStorage.setItem('profileUrl', profileUrl);
-
+        localStorage.setItem('name', name);
+        localStorage.setItem('email', email);
 
         // 로그인 후 홈 페이지로 리디렉션
         this.$router.push('/');
