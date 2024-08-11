@@ -1,7 +1,6 @@
 <template>
     <v-app>
-        <HeaderComponent />
-
+        <!-- <HeaderComponent /> -->
         <v-container class="fill-height">
             <v-row>
                 <v-col cols="12" md="8" class="scheduler-container">
@@ -12,12 +11,23 @@
                         :appointment-template="appointmentTemplate"
                     />
                 </v-col>
-
                 <v-col cols="12" md="4" class="block-list" ref="blockList">
-                    <h2>생성된 블럭들</h2>
+                    <h2>BLOCK LIST</h2>
+                    <!-- 카테고리 필터 버튼 추가 -->
+                    <div class="category-buttons">
+                        <v-btn
+                            v-for="(color, category) in categoryColors"
+                            :key="category"
+                            :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+                            @click="filterByCategory(category)"
+                        >
+                            #{{ category }}
+                        </v-btn>
+                        <v-btn @click="filterByCategory(null)" color="secondary">All</v-btn>
+                    </div>
                     <v-list>
                         <v-list-item
-                            v-for="(block) in sortedDataSource"
+                            v-for="(block) in sortedFilteredDataSource"
                             :key="block.id"
                             :style="getStyle(block.category, block.heartCount)"
                             @click="editBlock(block)"
@@ -30,7 +40,6 @@
                 </v-col>
             </v-row>
         </v-container>
-
         <!-- 블록 정보 입력 모달 -->
         <v-dialog v-model="dialog" max-width="600px">
             <v-card>
@@ -55,25 +64,21 @@
                 </v-card-subtitle>
             </v-card>
         </v-dialog>
-
         <FooterComponent />
     </v-app>
 </template>
-
-
-
 
 <script>
 import "devextreme/dist/css/dx.light.css";
 import { DxScheduler } from "devextreme-vue/scheduler";
 import axios from "axios";
-import HeaderComponent from "@/components/head_and_foot/HeaderComponent.vue";
+// import HeaderComponent from "@/components/head_and_foot/HeaderComponent.vue";
 import FooterComponent from "@/components/head_and_foot/FooterComponent.vue";
 
 export default {
     components: {
         DxScheduler,
-        HeaderComponent,
+        // HeaderComponent,
         FooterComponent,
     },
     data() {
@@ -89,23 +94,35 @@ export default {
             maxHeartCount: 10,
             pageSize: 10,
             hasMoreData: true,
-            dialog: false, // 모달 창 상태 관리
+            dialog: false, // 모달 창 상태 관리. 누르면 true
+            selectedCategory: null, // 선택된 카테고리 상태 추가
+            // 카테고리 색상 정의
+            categoryColors: {
+                SPOT: [255, 182, 193], // 분홍
+                CAFE: [255, 255, 102], // 노랑
+                RESTAURANT: [152, 251, 152], // 초록
+                ETC: [192, 192, 192], // 회색
+            },
         };
     },
 
     computed: {
         sortedDataSource() {
             return this.dataSource ? this.dataSource.slice().sort((a, b) => b.heartCount - a.heartCount) : [];
+        },
+        sortedFilteredDataSource() {
+            if (this.selectedCategory === null) {
+                return this.sortedDataSource;
+            }
+            return this.sortedDataSource.filter(block => block.category === this.selectedCategory);
         }
     },
     methods: {
         async fetchData() {
             if (!this.hasMoreData) return;
-
             try {
                 const projectId = 1;
                 const token = localStorage.getItem("token");
-
                 const response = await axios.get(
                     `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`,
                     {
@@ -118,28 +135,23 @@ export default {
                         },
                     }
                 );
-
                 const blockList = response.data.result;
-
                 if (blockList && Array.isArray(blockList)) {
                     console.log("Fetched data:", blockList);
                     this.dataSource = blockList;
                 } else {
                     console.error("Invalid data format:", blockList);
                 }
-
                 this.hasMoreData = false; // 더 이상의 데이터는 없음
             } catch (error) {
                 console.error("데이터 가져오기 오류:", error);
             }
         },
-
         async onAppointmentUpdated(e) {
             const updatedBlock = e.appointmentData;
             const url = updatedBlock.active
                 ? `/block/addDate`
                 : `/block/${updatedBlock.id}/not/active`;
-
             try {
                 await axios.patch(url, updatedBlock);
             } catch (error) {
@@ -157,13 +169,12 @@ export default {
             this.dataSource.push(newBlock);
             this.selectedBlock = { ...newBlock }; // 새로운 객체로 설정
             this.dialog = true; // 모달 창 열기
-    },
+        },
         async saveBlock() {
             if (!this.selectedBlock.category) {
                 alert("카테고리를 입력해주세요.");
                 return;
             }
-
             try {
                 const requestBody = {
                     projectId: "1",
@@ -181,7 +192,6 @@ export default {
                         },
                     }
                 );
-
                 if (response.status === 200) {
                     alert("블럭이 성공적으로 생성되었습니다.");
                     this.selectedBlock.id = response.data.result;
@@ -203,32 +213,25 @@ export default {
         closeDialog() {
             this.dialog = false; // 모달 창 닫기
         },
-
         appointmentTemplate(data) {
             return {
                 template: `<div class="${data.appointmentData.category}" :style="getStyle(data.appointmentData.category, data.appointmentData.heartCount)">${data.appointmentData.name}</div>`,
             };
         },
 
-
         getStyle(category, heartCount) {
         // 기본 색상 설정
-        const baseColor = {
-            SPOT: [255, 182, 193], // 분홍
-            CAFE: [255, 255, 102], // 노랑
-            RESTAURANT: [152, 251, 152], // 초록
-            ETC: [192, 192, 192], // 회색
-        };
+        const baseColor = this.categoryColors;
 
         // 선택된 카테고리의 기본 색상 가져오기
         const color = baseColor[category] || baseColor['ETC'];
 
         // 색상의 밝기를 조정하기 위한 변수 설정
-        const minFactor = 0.5; // 최소 밝기 계수 (0일 때 색상이 보이도록 설정)
-        const maxFactor = 1.2; // 최대 밝기 계수 (좋아요가 많을 때 색상이 진함)
+        const minFactor = 0.8; // 최소 밝기 계수 (heartCount가 많을 때 밝기)
+        const maxFactor = 1.4; // 최대 밝기 계수 (heartCount가 적을 때 어두움)
 
         // 밝기 계수를 계산 (heartCount에 따라 조정)
-        const lightnessFactor = minFactor + ((this.maxHeartCount - heartCount) / this.maxHeartCount) * (maxFactor - minFactor);
+        const lightnessFactor = minFactor + ((heartCount - 0) / this.maxHeartCount) * (maxFactor - minFactor);
 
         // 색상 조정
         const [r, g, b] = color.map(c => Math.round(c * lightnessFactor));
@@ -241,15 +244,17 @@ export default {
             borderRadius: "5px",
             color: "#000",
         };
-    }
+    },
+
+        filterByCategory(category) {
+            this.selectedCategory = category;
+        }
     },
     mounted() {
         this.fetchData();
     }
 };
 </script>
-
-
 
 
 <style scoped>
@@ -280,5 +285,14 @@ export default {
     margin-top: 10px;
     width: 100%;
 }
-</style>
 
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.category-buttons .v-btn {
+    margin: 0 5px;
+}
+</style>
