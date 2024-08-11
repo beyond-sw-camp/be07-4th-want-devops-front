@@ -38,12 +38,14 @@
             :height="600"
             :start-day-hour="9"
             :editing="true"
+            :on-appointment-updated="onAppointmentUpdated"
           >
             <DxAppointmentDragging
               :group="draggingGroupName"
               :on-remove="onAppointmentRemove"
               :on-add="onAppointmentAdd"
             />
+            <DxEditing :allow-updating="allowUpdating" />
           </DxScheduler>
         </v-col>
         <v-col cols="3" class="block-list-col">
@@ -82,7 +84,8 @@ import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import DxScheduler, {
-  DxAppointmentDragging, // 여기서 import
+  DxAppointmentDragging,
+  DxEditing, // 여기서 import
 } from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
@@ -92,11 +95,6 @@ import axios from "axios";
 const store = useStore();
 const route = useRoute();
 const projectId = route.params.projectId;
-if (!projectId || isNaN(projectId)) {
-  console.error("Invalid projectId:", projectId);
-} else {
-  console.log("Valid projectId:", projectId);
-}
 const draggingGroupName = ref("appointmentsGroup");
 const views = ref([]);
 const currentDate = ref(new Date());
@@ -232,6 +230,25 @@ async function onAppointmentAdd(e) {
   }
 }
 
+async function onAppointmentUpdated(e) {
+  const updatedAppointment = e.appointmentData;
+  const appoitnmentId = updatedAppointment.blockId;
+  const updateStartTime = updatedAppointment.startDate.toISOString(); // 변경된 시작 시간
+  const updateEndTime = updatedAppointment.endDate.toISOString(); // 변경된 시작 시간
+
+  try {
+    // 서버로 업데이트 된 데이터를 전송하여 DB에 반영
+    await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`, {
+      blockId: appoitnmentId,
+      startTime: updateStartTime,
+      endTime: updateEndTime,
+    });
+    console.log("Success!");
+  } catch (e) {
+    console.error("Failed to update ", e);
+  }
+}
+
 function onListDragStart(e) {
   console.log("onItemDragStart - itemData:", e.itemData);
   e.itemData = e.fromData;
@@ -272,13 +289,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.header-row {
-  margin-top: 40px;
-  height: 80px;
-}
-
 .project-title {
-  font-size: 50px;
+  font-size: 40px;
 }
 
 .project-location {
@@ -290,14 +302,14 @@ onMounted(() => {
 }
 
 #scheduler {
-  max-width: calc(100% - 20px); /* 스케줄러 너비 조정 */
+  width: 1000px;
 }
 
 .block-list-col {
   padding: 0;
   position: absolute;
   right: 0;
-  top: 64px;
+  top: 2px;
   bottom: 0;
   width: 300px; /* 고정된 너비 */
   background-color: #424242;
@@ -308,19 +320,14 @@ onMounted(() => {
   padding: 16px;
 }
 
-.v-card {
-  padding: 10px; /* 카드 안쪽 여백 */
-  margin-bottom: 10px; /* 블럭 간 간격 */
-  width: 200px; /* 블럭의 너비 */
-  height: 100px; /* 블럭의 높이 */
-  border-radius: 10px; /* 모서리를 둥글게 */
-}
 .item {
   width: 100%;
+  height: 80px;
   color: var(--dx-color-text);
   background-color: var(--dx-component-color-bg);
   box-sizing: border-box;
   padding: 0px 0px;
+  text-align: center;
 }
 
 .dx-draggable-source {
