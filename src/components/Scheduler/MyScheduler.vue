@@ -55,8 +55,11 @@
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              data="dropArea"
+              data="tasks.length > 0 ? 'dropArea' : 'emptyArea'"
             >
+              <div v-if="tasks.length === 0" class="empty-list">
+                Drop here to add to the list
+              </div>
               <DxDraggable
                 v-for="task in tasks"
                 :key="task.blockId"
@@ -164,41 +167,63 @@ function handleLogout() {
   // Additional logout handling if necessary
 }
 
-function onAppointmentRemove({ itemData }) {
+async function onAppointmentRemove({ itemData }) {
+  console.log("Removing appointment:", itemData);
+
   const index = appointments.value.indexOf(itemData);
 
   if (index >= 0) {
-    appointments.value.splice(index, 1);
-    tasks.value.push(itemData);
+    const blockId = itemData.blockId;
+    const originalStartTime = itemData.startDate.toISOString();
+    const originalEndTime = itemData.endDate.toISOString();
+
+    try {
+      const response = await axios.patch(
+        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
+        {
+          blockId: blockId,
+          startTime: originalStartTime,
+          endTime: originalEndTime,
+        }
+      );
+
+      console.log("API Response:", response);
+
+      appointments.value = [...appointments.value];
+      appointments.value.splice(index, 1);
+      tasks.value = [...tasks.value, itemData];
+    } catch (error) {
+      console.error("Failed to update block:", error);
+    }
   }
 }
 
 async function onAppointmentAdd(e) {
-  console.log("itemData:", e.itemData);
-  console.log("startDate:", e.itemData.startDate);
-  console.log("endDate:", e.itemData.endDate);
+  // console.log("itemData:", e.itemData);
+  // console.log("startDate:", e.itemData.startDate);
+  // console.log("endDate:", e.itemData.endDate);
 
+  console.log("Before tv :", tasks.value);
+  console.log("Before av :", appointments.value);
   if (e.fromData) {
     const index = tasks.value.indexOf(e.fromData);
 
     if (index >= 0) {
-      tasks.value.splice(index, 1);
-
       const blockId = e.itemData.blockId;
       const originalStartTime = e.itemData.startDate.toISOString();
       const originalEndTime = e.itemData.endDate.toISOString();
 
-      console.log("Start DateTime:", originalStartTime);
-      console.log("End DateTime:", originalEndTime);
+      // console.log("Start DateTime:", originalStartTime);
+      // console.log("End DateTime:", originalEndTime);
 
-      console.log(
-        "list : " +
-          {
-            blockId: e.fromData.blockId,
-            startTime: e.itemData.startDate,
-            endTime: e.itemData.endDate,
-          }
-      );
+      // console.log(
+      //   "list : " +
+      //     {
+      //       blockId: e.fromData.blockId,
+      //       startTime: e.itemData.startDate,
+      //       endTime: e.itemData.endDate,
+      //     }
+      // );
 
       // const updatedAppointment = await store.dispatch(
       //   "updateBlockDates",
@@ -218,14 +243,13 @@ async function onAppointmentAdd(e) {
 
       console.log(response);
 
-      // if (updatedAppointment) {
-      // appointments.value.push({
-      // ...updatedAppointment,
-      // startDate: updatedAppointment.startDate,
-      // endDate: updatedAppointment.endDate,
-      // });
-      // console.log("Appointment added:", updatedAppointment);
-      // }
+      if (index >= 0) {
+        tasks.value = [...tasks.value];
+        tasks.value.splice(index, 1);
+        appointments.value = [...appointments.value, e.itemData];
+      }
+      console.log("after tv :", tasks.value);
+      console.log("after av :", appointments.value);
     }
   } else {
     console.error("fromData is null or undefined in onAppointmentAdd");
