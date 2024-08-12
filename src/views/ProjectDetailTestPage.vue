@@ -53,12 +53,10 @@
     </div>
 
     <br><br><br>
-<!-- 좌표정보를 업데이트 하는 곳-->
-    <div>
-      <button @click="openInviteModal"> +버튼 </button>
-    </div>
+    <!-- 멤버 초대 모달 버튼 -->
+    <button @click="openInviteModal"> +버튼</button>
 
-    <CustomModal model-value="isInviteModalOpen">
+    <CustomModal v-model:modelValue="isInviteModalOpen">
       <div class="modal-content">
         <p class="modal-title">Invite</p>
         <v-text-field
@@ -88,12 +86,12 @@ export default {
       projectId: null,
       isModalOpen: false,
       isDateModalOpen: false,
+      isInviteModalOpen: false,
       modalTitle: '',
       startTravel: '',
       endTravel: '',
       inviteMemberEmail: '',
 
-      isInviteModalOpen: false
     };
   },
   created() {
@@ -144,7 +142,7 @@ export default {
         const response = await axios.patch(`http://localhost:8088/api/v1/project/${this.projectId}/update/travel-dates`, request);
         console.log('Response:', response);
         this.isDateModalOpen = false;
-        console.log('Saving dates:', { startTravel: this.startTravel, endTravel: this.endTravel });
+        console.log('Saving dates:', {startTravel: this.startTravel, endTravel: this.endTravel});
       } catch (error) {
         console.error('Error updating project dates:', error);
         alert('서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
@@ -154,24 +152,25 @@ export default {
     openDateModal() {
       this.isDateModalOpen = true;
     },
-    openInviteModal(){
-      this.isInviteModalOpen = true;
-    },
+
     async updateMemberInvite() {
       const request = {
+        projectId : this.projectId,
         email: this.inviteMemberEmail,
       };
       console.log('Inviting member with:', request);
       try {
-        const response = await axios.post(`http://localhost:8088/api/v1/project/${this.projectId}/invite`, request);
-        console.log('Response:', response);
+        const response = await axios.post(`http://localhost:8088/api/v1/project/invite`, request);
         this.isInviteModalOpen = false;
+        console.log('Response:', response);
       } catch (error) {
-        console.error('Error inviting member:', error);
-        alert('서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
+        console.error('Error inviting member:', error.response.data.status_message);
       }
-    }
+    },
 
+    openInviteModal() {
+      this.isInviteModalOpen = true;
+    },
 
 
   }
@@ -202,7 +201,6 @@ export default {
   padding: 10px;
   margin-bottom: 20px;
 }
-
 
 
 </style>
