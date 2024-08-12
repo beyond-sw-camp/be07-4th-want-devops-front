@@ -18,7 +18,6 @@
   <div class="section">
     <div class="sectionProject">
       <div class="filter">
-        <!-- 정렬 및 필터링 선택 -->
         <div class="controls" style="display: flex; justify-content: flex-end;">
           <select class="form-select mt-2" v-model="sortOption" @change="sortProjects">
             <option value="createdAtDesc">최근 생성순</option>
@@ -36,21 +35,17 @@
       </div>
 
       <div class="projectList">
-        <!-- 프로젝트 리스트 -->
         <div class="projectGrid">
-          <!-- 새로운 프로젝트 생성하기 버튼 -->
           <div class="projectCard plusBtn" @click="toCreateProject">
             <div class="material-symbols-outlined">add_box</div>
             <div>새로운 프로젝트 생성하기</div>
           </div>
 
-          <!-- 내 프로젝트 리스트 -->
           <div
             class="projectCard"
             v-for="project in filteredProjects"
             :key="project.projectId"
           >
-            <!-- 탈퇴하기 메뉴 -->
             <div class="modalContainer">
               <span class="material-symbols-outlined moreBtn" @click="toggleMenu(project.projectId)">
                 more_horiz
@@ -62,18 +57,25 @@
                 </div>
               </div>
             </div>
-            <!-- 프로젝트 썸네일 -->
             <div class="projectImage">
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
-            <!-- 프로젝트 제목 -->
             <div class="projectTitle">{{ project.projectTitle }}</div>
+            <div class="projectDate">
+              {{ project.startTravel }} ~ {{ project.endTravel }}
+            </div>
+            <div class="projectCreated">
+              생성된 날짜: {{ new Date(project.createdTime).toLocaleDateString() }}
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+
+
 
 <script>
 import axios from 'axios';
@@ -88,12 +90,20 @@ export default {
       activeMenu: null, // 활성화된 메뉴의 ID
       profileUrl: "",
       userName: "",
-      userEmail: ""
+      userEmail: "",
+      currentPage: 0, // 현재 페이지
+      pageSize: 8, // 페이지당 항목 수
+      isLastPage: false, // 마지막 페이지 여부
+      isLoading: false, // 로딩 상태
     };
   },
   async created() {
     await this.fetchProjects(); // 페이지 로드 시 프로젝트를 가져옴
     await this.getMyInfo();
+    window.addEventListener('scroll', this.scrollPagination); // 스크롤 이벤트 리스너 추가
+  },
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.scrollPagination); // 스크롤 이벤트 리스너 제거
   },
   methods: {
     async getMyInfo() {
@@ -110,32 +120,41 @@ export default {
       this.$router.push({ path: '/project/create' });
     },
     async fetchProjects() {
+      if (this.isLoading || this.isLastPage) return;
+      this.isLoading = true;
       try {
-        const response = await axios.get('http://localhost:8088/api/v1/project/list', {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/list`, {
           params: {
-            page: 0,
-            size: 11,
+            page: this.currentPage,
+            size: this.pageSize,
             filter: this.filterOption,
           },
         });
-        this.projectList = response.data.result.content;
-        this.filterProjects(); // 데이터를 필터링하고 정렬 수행
+        const newProjects = response.data.result.content;
+
+        if (newProjects.length === 0) {
+          this.isLastPage = true;
+        } else {
+          this.projectList = [...this.projectList, ...newProjects];
+          this.filterProjects(); // 데이터를 필터링하고 정렬 수행
+          this.currentPage++;
+        }
       } catch (e) {
         console.log(e);
+      } finally {
+        this.isLoading = false;
       }
     },
-
     filterProjects() {
       if (this.filterOption === 'completed') {
         this.filteredProjects = this.projectList.filter((project) => project.isDone === 'Y');
       } else if (this.filterOption === 'incomplete') {
         this.filteredProjects = this.projectList.filter((project) => project.isDone === 'N');
       } else {
-        this.filteredProjects = this.projectList;
+        this.filteredProjects = [...this.projectList];
       }
       this.sortProjects(); // 필터링 후 정렬
     },
-
     sortProjects() {
       const sortOption = this.sortOption;
       if (sortOption === 'createdAtDesc') {
@@ -148,7 +167,12 @@ export default {
         this.filteredProjects.sort((a, b) => new Date(b.startTravel) - new Date(a.startTravel));
       }
     },
-
+    scrollPagination() {
+      const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+      if (isBottom && !this.isLastPage && !this.isLoading) {
+        this.fetchProjects(); // 스크롤이 바닥에 닿으면 다음 페이지의 데이터를 로드
+      }
+    },
     toggleMenu(projectId) {
       if (this.activeMenu === projectId) {
         this.activeMenu = null; // 메뉴가 이미 활성화되어 있으면 비활성화
@@ -159,6 +183,9 @@ export default {
   },
 };
 </script>
+
+
+
 
 <style>
 .profile {
@@ -195,8 +222,9 @@ export default {
 .section {
   display: flex;
   justify-content: center;
-  height: 100vh;
+  align-items: flex-start; /* 상단 정렬 */
   width: 100vw;
+  min-height: 100vh; /* 최소 높이를 화면의 100%로 설정하여 전체 높이 보장 */
   padding: 30px;
   background-color: #f0f0f0;
 }
@@ -209,6 +237,7 @@ export default {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* 높이 자동 조정 */
 }
 .controls {
   display: flex;
@@ -255,6 +284,20 @@ export default {
   color: #333;
   text-align: center;
 }
+.projectDate {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.projectCreated {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #777;
+  text-align: center;
+}
+
 .modalContainer {
   position: relative;
   width: 100%;
@@ -286,7 +329,6 @@ export default {
 .menu-item span {
   font-weight: 300;
 }
-
 
 .plusBtn {
   justify-content: center;

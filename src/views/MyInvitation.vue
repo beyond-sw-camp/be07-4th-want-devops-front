@@ -108,7 +108,7 @@ export default {
     async handleInvitation(action) {
       if (!this.selectedInvitation) return;
       try {
-        await axios.post('http://localhost:8088/member/invitations/response', {
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/member/invitations/response`, {
           projectId: this.selectedInvitation.projectId,
           action: action
           });
