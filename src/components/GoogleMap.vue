@@ -9,6 +9,9 @@
         <p><strong>Latitude:</strong> {{ placeInfo.lat }}</p>
         <p><strong>Longitude:</strong> {{ placeInfo.lng }}</p>
       </div>
+      <v-row justify="left">
+        <v-btn color="secondary" @click="updateLocation">SAVE</v-btn>
+      </v-row>
     </div>
   </div>
 </template>
@@ -16,6 +19,7 @@
 <script>
 import { onMounted, ref } from 'vue';
 import { loadGoogleMapsApi } from '@/plugins/google-maps'; // plugins 폴더의 경로에 맞게 수정
+import axios from 'axios';
 
 export default {
   setup() {
@@ -58,7 +62,7 @@ export default {
           strictBounds: false,
         };
 
-        autocomplete = new Places.Autocomplete(input, options);
+        autocomplete = new googleMaps.places.Autocomplete(input, options);
         console.log('Autocomplete instance:', autocomplete);
 
         // 장소 변경 이벤트 리스너 추가
@@ -118,11 +122,11 @@ export default {
 
         // 나라에 따라 지도의 중심 변경 (기본적으로 나라 코드에 따라 대표 도시의 위도를 설정해 줍니다.)
         const centers = {
-          'kr': { lat: 37.5665, lng: 126.9780 }, // 서울
-          'us': { lat: 37.7749, lng: -122.4194 }, // 샌프란시스코
-          'jp': { lat: 35.6895, lng: 139.6917 }, // 도쿄
-          'fr': { lat: 48.8566, lng: 2.3522 }, // 파리
-          'tw': { lat: 25.0330, lng: 121.5654 }, // 타이베이
+          'kr': {lat: 37.5665, lng: 126.9780}, // 서울
+          'us': {lat: 37.7749, lng: -122.4194}, // 샌프란시스코
+          'jp': {lat: 35.6895, lng: 139.6917}, // 도쿄
+          'fr': {lat: 48.8566, lng: 2.3522}, // 파리
+          'tw': {lat: 25.0330, lng: 121.5654}, // 타이베이
           // 필요에 따라 더 많은 나라의 위도를 추가할 수 있습니다.
         };
 
@@ -135,7 +139,31 @@ export default {
       }
     };
 
-    return { mapContainer, placeInfo, country, updateCountry };
+    return {mapContainer, placeInfo, country, updateCountry};
+  },
+  data() {
+    return {
+      blockId: null
+    };
+  },
+  created() {
+    this.blockId = this.$route.params.blockId;
+  },
+  methods: {
+    async updateLocation() {
+      const request = {
+        placeName: this.placeInfo.name,
+        latitude: this.placeInfo.lat,
+        longitude: this.placeInfo.lng
+      };
+      try {
+        const response = await axios.patch(`http://localhost:8088/api/v1/block/${this.blockId}/update`, request);
+        console.log('Location updated:', response.data);
+        this.placeName = response.data.result.placeName;
+      } catch (e) {
+        console.error('Error updating location:', e);
+      }
+    }
   }
 };
 </script>
