@@ -51,6 +51,26 @@
       <p><strong>Start Date:</strong> {{ startTravel }}</p>
       <p><strong>End Date:</strong> {{ endTravel }}</p>
     </div>
+
+    <br><br><br>
+<!-- 좌표정보를 업데이트 하는 곳-->
+    <div>
+      <button @click="openInviteModal"> +버튼 </button>
+    </div>
+
+    <CustomModal model-value="isInviteModalOpen">
+      <div class="modal-content">
+        <p class="modal-title">Invite</p>
+        <v-text-field
+            v-model="inviteMemberEmail"
+            label="Email"
+            placeholder="Enter email"
+            class="modal-input"
+        />
+        <v-btn color="primary" @click="updateMemberInvite">DONE!</v-btn>
+      </div>
+    </CustomModal>
+
   </div>
 </template>
 
@@ -70,7 +90,10 @@ export default {
       isDateModalOpen: false,
       modalTitle: '',
       startTravel: '',
-      endTravel: ''
+      endTravel: '',
+      inviteMemberEmail: '',
+
+      isInviteModalOpen: false
     };
   },
   created() {
@@ -131,6 +154,25 @@ export default {
     openDateModal() {
       this.isDateModalOpen = true;
     },
+    openInviteModal(){
+      this.isInviteModalOpen = true;
+    },
+    async updateMemberInvite() {
+      const request = {
+        email: this.inviteMemberEmail,
+      };
+      console.log('Inviting member with:', request);
+      try {
+        const response = await axios.post(`http://localhost:8088/api/v1/project/${this.projectId}/invite`, request);
+        console.log('Response:', response);
+        this.isInviteModalOpen = false;
+      } catch (error) {
+        console.error('Error inviting member:', error);
+        alert('서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
+      }
+    }
+
+
 
   }
 };
