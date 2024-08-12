@@ -51,7 +51,7 @@
                 more_horiz
               </span>
               <div class="menu" v-if="activeMenu === project.projectId">
-                <div class="menu-item">
+                <div class="menu-item" @click="showConfirmationModal(project)">
                   <span class="material-symbols-outlined">delete</span>
                   <span>탈퇴하기</span>
                 </div>
@@ -72,7 +72,20 @@
       </div>
     </div>
   </div>
+
+  <!-- Confirmation Modal -->
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal-content">
+      <p>정말 탈퇴하시겠습니까?</p>
+      <p>프로젝트 제목: {{ currentProject?.projectTitle }}</p>
+      <div class="modal-buttons">
+        <button @click="confirmDeletion">탈퇴하기</button>
+        <button @click="closeModal">취소</button>
+      </div>
+    </div>
+  </div>
 </template>
+
 
 
 
@@ -84,26 +97,28 @@ export default {
   data() {
     return {
       projectList: [],
-      filteredProjects: [], // 필터링된 프로젝트 목록
-      sortOption: 'createdAtDesc', // 정렬 옵션
-      filterOption: 'all', // 필터 옵션
-      activeMenu: null, // 활성화된 메뉴의 ID
+      filteredProjects: [],
+      sortOption: 'createdAtDesc',
+      filterOption: 'all',
+      activeMenu: null,
       profileUrl: "",
       userName: "",
       userEmail: "",
-      currentPage: 0, // 현재 페이지
-      pageSize: 8, // 페이지당 항목 수
-      isLastPage: false, // 마지막 페이지 여부
-      isLoading: false, // 로딩 상태
+      currentPage: 0,
+      pageSize: 8,
+      isLastPage: false,
+      isLoading: false,
+      showModal: false,
+      currentProject: null, // 현재 탈퇴할 프로젝트
     };
   },
   async created() {
-    await this.fetchProjects(); // 페이지 로드 시 프로젝트를 가져옴
+    await this.fetchProjects();
     await this.getMyInfo();
-    window.addEventListener('scroll', this.scrollPagination); // 스크롤 이벤트 리스너 추가
+    window.addEventListener('scroll', this.scrollPagination);
   },
   beforeUnmount() {
-    window.removeEventListener('scroll', this.scrollPagination); // 스크롤 이벤트 리스너 제거
+    window.removeEventListener('scroll', this.scrollPagination);
   },
   methods: {
     async getMyInfo() {
@@ -136,7 +151,7 @@ export default {
           this.isLastPage = true;
         } else {
           this.projectList = [...this.projectList, ...newProjects];
-          this.filterProjects(); // 데이터를 필터링하고 정렬 수행
+          this.filterProjects(); // 필터링을 적용
           this.currentPage++;
         }
       } catch (e) {
@@ -153,7 +168,7 @@ export default {
       } else {
         this.filteredProjects = [...this.projectList];
       }
-      this.sortProjects(); // 필터링 후 정렬
+      this.sortProjects(); // 정렬을 적용
     },
     sortProjects() {
       const sortOption = this.sortOption;
@@ -170,14 +185,32 @@ export default {
     scrollPagination() {
       const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
       if (isBottom && !this.isLastPage && !this.isLoading) {
-        this.fetchProjects(); // 스크롤이 바닥에 닿으면 다음 페이지의 데이터를 로드
+        this.fetchProjects();
       }
     },
     toggleMenu(projectId) {
       if (this.activeMenu === projectId) {
-        this.activeMenu = null; // 메뉴가 이미 활성화되어 있으면 비활성화
+        this.activeMenu = null;
       } else {
-        this.activeMenu = projectId; // 다른 메뉴를 활성화
+        this.activeMenu = projectId;
+      }
+    },
+    showConfirmationModal(project) {
+      this.currentProject = project;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.currentProject = null;
+    },
+    async confirmDeletion() {
+      try {
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${this.currentProject.projectId}`);
+        this.$router.go(); // 현재 페이지를 새로고침
+      } catch (e) {
+        console.log(e);
+      } finally {
+        this.closeModal(); // 모달 닫기
       }
     }
   },
@@ -187,7 +220,9 @@ export default {
 
 
 
+
 <style>
+/* 기존 스타일 */
 .profile {
   padding: 40px;
 }
@@ -222,9 +257,9 @@ export default {
 .section {
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* 상단 정렬 */
+  align-items: flex-start;
   width: 100vw;
-  min-height: 100vh; /* 최소 높이를 화면의 100%로 설정하여 전체 높이 보장 */
+  min-height: 100vh;
   padding: 30px;
   background-color: #f0f0f0;
 }
@@ -237,11 +272,10 @@ export default {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* 높이 자동 조정 */
 }
 .controls {
   display: flex;
-  justify-content: flex-end; /* 컨트롤을 오른쪽 끝으로 정렬 */
+  justify-content: flex-end;
   gap: 10px;
 }
 .controls .form-select {
@@ -253,8 +287,8 @@ export default {
 }
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개의 아이템 */
-  gap: 20px; /* 카드 간의 간격 */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   margin-top: 20px;
 }
 .projectCard {
@@ -268,7 +302,7 @@ export default {
   transition: transform 0.2s;
 }
 .projectCard:hover {
-  transform: translateY(-5px); /* 호버 시 살짝 올라가는 효과 */
+  transform: translateY(-5px);
   cursor: pointer;
 }
 .projectImage img {
@@ -290,7 +324,6 @@ export default {
   color: #555;
   text-align: center;
 }
-
 .projectCreated {
   margin-top: 5px;
   font-size: 12px;
@@ -301,15 +334,15 @@ export default {
 .modalContainer {
   position: relative;
   width: 100%;
-  text-align: right; /* 버튼을 오른쪽으로 이동 */
+  text-align: right;
 }
 .modalContainer .menu {
   font-size: 15px;
   position: absolute;
   width: 105px;
-  right: 0; /* 오른쪽으로 메뉴 정렬 */
-  background-color: white; /* 메뉴의 배경색을 흰색으로 설정 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 메뉴에 그림자 추가 */
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   padding: 10px;
   z-index: 10;
   border-radius: 3px;
@@ -319,17 +352,15 @@ export default {
 }
 .menu-item {
   display: flex;
-  align-items: center; /* 요소들을 수평 가운데 정렬 */
-  gap: 3px; /* 아이콘과 텍스트 사이의 간격 */
+  align-items: center;
+  gap: 3px;
 }
 .menu-item:hover {
   color: red;
 }
-
 .menu-item span {
   font-weight: 300;
 }
-
 .plusBtn {
   justify-content: center;
   background-color: #c0c0c0;
@@ -344,6 +375,57 @@ export default {
   font-weight: 700;
   color: #333;
   text-align: center;
+}
+
+/* 수정된 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999; /* 모달이 다른 요소 위에 표시되도록 높은 z-index 설정 */
+}
+
+.modal-content {
+  background-color: white !important;
+  padding: 20px;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 500px !important; /* 모달의 가로 폭을 500px로 설정 */
+  z-index: 1000; /* 모달 내용이 overlay 위에 표시되도록 설정 */
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button:hover {
+  background-color: #0056b3;
+}
+
+.modal-buttons button:nth-child(2) {
+  background-color: #6c757d;
+}
+
+.modal-buttons button:nth-child(2):hover {
+  background-color: #5a6268;
 }
 
 </style>
