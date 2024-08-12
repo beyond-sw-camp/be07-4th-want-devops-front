@@ -50,19 +50,24 @@
             v-for="project in filteredProjects"
             :key="project.projectId"
           >
+            <!-- 탈퇴하기 메뉴 -->
+            <div class="modalContainer">
+              <span class="material-symbols-outlined moreBtn" @click="toggleMenu(project.projectId)">
+                more_horiz
+              </span>
+              <div class="menu" v-if="activeMenu === project.projectId">
+                <div class="menu-item">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span>탈퇴하기</span>
+                </div>
+              </div>
+            </div>
             <!-- 프로젝트 썸네일 -->
             <div class="projectImage">
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
             <!-- 프로젝트 제목 -->
             <div class="projectTitle">{{ project.projectTitle }}</div>
-            <!-- 탈퇴하기 메뉴 -->
-            <div class="modalContainer">
-              <span class="material-symbols-outlined moreBtn">
-                more_horiz
-              </span>
-              <div class="menu">탈퇴하기</div>
-            </div>
           </div>
         </div>
       </div>
@@ -80,6 +85,7 @@ export default {
       filteredProjects: [], // 필터링된 프로젝트 목록
       sortOption: 'createdAtDesc', // 정렬 옵션
       filterOption: 'all', // 필터 옵션
+      activeMenu: null, // 활성화된 메뉴의 ID
       profileUrl: "",
       userName: "",
       userEmail: ""
@@ -140,6 +146,14 @@ export default {
         this.filteredProjects.sort((a, b) => new Date(a.startTravel) - new Date(b.startTravel));
       } else if (sortOption === 'startTravelDesc') {
         this.filteredProjects.sort((a, b) => new Date(b.startTravel) - new Date(a.startTravel));
+      }
+    },
+
+    toggleMenu(projectId) {
+      if (this.activeMenu === projectId) {
+        this.activeMenu = null; // 메뉴가 이미 활성화되어 있으면 비활성화
+      } else {
+        this.activeMenu = projectId; // 다른 메뉴를 활성화
       }
     }
   },
@@ -244,18 +258,36 @@ export default {
 .modalContainer {
   position: relative;
   width: 100%;
-  text-align: center;
+  text-align: right; /* 버튼을 오른쪽으로 이동 */
 }
 .modalContainer .menu {
+  font-size: 15px;
   position: absolute;
-  width: 100%;
-  background-color: yellow;
-  display: none;
-  top: 20px;
+  width: 105px;
+  right: 0; /* 오른쪽으로 메뉴 정렬 */
+  background-color: white; /* 메뉴의 배경색을 흰색으로 설정 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 메뉴에 그림자 추가 */
+  padding: 10px;
+  z-index: 10;
+  border-radius: 3px;
 }
-.modalContainer .moreBtn:hover + .menu {
-  display: block;
+.moreBtn {
+  cursor: pointer;
 }
+.menu-item {
+  display: flex;
+  align-items: center; /* 요소들을 수평 가운데 정렬 */
+  gap: 3px; /* 아이콘과 텍스트 사이의 간격 */
+}
+.menu-item:hover {
+  color: red;
+}
+
+.menu-item span {
+  font-weight: 300;
+}
+
+
 .plusBtn {
   justify-content: center;
   background-color: #c0c0c0;
@@ -271,4 +303,5 @@ export default {
   color: #333;
   text-align: center;
 }
+
 </style>
