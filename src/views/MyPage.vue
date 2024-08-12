@@ -1,10 +1,10 @@
 <template>
   <div class="profile" align="center">
-    <v-avatar style="width: 100px; height: 100px;" >
-      <img :src="profileUrl"/>
+    <v-avatar style="width: 100px; height: 100px;">
+      <img :src="profileUrl" />
     </v-avatar>
-    <p class="userName" >{{userName}} </p>
-    <p class="userEmail" >{{userEmail}}</p>
+    <p class="userName">{{ userName }}</p>
+    <p class="userEmail">{{ userEmail }}</p>
   </div>
   <v-row>
     <v-col class="mainTitle" cols="6" align="center">
@@ -14,44 +14,56 @@
       <router-link to="myInvitation">My Invitation</router-link>
     </v-col>
   </v-row>
-  
+
   <div class="section">
-    <div class="section2">
-      <!-- 정렬 및 필터링 선택 -->
-      <div class="controls" style="margin: 0 0 0 auto;">
-        <select class="form-select mt-2" v-model="sortOption" @change="sortProjects">
-          <option value="createdAtDesc">최근 생성순</option>
-          <option value="createdAtAsc">오래전에 생성된 순</option>
-          <option value="startTravelAsc">가까운 여행일순</option>
-          <option value="startTravelDesc">가장 먼 여행일 순</option>
-        </select>
+    <div class="sectionProject">
+      <div class="filter">
+        <!-- 정렬 및 필터링 선택 -->
+        <div class="controls" style="display: flex; justify-content: flex-end;">
+          <select class="form-select mt-2" v-model="sortOption" @change="sortProjects">
+            <option value="createdAtDesc">최근 생성순</option>
+            <option value="createdAtAsc">오래전에 생성된 순</option>
+            <option value="startTravelAsc">가까운 여행일순</option>
+            <option value="startTravelDesc">가장 먼 여행일 순</option>
+          </select>
 
-        <select class="form-select mt-2" style="margin-right: 0;" v-model="filterOption" @change="filterProjects">
-          <option value="all">전체</option>
-          <option value="completed">완료된 여행</option>
-          <option value="incomplete">완료되지 않은 여행</option>
-        </select>
-      </div>
-
-      <!-- 새로운 프로젝트 생성하기 버튼 -->
-      <div class="project plusBtn" @click="toCreateProject">
-          <div class="material-symbols-outlined">
-            add_box
-          </div>
-          <div>새로운 프로젝트 생성하기</div>
-      </div>
-
-      <!-- 내 프로젝트 리스트 -->
-      <div
-        class="project"
-        v-for="project in filteredProjects"
-        :key="project.projectId"
-      >
-        <div class="projectImage">
-          <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
+          <select class="form-select mt-2" v-model="filterOption" @change="filterProjects">
+            <option value="all">전체</option>
+            <option value="completed">완료된 여행</option>
+            <option value="incomplete">완료되지 않은 여행</option>
+          </select>
         </div>
-        <div class="projectTitle">
-          {{ project.projectTitle }}
+      </div>
+
+      <div class="projectList">
+        <!-- 프로젝트 리스트 -->
+        <div class="projectGrid">
+          <!-- 새로운 프로젝트 생성하기 버튼 -->
+          <div class="projectCard plusBtn" @click="toCreateProject">
+            <div class="material-symbols-outlined">add_box</div>
+            <div>새로운 프로젝트 생성하기</div>
+          </div>
+
+          <!-- 내 프로젝트 리스트 -->
+          <div
+            class="projectCard"
+            v-for="project in filteredProjects"
+            :key="project.projectId"
+          >
+            <!-- 프로젝트 썸네일 -->
+            <div class="projectImage">
+              <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
+            </div>
+            <!-- 프로젝트 제목 -->
+            <div class="projectTitle">{{ project.projectTitle }}</div>
+            <!-- 탈퇴하기 메뉴 -->
+            <div class="modalContainer">
+              <span class="material-symbols-outlined moreBtn">
+                more_horiz
+              </span>
+              <div class="menu">탈퇴하기</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -78,17 +90,17 @@ export default {
     await this.getMyInfo();
   },
   methods: {
-    async getMyInfo(){
+    async getMyInfo() {
       try {
         const response = await axios.get('http://localhost:8088/member/me');
         this.profileUrl = response.data.profileUrl;
         this.userName = response.data.name;
         this.userEmail = response.data.email;
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     },
-    toCreateProject(){
+    toCreateProject() {
       this.$router.push({ path: '/project/create' });
     },
     async fetchProjects() {
@@ -108,9 +120,6 @@ export default {
     },
 
     filterProjects() {
-      // invitationAccepted가 'N'인 경우만 필터링
-      // this.filteredProjects = this.projectList.filter(project => project.invitationAccepted !== 'N');
-      console.log(this.projectList)
       if (this.filterOption === 'completed') {
         this.filteredProjects = this.projectList.filter((project) => project.isDone === 'Y');
       } else if (this.filterOption === 'incomplete') {
@@ -161,60 +170,105 @@ export default {
 .mainTitle p {
   font-size: 18px;
 }
-.secondTitle a{
+.secondTitle a {
   text-decoration-line: none;
   color: #333;
 }
-.secondTitle a:hover{
+.secondTitle a:hover {
   font-weight: 700;
   color: #004B6B;
 }
 .section {
   display: flex;
-  justify-content: center;   
+  justify-content: center;
   height: 100vh;
   width: 100vw;
   padding: 30px;
   background-color: #f0f0f0;
 }
-.section2 {
+.sectionProject {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 20px;
   width: 60%;
   padding: 20px;
   background-color: white;
-  border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.controls {
+  display: flex;
+  justify-content: flex-end; /* 컨트롤을 오른쪽 끝으로 정렬 */
+  gap: 10px;
 }
 .controls .form-select {
+  width: 150px;
   font-size: 12px;
 }
-.project {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.projectList {
   width: 100%;
+}
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개의 아이템 */
+  gap: 20px; /* 카드 간의 간격 */
+  margin-top: 20px;
+}
+.projectCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
   background-color: #e0e0e0;
-  padding: 10px;
-  border-radius: 4px; 
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
-.plusBtn {
-  justify-content: center; 
-}
-.plusBtn:hover {
+.projectCard:hover {
+  transform: translateY(-5px); /* 호버 시 살짝 올라가는 효과 */
   cursor: pointer;
 }
 .projectImage img {
-  width: 50px;
-  height: 50px;
+  width: 100%;
+  height: 150px;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 8px;
 }
-
 .projectTitle {
+  margin-top: 10px;
   font-size: 16px;
+  font-weight: 700;
   color: #333;
+  text-align: center;
+}
+.modalContainer {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.modalContainer .menu {
+  position: absolute;
+  width: 100%;
+  background-color: yellow;
+  display: none;
+  top: 20px;
+}
+.modalContainer .moreBtn:hover + .menu {
+  display: block;
+}
+.plusBtn {
+  justify-content: center;
+  background-color: #c0c0c0;
+}
+.plusBtn .material-symbols-outlined {
+  font-size: 40px;
+  color: #333;
+}
+.plusBtn div {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
 }
 </style>

@@ -16,7 +16,7 @@
   </v-row>
 
   <div class="section">
-    <div class="section2">
+    <div class="sectionInvitation">
       <!-- 초대가 없는 경우 -->
       <div v-if="filteredInvitations.length === 0" class="no-invitations">
         초대받은 프로젝트가 없습니다
@@ -33,8 +33,13 @@
           <div class="projectTitle">
             title: {{ invitation.projectTitle }}
           </div>
-          <div class="projectEtc">
-            추가할 내용: 여행 일정, 나라, 초대한 사람
+          <div class="modalContainer">
+            <div class="projectEtc">
+              추가할 내용: 여행 일정, 나라, 초대한 사람
+            </div>
+            <div class="modalMenu">
+              <div class="menu">탈퇴하기</div>
+            </div>
           </div>
         </div>
       </div>
@@ -156,9 +161,8 @@ export default {
   padding: 30px;
   background-color: #f0f0f0;
 }
-.section2 {
+.sectionInvitation {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
   gap: 20px;
   width: 60%;
