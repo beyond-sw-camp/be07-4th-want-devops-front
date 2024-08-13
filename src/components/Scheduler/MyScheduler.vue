@@ -37,6 +37,7 @@
             :views="views"
             :height="600"
             :start-day-hour="9"
+            end-day-hour="23"
             :editing="true"
             :on-appointment-updated="onAppointmentUpdated"
           >
@@ -109,7 +110,7 @@ console.log("Authorization Token:", token);
 const isLogin = ref(false);
 const profileUrl = ref("");
 
-watch(computedAppointments, (newVal) => {
+watch(computedAppointments, (newVal) => { // computedAppointments가 변경되면 appointments도 변경
   appointments.value = newVal;
 });
 
@@ -146,7 +147,7 @@ onMounted(async () => {
     console.log("Tasks Data:", tasks.value);
 
     const fetchedAppointments = await store.dispatch("fetchAppointments", projectId);
-    appointments.value = fetchedAppointments;
+    appointments.value = fetchedAppointments; // appointments에 데이터를 설정
     console.log("Appointments Data : ", appointments.value);
   } catch (error) {
     console.error("Error initializing data:", error);
@@ -231,10 +232,10 @@ async function onAppointmentAdd(e) {
 
       console.log(response);
 
-      if (index >= 0) {
-        tasks.value = [...tasks.value];
-        tasks.value.splice(index, 1);
-        appointments.value = [...appointments.value, e.itemData];
+      if (index >= 0) { // tasks에 해당 task가 존재하면
+        tasks.value = [...tasks.value];  // tasks를 복사하여 갱신
+        tasks.value.splice(index, 1); // tasks에서 해당 task를 제거
+        appointments.value = [...appointments.value, e.itemData]; // appointments에 추가
       }
       console.log("after tv :", tasks.value);
       console.log("after av :", appointments.value);
