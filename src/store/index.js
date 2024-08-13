@@ -5,6 +5,7 @@ export default createStore({
   state: {
     projectDetail: null,
     tasks: [],
+    appointments: [],
   },
   mutations: {
     setProjectDetail(state, detail) {
@@ -12,6 +13,9 @@ export default createStore({
     },
     setTasks(state, tasks) {
       state.tasks = tasks; // 블록 리스트 상태 업데이트
+    },
+    setAppointments(state, appointments) {
+      state.appointments = appointments;
     },
   },
   actions: {
@@ -51,8 +55,8 @@ export default createStore({
             placeName: block.placeName,
             heartCount: block.heartCount,
             isActivated: block.isActivated,
-            startTime: block.startTime,
-            endTime: block.endTime,
+            startTime: new Date(block.startTime),
+            endTime: new Date(block.endTime),
           }));
           commit("setTasks", tasks);
           return tasks;
@@ -65,33 +69,51 @@ export default createStore({
         return [];
       }
     },
-  },
-  // 새로운 액션 추가
-  //   async updateBlockDates({ commit }, blockId, startTime, endTime) {
-  //     try {
-  //       // 로그로 현재 값을 확인합니다.
-  //       console.log("block Id ", blockId);
-  //       console.log("Original Start Time:", startTime);
-  //       console.log("Original End Time:", endTime);
 
-  //       const response = await axios.patch(
-  //         `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
-  //         {
-  //           blockId: blockId,
-  //           startTime: startTime,
-  //           endTime: endTime,
-  //         }
-  //       );
-  //       return response.data.result;
-  //     } catch (error) {
-  //       console.error("Error updating block dates:", error);
-  //       return null;
-  //     }
-  //   },
-  // },
+    async fetchAppointments({ commit }, projectId) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/active/block/list`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data && response.data.result && response.data.result.content) {
+          const appointments = response.data.result.content.map((block) => ({
+            blockId: block.blockId,
+            title: block.title,
+            placeName: block.placeName,
+            heartCount: block.heartCount,
+            isActivated: block.isActivated,
+            startTime: new Date(block.startTime),
+            endTime: new Date(block.endTime),
+          }));
+          commit("setAppointments", appointments);
+          return appointments;
+        } else {
+          console.error("Invalid response structure:", response.data);
+          return [];
+        }
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        return [];
+      }
+    },
+  },
+
   getters: {
     projectDetail(state) {
       return state.projectDetail;
+    },
+    tasks(state) {
+      return state.tasks;
+    },
+    appointments(state) {
+      return state.appointments;
     },
   },
 });

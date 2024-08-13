@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import DxScheduler, {
@@ -99,13 +99,23 @@ const draggingGroupName = ref("appointmentsGroup");
 const views = ref([]);
 const currentDate = ref(new Date());
 const appointments = ref([]);
-const projectDetail = ref(null);
 const tasks = ref([]);
+const computedAppointments = computed(() => store.getters.appointments);
+const computedTasks = computed(() => store.getters.tasks);
+const projectDetail = ref(null);
 const token = localStorage.getItem("token");
 console.log("Authorization Token:", token);
 
 const isLogin = ref(false);
 const profileUrl = ref("");
+
+watch(computedAppointments, (newVal) => {
+  appointments.value = newVal;
+});
+
+watch(computedTasks, (newVal) => {
+  tasks.value = newVal;
+});
 
 onMounted(async () => {
   try {
@@ -134,6 +144,10 @@ onMounted(async () => {
     const fetchedTasks = await store.dispatch("fetchTasks", projectId);
     tasks.value = fetchedTasks;
     console.log("Tasks Data:", tasks.value);
+
+    const fetchedAppointments = await store.dispatch("fetchAppointments", projectId);
+    appointments.value = fetchedAppointments;
+    console.log("Appointments Data : ", appointments.value);
   } catch (error) {
     console.error("Error initializing data:", error);
   }
