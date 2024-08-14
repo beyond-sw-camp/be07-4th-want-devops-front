@@ -35,7 +35,6 @@ export default {
 
       window.location.href = googleAuthUrl;
     }
-    }
   }
 };
 </script>
