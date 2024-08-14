@@ -60,7 +60,6 @@ export default {
         localStorage.setItem('role', role);
         localStorage.setItem('profileUrl', profileUrl);
 
-
         // 로그인 후 홈 페이지로 리디렉션
         this.$router.push('/');
       } catch (error) {
