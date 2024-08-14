@@ -196,6 +196,30 @@ async function onAppointmentAdd(e) {
   }
 }
 
+async function onAppointmentUpdated(e) {
+  const updatedAppointment = e.appointmentData;
+  const appoitnmentId = updatedAppointment.id;
+  const updateStartTime = updatedAppointment.startDate.toISOString(); // 변경된 시작 시간
+  const updateEndTime = updatedAppointment.endDate.toISOString(); // 변경된 시작 시간
+
+  console.log("updatedAppointment : ", updatedAppointment);
+  console.log("appoitnmentId : ", appoitnmentId);
+  console.log("updateStartTime : ", updateStartTime);
+  console.log("updateEndTime : ", updateEndTime);
+
+  try {
+    // 서버로 업데이트 된 데이터를 전송하여 DB에 반영
+    await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`, {
+      blockId: appoitnmentId,
+      startTime: updateStartTime,
+      endTime: updateEndTime,
+    });
+    console.log("Success!");
+  } catch (e) {
+    console.error("Failed to update ", e);
+  }
+}
+
 function onListDragStart(e) {
   e.cancel = true;
 }
