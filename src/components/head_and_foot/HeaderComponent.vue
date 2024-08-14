@@ -23,16 +23,20 @@
 <script>
 export default {
   name: 'HeaderComponent',
-  props: {
-    isLogin: {
-      type: Boolean,
-      required: true
-    },
-    profileUrl: {
-      type: String,
-      default: ''
+  data() {
+    return {
+      isLogin: false,
+      profileUrl: null
     }
   },
+  created() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.isLogin = true;
+      this.userRole = localStorage.getItem('role');
+    }
+  },
+
   methods: {
     redirectToGoogle() {
       const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
@@ -44,8 +48,11 @@ export default {
 
       window.location.href = googleAuthUrl;
     },
-    doLogout() {
-      this.$emit('logout');
+    methods: {
+      doLogout() {
+        localStorage.clear();
+        window.location.reload();
+      }
     }
   }
 };
