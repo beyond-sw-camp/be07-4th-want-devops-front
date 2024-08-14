@@ -5,7 +5,7 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn>여행지 추천</v-btn>
-    
+
 
     <!-- 로그인 여부에 따라 다른 버튼을 보여줌 -->
     <v-btn v-if="!isLogin" @click="redirectToGoogle">로그인</v-btn>
@@ -44,16 +44,14 @@ export default {
       const redirectUri = process.env.VUE_APP_GOOGLE_REDIRECT_URI;
       const responseType = 'code'; // 인가 코드 요청
       const scope = 'openid profile email';
-      
+
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
-      
+
       window.location.href = googleAuthUrl;
     },
-    methods: {
-      doLogout() {
-        localStorage.clear();
-        window.location.reload();
-      }
+    doLogout() {
+      localStorage.clear();
+      window.location.reload();
     }
   }
 };
