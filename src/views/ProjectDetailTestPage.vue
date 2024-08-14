@@ -51,6 +51,24 @@
       <p><strong>Start Date:</strong> {{ startTravel }}</p>
       <p><strong>End Date:</strong> {{ endTravel }}</p>
     </div>
+
+    <br><br><br>
+    <!-- 멤버 초대 모달 버튼 -->
+    <button @click="openInviteModal"> +버튼</button>
+
+    <CustomModal v-model:modelValue="isInviteModalOpen">
+      <div class="modal-content">
+        <p class="modal-title">Invite</p>
+        <v-text-field
+            v-model="inviteMemberEmail"
+            label="Email"
+            placeholder="Enter email"
+            class="modal-input"
+        />
+        <v-btn color="primary" @click="updateMemberInvite">DONE!</v-btn>
+      </div>
+    </CustomModal>
+
   </div>
 </template>
 
@@ -68,9 +86,12 @@ export default {
       projectId: null,
       isModalOpen: false,
       isDateModalOpen: false,
+      isInviteModalOpen: false,
       modalTitle: '',
       startTravel: '',
-      endTravel: ''
+      endTravel: '',
+      inviteMemberEmail: '',
+
     };
   },
   created() {
@@ -121,7 +142,7 @@ export default {
         const response = await axios.patch(`http://localhost:8088/api/v1/project/${this.projectId}/update/travel-dates`, request);
         console.log('Response:', response);
         this.isDateModalOpen = false;
-        console.log('Saving dates:', { startTravel: this.startTravel, endTravel: this.endTravel });
+        console.log('Saving dates:', {startTravel: this.startTravel, endTravel: this.endTravel});
       } catch (error) {
         console.error('Error updating project dates:', error);
         alert('서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
@@ -131,6 +152,26 @@ export default {
     openDateModal() {
       this.isDateModalOpen = true;
     },
+
+    async updateMemberInvite() {
+      const request = {
+        projectId : this.projectId,
+        email: this.inviteMemberEmail,
+      };
+      console.log('Inviting member with:', request);
+      try {
+        const response = await axios.post(`http://localhost:8088/api/v1/project/invite`, request);
+        this.isInviteModalOpen = false;
+        console.log('Response:', response);
+      } catch (error) {
+        console.error('Error inviting member:', error.response.data.status_message);
+      }
+    },
+
+    openInviteModal() {
+      this.isInviteModalOpen = true;
+    },
+
 
   }
 };
@@ -160,7 +201,6 @@ export default {
   padding: 10px;
   margin-bottom: 20px;
 }
-
 
 
 </style>
