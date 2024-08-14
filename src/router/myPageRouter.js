@@ -1,6 +1,5 @@
 import MyPage from '@/views/MyPage.vue'
-import MyInvitationComponent from '@/components/mypage/MyInvitationComponent.vue'
-import MyProjectComponent from '@/components/mypage/MyProjectComponent.vue'
+import MyInvitationComponent from '@/views/MyInvitation.vue'
 
 export const myPageRouter = [
     {
@@ -12,11 +11,6 @@ export const myPageRouter = [
         path: '/myInvitation',
         name: 'MyInvitation',
         component: MyInvitationComponent
-    },
-    {
-        path: '/myProject',
-        name: 'myProject',
-        component: MyProjectComponent
     },
 
 ]

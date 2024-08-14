@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div>
     <p>Processing your login...</p>
     <p v-if="tokenData"><strong>Token Data:</strong> {{ tokenData }}</p>
@@ -60,9 +60,10 @@ export default {
         localStorage.setItem('role', role);
         localStorage.setItem('profileUrl', profileUrl);
 
-
         // 로그인 후 홈 페이지로 리디렉션
-        this.$router.push('/');
+        this.$router.push('/').then(() => {
+          window.location.reload();
+        });
       } catch (error) {
         console.error('Error processing login:', error);
         this.error = 'Login failed!';

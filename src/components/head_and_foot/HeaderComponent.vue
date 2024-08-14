@@ -5,34 +5,23 @@
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn>여행지 추천</v-btn>
-    <v-btn>나의 일정</v-btn>
+
 
     <!-- 로그인 여부에 따라 다른 버튼을 보여줌 -->
     <v-btn v-if="!isLogin" @click="redirectToGoogle">로그인</v-btn>
 
-    <!-- 로그인이 되어있을 때만 보여지는 버튼과 프로필 이미지 -->
-    <template v-if="isLogin">
-      <v-btn @click="doLogout">로그아웃</v-btn>
-      <v-avatar class="ml-2">
-        <v-img :src="profileUrl"></v-img>
-      </v-avatar>
-    </template>
+    <!--    로그인이 되어있을때만 보여지는 버튼-->
+    <v-btn stacked v-if="isLogin">로그아웃</v-btn>
+    <v-avatar stacked>
+      <v-img src="https://randomuser.me/api/portraits" alt="avatar"></v-img>
+    </v-avatar>
+
   </v-app-bar>
 </template>
 
 <script>
 export default {
   name: 'HeaderComponent',
-  props: {
-    isLogin: {
-      type: Boolean,
-      required: true
-    },
-    profileUrl: {
-      type: String,
-      default: ''
-    }
-  },
   methods: {
     redirectToGoogle() {
       const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
@@ -45,7 +34,9 @@ export default {
       window.location.href = googleAuthUrl;
     },
     doLogout() {
-      this.$emit('logout');
+      localStorage.clear();
+      window.location.reload();
+    }
     }
   }
 };

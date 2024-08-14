@@ -5,8 +5,11 @@ import {projectRouter} from "@/router/projectRouter";
 // import GoogleLogin from "@/components/login/GoogleLogin";
 import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
+import BlockCreate from '@/views/BlockMain.vue';
+import BlockUpdate from '@/views/BlockUpdate.vue';
 import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
 import {myPageRouter} from './myPageRouter';
+
 //@는 src 디렉토리를 의미한다.
 //파일 내부에 export default 있는 경우에는 {} 가 필요없고, 그러지 않으면 {}가 필요하다.
 // import 하는 요소가 여러개 있을때에도 {}를 사용한다.
@@ -60,6 +63,7 @@ const routes = [
   ...practiceRouter,
   ...projectRouter,
   ...myPageRouter,
+
 ];
 
 const router = new createRouter(
