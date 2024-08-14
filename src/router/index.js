@@ -15,53 +15,51 @@ import {myPageRouter} from './myPageRouter';
 
 
 const routes = [
-    // {
-    //     //path로도 라우팅이 가능라고 name으로도 라우팅이 가능하다.
-    //     //name으로 라우팅하는 경우는 js 코드 내에서 직접적으로 라우팅을 할 때 사용한다.
-    //     path: '/home',
-    //     name: 'Home',
-    //     component: HomeComponent
-    // },
-    {
-        path: '/',
-        name: 'Home',
-        component: FirstPage
-    },
-    // {
-    //     path: '/',
-    //     name: 'GoogleLogin',
-    //     component: GoogleLogin
-    // },
-    {
-        path: "/oauth2/callback",
-        name: "Oauth2Callback",
-        component: Oauth2Callback,
-    },
-    {
-        path: "/schedule/:projectId",
-        name: "MyScheduler",
-        component: MyScheduler,
-    },
-    {
-        path: '/test/:id',
-        name: 'NewTestSchedule',
-        component: () => import('@/components/Scheduler/NewTestSchedule.vue')
-    },
-    {
-        path: '/map',
-        name: 'GoogleMap',
-        component: () => import('@/components/GoogleMap.vue')
-    },
-    {
-        path: '/second',
-        name: 'SecondPage',
-        component: () => import('@/views/SecondTestPage.vue')
-    },
-    ...practiceRouter,
-    ...projectRouter,
-    ...myPageRouter
-
-
+  // {
+  //     //path로도 라우팅이 가능라고 name으로도 라우팅이 가능하다.
+  //     //name으로 라우팅하는 경우는 js 코드 내에서 직접적으로 라우팅을 할 때 사용한다.
+  //     path: '/home',
+  //     name: 'Home',
+  //     component: HomeComponent
+  // },
+  {
+    path: "/",
+    name: "Home",
+    component: FirstPage,
+  },
+  // {
+  //     path: '/',
+  //     name: 'GoogleLogin',
+  //     component: GoogleLogin
+  // },
+  {
+    path: "/oauth2/callback",
+    name: "Oauth2Callback",
+    component: Oauth2Callback,
+  },
+  {
+    path: "/schedule/:projectId",
+    name: "MyScheduler",
+    component: MyScheduler,
+  },
+  // {
+  //   path: "/test/:id",
+  //   name: "NewTestSchedule",
+  //   component: () => import("@/components/Scheduler/NewTestSchedule.vue"),
+  // },
+  {
+    path: "/map",
+    name: "GoogleMap",
+    component: () => import("@/components/GoogleMap.vue"),
+  },
+  {
+    path: "/second",
+    name: "SecondPage",
+    component: () => import("@/views/SecondTestPage.vue"),
+  },
+  ...practiceRouter,
+  ...projectRouter,
+  ...myPageRouter,
 ];
 
 const router = new createRouter(
