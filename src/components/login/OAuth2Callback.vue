@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div>
     <p>Processing your login...</p>
     <p v-if="tokenData"><strong>Token Data:</strong> {{ tokenData }}</p>
