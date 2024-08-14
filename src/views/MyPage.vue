@@ -261,7 +261,7 @@ export default {
   justify-content: center;
   align-items: flex-start;
   width: 100vw;
-  min-height: 100vh;
+  min-height: 100%;
   padding: 30px;
   background-color: #f0f0f0;
 }
