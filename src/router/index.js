@@ -56,7 +56,7 @@ const routes = [
         component: () => import('@/components/GoogleMap.vue')
     },
     {
-        path: '/second',
+        path: '/second/:blockId',
         name: 'SecondPage',
         component: () => import('@/views/SecondTestPage.vue')
     },
