@@ -4,10 +4,10 @@
     <v-container class="fill-height d-flex justify-center align-center">
       <v-row>
         <v-col cols="12" md="6" class="content">
-          <h1>기존에 경험하지 못한 새로운 여행 플래너</h1>
-          <p class="content2">고민만 하던 여행 계획을 마이로드를 통해 뚝딱 한 번에 스케쥴링 해보세요.</p>
-          <v-btn v-if="isLogin" color="primary" @click="startMyRoad">마이로드 시작하기</v-btn>
-          <v-btn v-if="!isLogin" color="primary" @click="redirectToGoogle">마이로드 시작하기</v-btn>
+          <h1>기존에 경험하지 못한<br/> 새로운 여행 플래너</h1>
+          <p class="content2">고민만 하던 여행 계획을<br/> 원트를 통해 한 번에 스케줄링 해보세요</p>
+          <v-btn v-if="isLogin" color="primary" @click="startMyRoad" to="/project/create">시작하기</v-btn>
+          <v-btn v-if="!isLogin" color="primary" @click="redirectToGoogle">시작하기</v-btn>
         </v-col>
         <v-col cols="12" md="6" class="map">
           <img src="@/assets/test_back.png" class="backImage" alt="Map">
