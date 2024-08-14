@@ -5,7 +5,7 @@ import {projectRouter} from "@/router/projectRouter";
 // import GoogleLogin from "@/components/login/GoogleLogin";
 import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
-import BlockCreate from '@/views/BlockMain.vue';
+// import BlockCreate from '@/views/BlockMain.vue';
 import BlockUpdate from '@/views/BlockUpdate.vue';
 import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
 import {myPageRouter} from './myPageRouter';
@@ -54,6 +54,11 @@ const routes = [
     path: "/map",
     name: "GoogleMap",
     component: () => import("@/components/GoogleMap.vue"),
+  },
+  {
+    path: "/block/:blockId/detail",
+    name: "BlockUpdate",
+    component: BlockUpdate,
   },
   {
     path: "/second",
