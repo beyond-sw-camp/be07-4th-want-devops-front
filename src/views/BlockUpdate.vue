@@ -76,7 +76,6 @@ export default {
                 const response = await axios.get(`http://localhost:8088/api/v1/block/detail/${this.selectedBlock}`);
                 const blockData = response.data.result;
 
-                // 서버에서 가져온 카테고리 코드를 한국어로 변환
                 this.localBlock.title = blockData.title;
                 this.localBlock.category = this.categoryMap[blockData.category] || blockData.category;
                 this.localBlock.content = blockData.content;
@@ -90,10 +89,9 @@ export default {
         async updateBlock() {
             if (this.$refs.form.validate()) {
                 try {
-                    // 카테고리를 영어 코드로 변환
+
                     const categoryInEnglish = this.reverseCategoryMap[this.localBlock.category] || this.localBlock.category;
 
-                    // 변환된 카테고리로 블록 업데이트
                     await axios.patch(`http://localhost:8088/api/v1/block/${this.selectedBlock}/update`, {
                         ...this.localBlock,
                         category: categoryInEnglish
@@ -125,7 +123,7 @@ export default {
                     },
                 });
                 alert('블록이 성공적으로 삭제되었습니다.');
-                this.$router.push('/block/create'); // 삭제 후 홈으로 이동
+                this.$router.push('/block/create');
             } catch (error) {
                 console.error('블록 삭제 중 오류 발생:', error);
                 alert('블록 삭제 중 오류가 발생했습니다.');
