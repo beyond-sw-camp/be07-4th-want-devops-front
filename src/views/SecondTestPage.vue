@@ -1,7 +1,7 @@
 <!-- src/views/SecondView.vue -->
 <template>
   <div>
-    <button @click="showMapModal = true">Show Google Map</button>
+    <button @click="showMapModal = true">search Google Map</button>
     <CustomModal v-model:modelValue="showMapModal">
       <GoogleMap />
     </CustomModal>
