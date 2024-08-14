@@ -1,10 +1,10 @@
 <template>
   <div class="profile" align="center">
-    <v-avatar style="width: 100px; height: 100px;" >
+    <v-avatar style="width: 100px; height: 100px;">
       <img :src="profileUrl"/>
     </v-avatar>
-    <p class="userName" >{{userName}} </p>
-    <p class="userEmail" >{{userEmail}}</p>
+    <p class="userName">{{ userName }}</p>
+    <p class="userEmail">{{ userEmail }}</p>
   </div>
   <v-row>
     <v-col class="secondTitle" cols="6" align="center">
@@ -18,7 +18,7 @@
   <div class="section">
     <div class="sectionInvitation">
       <!-- 초대가 없는 경우 -->
-      <div v-if="filteredInvitations.length === 0" class="no-invitations">
+      <div v-if="filteredInvitations.length === 0" class="no-invitations" style="margin: auto;">
         초대받은 프로젝트가 없습니다
       </div>
       <!-- 초대가 있는 경우 -->
@@ -29,50 +29,42 @@
         :key="invitation.projectId"
         @click="openModal(invitation)"
       >
-        <div class="projectInfo">
-          <div class="projectTitle">
-            title: {{ invitation.projectTitle }}
-          </div>
-          <div class="modalContainer">
-            <div class="projectEtc">
-              추가할 내용: 여행 일정, 나라, 초대한 사람
-            </div>
-            <div class="modalMenu">
-              <div class="menu">탈퇴하기</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="modal-wrap" v-show="modalCheck">
-    <div class="modal-container">
-      <span class="material-symbols-outlined closeBtn" @click="modalOpen">
-        close
-      </span>
-      <div v-if="selectedInvitation">
-        <h2>{{ selectedInvitation.projectTitle }}</h2> <!-- 선택된 초대의 projectTitle 표시 -->
-      </div>
-      <div class="modal-btn">
-        <v-btn @click="handleInvitation('accept')">확인</v-btn>
-        <v-btn @click="handleInvitation('reject')">거절</v-btn>
+        <span style="font-weight: 700;">[{{ invitation.projectTitle }}]</span>
+        에 초대되었습니다
       </div>
     </div>
   </div>
 
+  <div class="modal-wrap" v-show="modalCheck">
+    <div class="modal-container">
+      <!-- 닫는 버튼 -->
+      <button class="close-btn" @click="modalOpen">×</button>
+
+      <div v-if="selectedInvitation">
+        <h2><strong>[{{ selectedInvitation.projectTitle }}]</strong>에 초대되었습니다</h2>
+        <p><strong>여행지:</strong> {{ selectedInvitation.projectStates[0].country }} {{ selectedInvitation.projectStates[0].city }}</p>
+        <p><strong>여행일:</strong> {{ selectedInvitation.startTravel }} ~ {{ selectedInvitation.endTravel }}</p>
+      </div>
+      <div class="modal-btn">
+        <v-btn @click="handleInvitation('accept')">수락</v-btn>
+        <v-btn @click="handleInvitation('reject')">거절</v-btn>
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
 import axios from 'axios';
+
 export default {
   data() {
     return {
       invitationList: [],
       modalCheck: false,
       selectedInvitation: null,
-      profileUrl: localStorage.getItem('profileUrl'),
-      userName: localStorage.getItem('name'),
-      userEmail: localStorage.getItem('email'),
+      profileUrl: "",
+      userName: "",
+      userEmail: "",
     };
   },
   computed: {
@@ -81,11 +73,12 @@ export default {
     }
   },
   async created() {
+    await this.getMyInfo();
     try {
       const response = await axios.get('http://localhost:8088/member/invitations', {
         params: {
           page: 0,
-          size: 11,
+          size: 30,
         },
       });
       this.invitationList = response.data.content;
@@ -95,6 +88,16 @@ export default {
     }
   },
   methods: {
+    async getMyInfo() {
+      try {
+        const response = await axios.get('http://localhost:8088/member/me');
+        this.profileUrl = response.data.profileUrl;
+        this.userName = response.data.name;
+        this.userEmail = response.data.email;
+      } catch (e) {
+        console.log(e);
+      }
+    },
     openModal(invitation) {
       this.selectedInvitation = invitation;
       this.modalCheck = true;
@@ -111,11 +114,11 @@ export default {
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/member/invitations/response`, {
           projectId: this.selectedInvitation.projectId,
           action: action
-          });
+        });
 
         // 초대 응답 후 처리
         this.invitationList = this.invitationList.filter(invitation => invitation.projectId !== this.selectedInvitation.projectId);
-        console.log(this.invitationList)
+        console.log(this.invitationList);
         this.modalOpen(); // 모달 닫기
       } catch (e) {
         console.error(e.response?.data || e.message); // 에러 메시지 로그 추가
@@ -124,6 +127,7 @@ export default {
   }
 };
 </script>
+
 <style>
 .profile img {
   width: 100px;
@@ -145,17 +149,17 @@ export default {
 .mainTitle p {
   font-size: 18px;
 }
-.secondTitle a{
+.secondTitle a {
   text-decoration-line: none;
   color: #333;
 }
-.secondTitle a:hover{
+.secondTitle a:hover {
   font-weight: 700;
   color: #004B6B;
 }
 .section {
   display: flex;
-  justify-content: center;   
+  justify-content: center;
   height: 100vh;
   width: 100vw;
   padding: 30px;
@@ -163,52 +167,130 @@ export default {
 }
 .sectionInvitation {
   display: flex;
+  flex-direction: column; /* 세로 방향으로 배치 */
   align-items: flex-start;
   gap: 20px;
   width: 60%;
   padding: 20px;
   background-color: white;
-  border-radius: 8px;      /* 모서리 둥글게 하기 (선택 사항) */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 추가 (선택 사항) */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .invitation {
   display: flex;
   align-items: center;
-  gap: 10px;
   width: 100%;
-  background-color: #e0e0e0;
+  background-color: #fff;
   padding: 10px;
-  border-radius: 4px; 
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.invitation:hover {
+  cursor: pointer;
+  transform: translateY(-3px);
 }
 .modal-wrap {
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.3s ease-in-out;
 }
-/* modal or popup */
+
 .modal-container {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 550px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
   box-sizing: border-box;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+  max-width: 90%; /* 작은 화면에서 모달이 잘리거나 화면 밖으로 나가지 않도록 설정 */
+  max-height: 90%; /* 작은 화면에서 모달이 잘리거나 화면 밖으로 나가지 않도록 설정 */
+  overflow-y: auto; /* 컨텐츠가 많을 경우 스크롤 가능하게 설정 */
+  position: relative; /* 닫기 버튼 위치를 위한 설정 */
 }
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24.
-}
-.closeBtn:hover{
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
   cursor: pointer;
+  color: #555;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.modal-container h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.modal-container p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.modal-container .modal-btn {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-container .modal-btn v-btn {
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.modal-container .modal-btn v-btn:first-child {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.modal-container .modal-btn v-btn:first-child:hover {
+  background-color: #45A049;
+}
+
+.modal-container .modal-btn v-btn:last-child {
+  background-color: #f44336;
+  color: white;
+}
+
+.modal-container .modal-btn v-btn:last-child:hover {
+  background-color: #e53935;
+}
+
+.material-symbols-outlined {
+  font-size: 24px;
+  color: #666;
+}
+
+/* 모달 등장 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

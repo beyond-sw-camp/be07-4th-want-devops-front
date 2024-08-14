@@ -58,6 +58,7 @@
               </div>
             </div>
             <div class="projectImage">
+              <!-- 추후에 프로젝트 이미지로 수정 -->
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
             <div class="projectTitle">{{ project.projectTitle }}</div>
@@ -146,6 +147,7 @@ export default {
           },
         });
         const newProjects = response.data.result.content;
+        console.log(newProjects);
 
         if (newProjects.length === 0) {
           this.isLastPage = true;
@@ -296,7 +298,7 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background-color: #e0e0e0;
+  background-color: #E5EEF3;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
@@ -309,7 +311,6 @@ export default {
   width: 100%;
   height: 150px;
   object-fit: cover;
-  border-radius: 8px;
 }
 .projectTitle {
   margin-top: 10px;
