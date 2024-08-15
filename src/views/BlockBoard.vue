@@ -39,50 +39,8 @@
               </v-list-item>
               <v-divider></v-divider>
 
-              <v-card class="mx-auto" max-width="425">
-                <v-list lines="two" style="max-height: 300px; overflow-y: auto;">
-                  <v-list-subheader>댓글</v-list-subheader>
-
-                  <!-- 댓글이 없을 때 -->
-                  <template v-if="comments.length === 0">
-                    <v-list-item>
-                      <v-list-item-content>
-                        댓글 없음
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-
-                  <!-- 댓글이 있을 때 -->
-                  <template v-else>
-                    <v-list-item
-                        v-for="comment in comments"
-                        :key="comment.id"
-                        :prepend-avatar="comment.memberProfile"
-                    >
-                      <template v-slot:title>
-                        {{ comment.memberName }} &mdash; {{ formatDate(comment.createdTime) }}
-                      </template>
-                      <div>
-                        <div class="comment-text">{{ comment.contents }}</div>
-                      </div>
-                    </v-list-item>
-                  </template>
-                </v-list>
-              </v-card>
-
-
-              <v-card-subtitle>
-                <v-form ref="commentForm" v-model="valid" @submit.prevent="submitComment">
-                  <v-textarea
-                      v-model="newComment"
-                      label="댓글 작성"
-                      rows="3"
-                      required
-                      auto-grow
-                  ></v-textarea>
-                  <v-btn type="submit" color="primary" class="mt-2">댓글 달기</v-btn>
-                </v-form>
-              </v-card-subtitle>
+<!--              댓글 구역-->
+              <CommentSection :blockId="blockId" />
 
 
             </v-card>
@@ -138,15 +96,16 @@
 import axios from 'axios';
 import GoogleMap from "@/components/GoogleMap.vue";
 import CustomModal from "@/components/CustomModal.vue";
+import CommentSection from "@/components/CommentSection.vue";
 import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 
 export default {
-  components: {CustomModal, GoogleMap},
+  components: {CustomModal, GoogleMap, CommentSection},
   setup() {
     const route = useRoute();
     const router = useRouter();
-
+    const blockId = ref(route.params.blockId); // 라우터에서 블록 ID를 가져옴
     const showMapModal = ref(false);
     const localBlock = ref({
       title: '',
@@ -160,8 +119,6 @@ export default {
       startTime: null,
       endTime: null,
     });
-    const comments = ref([]);  // 댓글 리스트
-    const newComment = ref('');  // 새로운 댓글
 
     const valid = ref(true);
     const startDateMenu = ref(false);
@@ -179,39 +136,6 @@ export default {
       "식당": "RESTAURANT",
       "카페": "CAFE",
       "기타": "ETC"
-    };
-    // 댓글 목록을 가져오는 메서드
-    const fetchComments = async () => {
-      try {
-        const blockId = route.params.blockId;
-        const response = await axios.get(`http://localhost:8088/api/v1/block_comment/list/${blockId}`);
-        comments.value = response.data.result.content;
-        console.log(comments.value);
-      } catch (error) {
-        console.error('댓글을 가져오는 중 오류 발생:', error);
-      }
-    };
-    // 댓글을 서버로 전송하는 메서드
-    const submitComment = async () => {
-      if (valid.value && newComment.value) {
-        try {
-          await axios.post(`http://localhost:8088/api/v1/block_comment/create`, {
-                blockId: selectedBlock.value,
-                contents: newComment.value,
-              },
-          );
-          newComment.value = '';  // 댓글 작성 후 입력창 초기화
-          await fetchComments();  // 댓글 목록 새로고침
-        } catch (error) {
-          console.error('댓글 작성 중 오류 발생:', error);
-          alert('댓글 작성 중 오류가 발생했습니다.');
-        }
-      }
-    };
-    // 날짜 포맷팅 함수
-    const formatDate = (date) => {
-      const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
-      return new Date(date).toLocaleDateString(undefined, options);
     };
 
     const fetchBlock = async () => {
@@ -278,7 +202,6 @@ export default {
     onMounted(async () => {
       selectedBlock.value = route.params.blockId;
       await fetchBlock();
-      await fetchComments();  // 페이지 로드 시 댓글 목록 가져오기
     });
 
     return {
@@ -288,15 +211,12 @@ export default {
       startDateMenu,
       endDateMenu,
       selectedBlock,
+      blockId,
       fetchBlock,
       updateBlock,
       cancel,
       deleteBlock,
       handlePlaceSelected,
-      comments,  // 댓글 목록
-      newComment,  // 새로운 댓글
-      submitComment,  // 댓글 작성 함수
-      formatDate,  // 날짜 포맷팅 함수
     };
   },
 };
