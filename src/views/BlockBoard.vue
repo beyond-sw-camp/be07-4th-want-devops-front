@@ -243,7 +243,7 @@ export default {
 
         const updateSliderPosition = () => {
             const slider = document.querySelector('.slider');
-            const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
+            const offset = -activeIndex.value * 525; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
         onMounted(async () => {
@@ -280,7 +280,7 @@ export default {
     position: relative;
     overflow: hidden;
     margin: 20px 0;
-    width: 100%;
+    width: 500px;
     max-width: 600px;
     height: 500px;
 }
@@ -311,7 +311,6 @@ export default {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 10px;
 }
 
 .slider-btn {
