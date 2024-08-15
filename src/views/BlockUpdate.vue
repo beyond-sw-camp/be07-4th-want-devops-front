@@ -13,7 +13,7 @@
             <div>
               <button type="button" @click="showMapModal = true">Show Google Map</button>
               <CustomModal v-model:modelValue="showMapModal">
-                <GoogleMap/>
+                <GoogleMap @place-selected="handlePlaceSelected"/>
               </CustomModal>
             </div>
             <v-text-field v-model="localBlock.placeName" label="장소 이름"/>
@@ -43,10 +43,10 @@
 import axios from 'axios';
 import GoogleMap from "@/components/GoogleMap.vue";
 import CustomModal from "@/components/CustomModal.vue";
-import {ref} from "vue";
+import { ref } from 'vue';
 
 export default {
-  components: {CustomModal, GoogleMap},
+  components: { CustomModal, GoogleMap },
   setup() {
     const showMapModal = ref(false);
     return {
@@ -105,7 +105,6 @@ export default {
     async updateBlock() {
       if (this.$refs.form.validate()) {
         try {
-
           const categoryInEnglish = this.reverseCategoryMap[this.localBlock.category] || this.localBlock.category;
 
           await axios.patch(`http://localhost:8088/api/v1/block/${this.selectedBlock}/update`, {
@@ -124,7 +123,6 @@ export default {
         }
       }
     },
-
 
     cancel() {
       this.$router.push('/block/create');
@@ -146,6 +144,11 @@ export default {
         }
       }
     },
+
+    handlePlaceSelected(placeInfo) {
+      this.localBlock.placeName = placeInfo.name;
+      this.showMapModal = false;
+    }
   },
 };
 </script>
