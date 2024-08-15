@@ -5,8 +5,8 @@ import {projectRouter} from "@/router/projectRouter";
 // import GoogleLogin from "@/components/login/GoogleLogin";
 import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
-import BlockCreate from '@/views/BlockMain.vue';
-import BlockUpdate from '@/views/BlockUpdate.vue';
+import BlockMain from '@/views/BlockMain.vue';
+import BlockDetail from '@/views/BlockDetail.vue';
 import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
 import {myPageRouter} from './myPageRouter';
 
@@ -57,13 +57,13 @@ const routes = [
   },
   {
     path: "/block/:blockId/detail",
-    name: "BlockUpdate",
-    component: BlockUpdate,
+    name: "BlockDetail",
+    component: BlockDetail,
   },
   {
     path: "/block/main",
-    name: "BlockCreate",
-    component: BlockCreate,
+    name: "BlockMain",
+    component: BlockMain,
   },
   {
     path: "/second",
