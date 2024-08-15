@@ -5,22 +5,30 @@
             <v-card>
                 <v-row>
                     <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
-                    <v-col cols="8">
-                        <v-card-title>
-                            <span class="headline">{{ localBlock.title }}</span>
-                        </v-card-title>
-                        <v-card-subtitle>{{ localBlock.placeName }}</v-card-subtitle>
-                        <v-img :src="localBlock.imageUrl" alt="블록 이미지" class="mb-3"></v-img>
-                        <v-card-text>{{ localBlock.content }}</v-card-text>
-                    </v-col>
+                    <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
+                        <v-col cols="8">
+                            <v-card-title>
+                                <v-text-field v-model="localBlock.title" label="제목" required />
+                            </v-card-title>
+                            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
+                                <v-card-subtitle>
+                                    {{ localBlock.placeName }}
+                                </v-card-subtitle>
+                                <CustomModal v-model:modelValue="showMapModal">
+                                    <GoogleMap @place-selected="handlePlaceSelected" />
+                                </CustomModal>
+                            </span>
+                            <v-img :src="localBlock.imageUrl" alt="블록 이미지" class="mb-3"></v-img>
+                            <v-textarea v-model="localBlock.content" label="내용" />
+                        </v-col>
+                    </v-form>
 
                     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
                     <v-col cols="4">
                         <v-card>
                             <v-list-item>
                                 <v-list-item-content>
-                                    <v-list-item-title>{{ localBlock.category }}</v-list-item-title>
-                                    <v-list-item-subtitle>카테고리명</v-list-item-subtitle>
+                                    <v-text-field v-model="localBlock.category" label="카테고리" required />
                                 </v-list-item-content>
                             </v-list-item>
                             <v-divider></v-divider>
@@ -49,47 +57,11 @@
                         </v-card>
                     </v-col>
                 </v-row>
-
-                <!-- 블록 업데이트 폼 -->
-                <!-- BlockDetail 에서 참조할 거 다 가져오면 삭제 예정. BlockDetail 대신 BlockBoard 코드 사용하려 함. -->
-                <v-card>
-                    <v-card-title>
-                        <span class="headline">블록 업데이트</span>
-                    </v-card-title>
-                    <v-card-subtitle>
-                        <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
-                            <v-text-field v-model="localBlock.title" label="제목" required />
-                            <v-text-field v-model="localBlock.category" label="카테고리" required />
-                            <v-textarea v-model="localBlock.content" label="내용" />
-                            <div>
-                                <v-btn @click="showMapModal = true" color="primary">구글 맵 보기</v-btn>
-                                <CustomModal v-model:modelValue="showMapModal">
-                                    <GoogleMap @place-selected="handlePlaceSelected" />
-                                </CustomModal>
-                            </div>
-                            <v-text-field v-model="localBlock.placeName" label="장소 이름" />
-                            <v-menu v-model="startDateMenu" :close-on-content-click="false"
-                                transition="scale-transition" offset-y>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-text-field v-model="localBlock.startTime" label="시작 시간" readonly v-bind="attrs"
-                                        v-on="on" />
-                                </template>
-                                <v-date-picker v-model="localBlock.startTime" @input="startDateMenu = false" />
-                            </v-menu>
-                            <v-menu v-model="endDateMenu" :close-on-content-click="false" transition="scale-transition"
-                                offset-y>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-text-field v-model="localBlock.endTime" label="종료 시간" readonly v-bind="attrs"
-                                        v-on="on" />
-                                </template>
-                                <v-date-picker v-model="localBlock.endTime" @input="endDateMenu = false" />
-                            </v-menu>
-                            <v-btn type="submit" color="primary">저장</v-btn>
-                            <v-btn @click="cancel" color="secondary">취소</v-btn>
-                            <v-btn @click="deleteBlock" color="red" class="ml-2">삭제</v-btn>
-                        </v-form>
-                    </v-card-subtitle>
-                </v-card>
+                <div style="float: right;">
+                    <v-btn type="submit" color="primary">저장</v-btn>
+                    <v-btn @click="cancel" color="secondary">취소</v-btn>
+                    <v-btn @click="deleteBlock" color="red" class="ml-2">삭제</v-btn>
+                </div>
             </v-card>
         </v-container>
     </v-app>
