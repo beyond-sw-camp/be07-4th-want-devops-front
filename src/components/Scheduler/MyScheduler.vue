@@ -1,6 +1,31 @@
 <template>
   <v-app>
     <v-container>
+      <!-- Project Detail -->
+      <v-row v-if="projectDetail" class="header-row">
+        <!-- 프로젝트 제목과 위치 -->
+        <v-col cols="12" class="d-flex align-center">
+          <div class="mr-3">
+            <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
+          </div>
+          <div class="mr-3">
+            <h4 class="project-location" v-if="projectDetail.projectStates.length">
+              &lt;{{ projectDetail.projectStates[0].city }},
+              {{ projectDetail.projectStates[0].country }}&gt;
+            </h4>
+            <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
+          </div>
+          <v-avatar
+            v-for="member in projectDetail.projectMembers"
+            :key="member.userId"
+            class="ma-2"
+          >
+            <img :src="member.userProfile" alt="User profile" />
+          </v-avatar>
+          <v-btn class="ml-3" color="primary">초대</v-btn>
+        </v-col>
+      </v-row>
+
       <!-- Scheduler -->
       <v-row class="scheduler-row">
         <v-col cols="9">
@@ -15,6 +40,7 @@
             :end-day-hour="23"
             :editing="true"
             :on-appointment-updated="onAppointmentUpdated"
+            :show-all-day-panel="false"
           >
             <DxAppointmentDragging
               :group="draggingGroupName"
@@ -22,6 +48,7 @@
               :on-add="onAppointmentAdd"
             />
             <DxEditing :allow-updating="allowUpdating" />
+            <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
         <v-col cols="3" class="block-list-col">
@@ -58,18 +85,50 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import axios from "axios";
-import DxScheduler, { DxAppointmentDragging } from "devextreme-vue/scheduler";
+import DxScheduler, {
+  DxAppointmentDragging,
+  DxScrolling,
+} from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
 
+const store = useStore();
+const route = useRoute();
+const projectId = route.params.projectId;
 const draggingGroupName = ref("appointmentsGroup");
-const views = ref([{ type: "day", intervalCount: 3 }]);
-const currentDate = ref(new Date(2024, 7, 5));
+const views = ref([]);
+const currentDate = ref(new Date());
+const projectDetail = ref(null);
 const tasks = ref([]);
 const appointments = ref([]);
 
-const projectId = 1; // 여기에 실제 프로젝트 ID를 설정하세요
+const isLogin = ref(false);
+const profileUrl = ref("");
+
+onMounted(async () => {
+  try {
+    console.log("Fetching project details...");
+    await store.dispatch("fetchProjectDetail", projectId); // projectId만 전달
+    projectDetail.value = store.getters.projectDetail;
+    console.log("Project Detail Data:", projectDetail.value);
+
+    if (projectDetail.value) {
+      const startTravel = new Date(projectDetail.value.startTravel);
+      const endTravel = new Date(projectDetail.value.endTravel);
+      const intervalCount = Math.ceil((endTravel - startTravel) / (1000 * 60 * 60 * 24));
+
+      views.value = [
+        { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
+      ];
+      currentDate.value = startTravel;
+    }
+  } catch (error) {
+    console.error("Error initializing data:", error);
+  }
+});
 
 async function fetchTasks() {
   try {
@@ -241,8 +300,17 @@ function loadStylesheet() {
   document.head.appendChild(link);
 }
 
+function checkLoginStatus() {
+  const token = localStorage.getItem("token");
+  if (token) {
+    isLogin.value = true;
+    profileUrl.value = localStorage.getItem("profileUrl");
+  }
+}
+
 onMounted(() => {
   loadStylesheet();
+  checkLoginStatus();
 });
 </script>
 

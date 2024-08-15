@@ -15,7 +15,7 @@ export default createStore({
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:8088/api/v1/project/detail/${projectId}`,
+          `http://localhost:8088/api/v1/project/${projectId}/detail`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
