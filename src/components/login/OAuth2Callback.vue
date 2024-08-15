@@ -1,4 +1,4 @@
-  <template>
+<template>
   <div>
     <p>Processing your login...</p>
     <p v-if="tokenData"><strong>Token Data:</strong> {{ tokenData }}</p>
@@ -32,7 +32,7 @@ export default {
           grant_type: 'authorization_code'
         });
 
-        const { access_token, id_token, expires_in, scope, token_type } = tokenResponse.data;
+        const {access_token, id_token, expires_in, scope, token_type} = tokenResponse.data;
 
         console.log('Access Token:', access_token);
         console.log('ID Token:', id_token);
