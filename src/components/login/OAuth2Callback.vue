@@ -32,7 +32,7 @@ export default {
           grant_type: 'authorization_code'
         });
 
-        const { access_token, id_token, expires_in, scope, token_type } = tokenResponse.data;
+        const {access_token, id_token, expires_in, scope, token_type} = tokenResponse.data;
 
         console.log('Access Token:', access_token);
         console.log('ID Token:', id_token);
@@ -61,7 +61,9 @@ export default {
         localStorage.setItem('profileUrl', profileUrl);
 
         // 로그인 후 홈 페이지로 리디렉션
-        this.$router.push('/');
+        this.$router.push('/').then(() => {
+          window.location.reload();
+        });
       } catch (error) {
         console.error('Error processing login:', error);
         this.error = 'Login failed!';

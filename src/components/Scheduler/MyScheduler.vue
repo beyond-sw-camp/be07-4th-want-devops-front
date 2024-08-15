@@ -37,9 +37,10 @@
             :views="views"
             :height="600"
             :start-day-hour="9"
-            end-day-hour="23"
+            :end-day-hour="23"
             :editing="true"
             :on-appointment-updated="onAppointmentUpdated"
+            :show-all-day-panel="false"
           >
             <DxAppointmentDragging
               :group="draggingGroupName"
@@ -47,6 +48,7 @@
               :on-add="onAppointmentAdd"
             />
             <DxEditing :allow-updating="allowUpdating" />
+            <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
         <v-col cols="3" class="block-list-col">
@@ -61,6 +63,7 @@
                 Drop here to add to the list
               </div>
               <DxDraggable
+                time-zone="Asia/Seoul"
                 v-for="task in tasks"
                 :key="task.blockId"
                 :clone="true"
@@ -81,42 +84,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import axios from "axios";
 import DxScheduler, {
   DxAppointmentDragging,
-  DxEditing, // 여기서 import
+  DxScrolling,
 } from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
-import axios from "axios";
 
-// Vuex 스토어와 필요한 변수들 설정
 const store = useStore();
 const route = useRoute();
 const projectId = route.params.projectId;
 const draggingGroupName = ref("appointmentsGroup");
 const views = ref([]);
 const currentDate = ref(new Date());
-const appointments = ref([]);
-const tasks = ref([]);
-const computedAppointments = computed(() => store.getters.appointments);
-const computedTasks = computed(() => store.getters.tasks);
 const projectDetail = ref(null);
-const token = localStorage.getItem("token");
-console.log("Authorization Token:", token);
+const tasks = ref([]);
+const appointments = ref([]);
 
 const isLogin = ref(false);
 const profileUrl = ref("");
-
-watch(computedAppointments, (newVal) => { // computedAppointments가 변경되면 appointments도 변경
-  appointments.value = newVal;
-});
-
-watch(computedTasks, (newVal) => {
-  tasks.value = newVal;
-});
 
 onMounted(async () => {
   try {
@@ -134,24 +124,52 @@ onMounted(async () => {
         { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
       ];
       currentDate.value = startTravel;
-
-      console.log("Project Detail Data:", projectDetail.value);
-      console.log("Start Travel:", startTravel);
-      console.log("End Travel:", endTravel);
     }
-
-    console.log("ProjectId before dispatch:", projectId);
-
-    const fetchedTasks = await store.dispatch("fetchTasks", projectId);
-    tasks.value = fetchedTasks;
-    console.log("Tasks Data:", tasks.value);
-
-    const fetchedAppointments = await store.dispatch("fetchAppointments", projectId);
-    appointments.value = fetchedAppointments; // appointments에 데이터를 설정
-    console.log("Appointments Data : ", appointments.value);
   } catch (error) {
     console.error("Error initializing data:", error);
   }
+});
+
+async function fetchTasks() {
+  try {
+    const response = await axios.get(
+      `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
+    );
+    tasks.value = response.data.result.content.map((block) => ({
+      id: block.blockId,
+      title: block.title,
+      content: block.content,
+      startTime: block.startTime,
+      endTime: block.endTime,
+      // 필요한 경우 추가 필드를 매핑합니다
+    }));
+    console.log("tasks data : ", tasks.value);
+  } catch (error) {
+    console.error("Failed to fetch tasks:", error);
+  }
+}
+
+async function fetchAppointments() {
+  try {
+    const response = await axios.get(
+      `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
+    );
+    appointments.value = response.data.result.content.map((block) => ({
+      id: block.blockId,
+      text: block.title,
+      startDate: new Date(block.startTime),
+      endDate: new Date(block.endTime),
+      allDay: false, // 필요시 조건에 따라 설정
+    }));
+    console.log("Appointments data:", appointments.value);
+  } catch (error) {
+    console.error("Failed to fetch appointments:", error);
+  }
+}
+
+onMounted(() => {
+  fetchTasks();
+  fetchAppointments();
 });
 
 async function onAppointmentRemove({ itemData }) {
@@ -160,17 +178,26 @@ async function onAppointmentRemove({ itemData }) {
   const index = appointments.value.indexOf(itemData);
 
   if (index >= 0) {
-    const blockId = itemData.blockId;
+    const blockId = itemData.id;
+    console.log("blockId :", blockId);
     const originalStartTime = itemData.startDate.toISOString();
     const originalEndTime = itemData.endDate.toISOString();
+    const blockTitle = itemData.title;
 
-    console.log("Sending to server:", { blockId, originalStartTime, originalEndTime });
+    console.log("Sending to server:", {
+      blockId,
+      originalStartTime,
+      originalEndTime,
+      blockTitle,
+    });
+    console.log("itemData: ", itemData);
 
     try {
       const response = await axios.patch(
         `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
         {
           blockId: blockId,
+          text: blockTitle,
           startTime: originalStartTime,
           endTime: originalEndTime,
         }
@@ -182,58 +209,41 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
     } catch (error) {
-      console.error("Failed to update block:", error);
+      console.error("Failed to Remomve block:", error);
     }
   }
 }
 
+// 끌어다 놓기 O
 async function onAppointmentAdd(e) {
-  // console.log("itemData:", e.itemData);
-  // console.log("startDate:", e.itemData.startDate);
-  // console.log("endDate:", e.itemData.endDate);
+  console.log("Before add tv :", tasks.value);
+  console.log("Before add av :", appointments.value);
+  console.log("e.itemData.blockId", e.itemData.id);
 
-  console.log("Before tv :", tasks.value);
-  console.log("Before av :", appointments.value);
   if (e.fromData) {
     const index = tasks.value.indexOf(e.fromData);
 
     if (index >= 0) {
-      const blockId = e.itemData.blockId;
-      const originalStartTime = e.itemData.startDate.toISOString();
-      const originalEndTime = e.itemData.endDate.toISOString();
-
-      // console.log("Start DateTime:", originalStartTime);
-      // console.log("End DateTime:", originalEndTime);
-
-      // console.log(
-      //   "list : " +
-      //     {
-      //       blockId: e.fromData.blockId,
-      //       startTime: e.itemData.startDate,
-      //       endTime: e.itemData.endDate,
-      //     }
-      // );
-
-      // const updatedAppointment = await store.dispatch(
-      //   "updateBlockDates",
-      //   e.fromData.blockId,
-      //   originalStartTime,
-      //   originalEndTime
-      // );
+      const blockId = e.itemData.id;
+      const originalStartTime = e.itemData.startDate;
+      const originalEndTime = e.itemData.endDate;
+      const title = e.itemData.title;
 
       const response = await axios.patch(
         `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
         {
           blockId: blockId,
-          startTime: originalStartTime,
-          endTime: originalEndTime,
+          title: title,
+          startTime: originalStartTime.toISOString(),
+          endTime: originalEndTime.toISOString(),
         }
       );
 
       console.log(response);
 
-      if (index >= 0) { // tasks에 해당 task가 존재하면
-        tasks.value = [...tasks.value];  // tasks를 복사하여 갱신
+      if (index >= 0) {
+        // tasks에 해당 task가 존재하면
+        tasks.value = [...tasks.value]; // tasks를 복사하여 갱신
         tasks.value.splice(index, 1); // tasks에서 해당 task를 제거
         appointments.value = [...appointments.value, e.itemData]; // appointments에 추가
       }
@@ -247,9 +257,14 @@ async function onAppointmentAdd(e) {
 
 async function onAppointmentUpdated(e) {
   const updatedAppointment = e.appointmentData;
-  const appoitnmentId = updatedAppointment.blockId;
+  const appoitnmentId = updatedAppointment.id;
   const updateStartTime = updatedAppointment.startDate.toISOString(); // 변경된 시작 시간
   const updateEndTime = updatedAppointment.endDate.toISOString(); // 변경된 시작 시간
+
+  console.log("updatedAppointment : ", updatedAppointment);
+  console.log("appoitnmentId : ", appoitnmentId);
+  console.log("updateStartTime : ", updateStartTime);
+  console.log("updateEndTime : ", updateEndTime);
 
   try {
     // 서버로 업데이트 된 데이터를 전송하여 DB에 반영
@@ -265,15 +280,11 @@ async function onAppointmentUpdated(e) {
 }
 
 function onListDragStart(e) {
-  console.log("onItemDragStart - itemData:", e.itemData);
-  e.itemData = e.fromData;
-  console.log("onItemDragStart - fromData:", e.fromData);
+  e.cancel = true;
 }
 
 function onItemDragStart(e) {
-  console.log("onItemDragStart - before:", e.itemData);
-  e.itemData = e.fromData; // 여기서 fromData를 itemData로 설정
-  console.log("onItemDragStart - after:", e.itemData);
+  e.itemData = e.fromData;
 }
 
 function onItemDragEnd(e) {
@@ -317,7 +328,7 @@ onMounted(() => {
 }
 
 #scheduler {
-  width: 1000px;
+  width: 900px;
 }
 
 .block-list-col {
