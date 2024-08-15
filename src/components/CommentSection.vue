@@ -17,6 +17,7 @@
         <v-list-item
             v-for="comment in comments"
             :key="comment.commentId"
+            :prepend-avatar="comment.memberProfile"
         >
           <template v-slot:title>
             {{ comment.memberName }} &mdash; {{ formatDate(comment.createdTime) }}
