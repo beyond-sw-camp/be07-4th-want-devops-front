@@ -5,8 +5,6 @@ import {projectRouter} from "@/router/projectRouter";
 // import GoogleLogin from "@/components/login/GoogleLogin";
 import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
-import BlockMain from '@/views/BlockMain.vue';
-import BlockDetail from '@/views/BlockDetail.vue';
 import BlockBoard from '@/views/BlockBoard.vue';
 import BlockMain from '@/views/BlockMain.vue';
 import BlockDetail from '@/views/BlockDetail.vue';
