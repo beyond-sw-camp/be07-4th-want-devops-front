@@ -8,9 +8,9 @@
         STEP 2<br />기간 선택
       </li>
       <li @click="scrollToSection('CreateStep3')">
-        STEP 3<br />제목 설정
+          STEP 3<br/>제목 설정
       </li>
-    </div>
+  </div>
 
     <!-- Step 1 -->
     <div class="backArea" ref="CreateStep1">
@@ -202,7 +202,7 @@ export default {
           city: this.selectedCity
         }
       };
-
+      console.log(projectData);
       try {
         const token = localStorage.getItem('token');
         const response = await axios.post('http://localhost:8088/api/v1/project/create', projectData, {
@@ -221,9 +221,6 @@ export default {
   }
 };
 </script>
-
-
-
 
 
 <style>
