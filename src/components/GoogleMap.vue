@@ -10,7 +10,7 @@
         <p><strong>Longitude:</strong> {{ placeInfo.lng }}</p>
       </div>
       <v-row justify="left">
-        <v-btn color="secondary" @click="updateLocation">SAVE</v-btn>
+        <v-btn color="secondary" @click="savePlace">SAVE</v-btn>
       </v-row>
     </div>
   </div>
@@ -19,10 +19,10 @@
 <script>
 import { onMounted, ref } from 'vue';
 import { loadGoogleMapsApi } from '@/plugins/google-maps'; // plugins 폴더의 경로에 맞게 수정
-import axios from 'axios';
 
 export default {
-  setup() {
+  emits: ['place-selected'],
+  setup(props, { emit }) {
     const mapContainer = ref(null);
     const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY; // 환경 변수에서 API 키 가져오기
     const placeInfo = ref(null); // 핀의 정보를 저장할 변수
@@ -139,31 +139,13 @@ export default {
       }
     };
 
-    return {mapContainer, placeInfo, country, updateCountry};
-  },
-  data() {
-    return {
-      blockId: null
-    };
-  },
-  created() {
-    this.blockId = this.$route.params.blockId;
-  },
-  methods: {
-    async updateLocation() {
-      const request = {
-        placeName: this.placeInfo.name,
-        latitude: this.placeInfo.lat,
-        longitude: this.placeInfo.lng
-      };
-      try {
-        const response = await axios.patch(`http://localhost:8088/api/v1/block/${this.blockId}/update`, request);
-        console.log('Location updated:', response.data);
-        this.placeName = response.data.result.placeName;
-      } catch (e) {
-        console.error('Error updating location:', e);
+    const savePlace = () => {
+      if (placeInfo.value) {
+        emit('place-selected', placeInfo.value);
       }
-    }
+    };
+
+    return { mapContainer, placeInfo, country, updateCountry, savePlace };
   }
 };
 </script>
