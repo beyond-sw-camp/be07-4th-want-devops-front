@@ -1,11 +1,15 @@
 <template>
-  <v-container class="fill-height d-flex justify-center align-center">
+  <v-container class="fill-height d-flex justify-center align-center" style="width: 70vw;">
     <v-row>
       <v-col cols="12" md="4" class="content">
-        <h1 style="font-weight: 700; margin-bottom: 20px">기존에 경험하지 못한<br/> 새로운 여행 플래너</h1>
-        <p>고민만 하던 여행 계획을<br/> 원트를 통해 한 번에 스케줄링 해보세요</p>
-        <v-btn v-if="isLogin" class="black-btn" @click="startMyRoad" to="/project/create">시작하기</v-btn>
-        <v-btn v-if="!isLogin" class="black-btn" @click="redirectToGoogle">시작하기</v-btn>
+        <h1 class="fade-in" style="font-weight: 700; margin-bottom: 20px">
+          기존에 경험하지 못한<br /> 새로운 여행 플래너
+        </h1>
+        <p class="fade-in">
+          고민만 하던 여행 계획을<br /> 원트를 통해 한 번에 스케줄링 해보세요
+        </p>
+        <v-btn v-if="isLogin" class="black-btn fade-in" @click="startMyRoad" to="/project/create">시작하기</v-btn>
+        <v-btn v-if="!isLogin" class="black-btn fade-in" @click="redirectToGoogle">시작하기</v-btn>
       </v-col>
       <v-col cols="12" md="8" class="map" style="right: 0">
         <img src="@/assets/img/file.png" class="backImage" alt="Map">
@@ -15,16 +19,21 @@
 </template>
 
 <script>
+import gsap from 'gsap';
+
 export default {
   name: 'TravelPlanner',
   data() {
     return {
       isLogin: false,
-      profileUrl: null
-    }
+      profileUrl: null,
+    };
   },
   created() {
     this.checkLoginStatus();
+  },
+  mounted() {
+    this.animateContent();
   },
   methods: {
     async checkLoginStatus() {
@@ -54,8 +63,18 @@ export default {
     },
     startMyRoad() {
       // 마이로드 시작하기 로직
-      console.log("마이로드 시작하기");
-    }
+      console.log('마이로드 시작하기');
+    },
+    animateContent() {
+      const fadeEls = document.querySelectorAll('.fade-in');
+      fadeEls.forEach(function (fadeEl, index) {
+        gsap.to(fadeEl, {
+          duration: 1,
+          delay: (index + 1) * 0.8,
+          opacity: 1,
+        });
+      });
+    },
   },
 };
 </script>
@@ -64,13 +83,15 @@ export default {
 .content {
   margin: auto 0;
 }
+.fade-in {
+  opacity: 0; 
+}
 
 .black-btn {
-  background-color: #000 !important; /* 검정색 배경 */
-  color: #fff !important; /* 흰색 글자 */
-  border: none !important; /* 기본 테두리 제거 */
-  font-weight: bold; /* 글자 두께 조절 */
-  text-transform: uppercase; /* 대문자 변환 */
+  background-color: #000 !important;
+  color: #fff !important; 
+  border: none !important; 
+  font-weight: bold;
 }
 
 .black-btn:hover {
