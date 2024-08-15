@@ -1,12 +1,11 @@
 <template>
     <v-app>
         <v-container>
-            <!-- 블록 세부 정보 카드 -->
             <v-card>
                 <v-row>
                     <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
-                    <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
-                        <v-col cols="8">
+                    <v-col cols="8">
+                        <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
                             <v-card-title>
                                 <v-text-field v-model="localBlock.title" label="제목" required />
                             </v-card-title>
@@ -20,17 +19,21 @@
                             </span>
                             <v-img :src="localBlock.imageUrl" alt="블록 이미지" class="mb-3"></v-img>
                             <v-textarea v-model="localBlock.content" label="내용" />
-                        </v-col>
-                    </v-form>
+                        </v-form>
+                    </v-col>
 
                     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
                     <v-col cols="4">
                         <v-card>
-                            <v-list-item>
-                                <v-list-item-content>
-                                    <v-text-field v-model="localBlock.category" label="카테고리" required />
-                                </v-list-item-content>
-                            </v-list-item>
+                            <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+                            <div class="category-buttons-wrapper">
+                                <div class="category-buttons">
+                                    <v-btn v-for="item in filteredCategories" :key="item.category"
+                                        :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff' }">
+                                        #{{ item.label }}
+                                    </v-btn>
+                                </div>
+                            </div>
                             <v-divider></v-divider>
                             <v-list-item>
                                 <v-list-item-content>
@@ -57,7 +60,7 @@
                         </v-card>
                     </v-col>
                 </v-row>
-                <div style="float: right;">
+                <div style="float: right; width:fit-content; margin-top: 16px;">
                     <v-btn type="submit" color="primary">저장</v-btn>
                     <v-btn @click="cancel" color="secondary">취소</v-btn>
                     <v-btn @click="deleteBlock" color="red" class="ml-2">삭제</v-btn>
@@ -67,6 +70,7 @@
     </v-app>
 </template>
 
+
 <script>
 import axios from 'axios';
 import GoogleMap from "@/components/GoogleMap.vue";
@@ -75,6 +79,36 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export default {
+    data() {
+        return {
+            categoryMap: {
+                SPOT: "명소",
+                RESTAURANT: "식당",
+                CAFE: "카페",
+                ETC: "기타"
+            },
+            categoryColors: {
+                SPOT: [255, 182, 193],
+                CAFE: [255, 180, 110],
+                RESTAURANT: [173, 216, 230],
+                ETC: [192, 192, 192],
+            },
+        }
+    },
+    computed: {
+        translatedCategories() {
+            return Object.keys(this.categoryMap).map(category => ({
+                category,
+                label: this.categoryMap[category],
+                color: this.categoryColors[category]
+            }));
+        },
+        filteredCategories() {
+            const filtered = this.translatedCategories.filter(item => item.label === this.localBlock.category);
+            console.log('Filtered Categories:', filtered); // 디버깅을 위한 로그
+            return filtered;
+        }
+    },
     components: { CustomModal, GoogleMap },
     setup() {
         const route = useRoute();
