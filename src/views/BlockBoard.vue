@@ -10,7 +10,27 @@
                             <span class="headline">{{ localBlock.title }}</span>
                         </v-card-title>
                         <v-card-subtitle>{{ localBlock.placeName }}</v-card-subtitle>
-                        <v-img :src="localBlock.imageUrl" alt="블록 이미지" class="mb-3"></v-img>
+                    
+                        <!-- 블럭내 이미지 -->
+                        <div class="slider-container">
+                            <button class="slider-btn prev-btn" @click="prevSlide">
+                                <v-icon>mdi-chevron-left</v-icon>
+                            </button>
+                            <div class="slider">
+                                <div
+                                    class="slider-item"
+                                    v-for="(photo, index) in blockPhotos"
+                                    :key="photo.photoId"
+                                    :class="{ active: index === activeIndex }"
+                                >
+                                    <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                                </div>
+                            </div>
+                            <button class="slider-btn next-btn" @click="nextSlide">
+                                <v-icon>mdi-chevron-right</v-icon>
+                            </button>
+                        </div>
+                        
                         <v-card-text>{{ localBlock.content }}</v-card-text>
                     </v-col>
 
@@ -114,13 +134,14 @@ export default {
             category: '',
             content: '',
             placeName: '',
-            imageUrl: '',
             likes: 0,
             comments: null, // 초기값을 null로 설정
             liked: false,
             startTime: null,
             endTime: null,
         });
+        const blockPhotos = ref([]);
+        const activeIndex = ref(0);
 
         const valid = ref(true);
         const startDateMenu = ref(false);
@@ -145,6 +166,7 @@ export default {
                 const blockId = route.params.blockId;
                 const response = await axios.get(`http://localhost:8088/api/v1/block/${blockId}/detail`);
                 const blockData = response.data.result;
+                console.log(blockData);
                 localBlock.value = {
                     ...blockData,
                     category: categoryMap[blockData.category] || blockData.category,
@@ -196,16 +218,39 @@ export default {
                 }
             }
         };
-
         const handlePlaceSelected = (place) => {
             localBlock.value.placeName = place.name;
         };
+        const getPhotos = async () => {
+            try {
+                const blockId = route.params.blockId;
+                const response = await axios.get(`http://localhost:8088/api/v1/photo/${blockId}/list`);
+                blockPhotos.value = response.data.result.photoList;
+                console.log(blockPhotos.value);
+            } catch(e){
+                console.log(e);
+            }
+        };
+        const nextSlide = () => {
+            activeIndex.value = (activeIndex.value + 1) % blockPhotos.value.length;
+            updateSliderPosition();
+        };
 
+        const prevSlide = () => {
+            activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length) % blockPhotos.value.length;
+            updateSliderPosition();
+        };
+
+        const updateSliderPosition = () => {
+            const slider = document.querySelector('.slider');
+            const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
+            slider.style.transform = `translateX(${offset}px)`;
+        };
         onMounted(async () => {
             selectedBlock.value = route.params.blockId;
             await fetchBlock();
+            await getPhotos();
         });
-
         return {
             showMapModal,
             localBlock,
@@ -218,7 +263,80 @@ export default {
             cancel,
             deleteBlock,
             handlePlaceSelected,
+            blockPhotos,
+            nextSlide,
+            prevSlide,
         };
     },
+    
 };
 </script>
+
+<style>
+.slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+    width: 100%;
+    max-width: 600px;
+    height: 500px;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
+
+.slider-item {
+    min-width: 500px;
+    height: 500px;
+    margin: 0 10px;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1; /* 기본적으로 모든 이미지 뚜렷하게 */
+}
+
+.slider-item.active {
+    opacity: 1;
+}
+
+.slider-item:not(.active) {
+    opacity: 1; /* 흐리지 않게 설정 */
+}
+
+.slider-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+.slider-btn v-icon {
+    font-size: 24px;
+    color: black;
+}
+</style>
