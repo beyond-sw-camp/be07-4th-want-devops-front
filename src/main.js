@@ -28,6 +28,29 @@ axios.interceptors.request.use(
   }
 );
 
+axios.interceptors.response.use( // 응답을 받기 전에 처리
+    response => { // 응답이 성공적으로 왔을 때
+        return response; // 응답을 반환
+    },
+    async error => {
+        if (error.response && error.response.status === 401 ){
+            const refreshToken = localStorage.getItem('refreshToken');
+            try {
+                localStorage.removeItem('token')
+                alert('토큰이 만료되었습니다. 다시 로그인해주세요.1')
+                const response = await axios.post(`${process.env.VUE_APP_API_BASE_URI}/refresh-token`, {refreshToken});
+                localStorage.setItem('token', response.data.result.token);
+                window.location.reload(); // 토큰이 갱신되었으므로 페이지 새로고침
+            } catch (e) {
+                localStorage.clear();
+                alert('토큰이 만료되었습니다. 다시 로그인해주세요.2')
+                window.location.href = '/';
+            }
+        }
+        return Promise.reject(error);
+    }
+)
+
 app.use(router);
 app.use(vuetify);
 app.use(store);
