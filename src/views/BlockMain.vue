@@ -4,13 +4,9 @@
       <v-row>
         <v-col cols="12" md="8" class="scheduler-container">
           <!-- devExtreme -->
-          <DxScheduler
-              :data-source="dataSource"
-              :current-date="currentDate"
-              :onAppointmentUpdated="onAppointmentUpdated"
-              :appointment-template="appointmentTemplate"
-              :editing="{ allowUpdating: false, allowDeleting: false, allowAdding: false }"
-          />
+          <DxScheduler :data-source="dataSource" :current-date="currentDate"
+            :onAppointmentUpdated="onAppointmentUpdated" :appointment-template="appointmentTemplate"
+            :editing="{ allowUpdating: false, allowDeleting: false, allowAdding: false }" />
         </v-col>
         <!-- Block List -->
         <v-col cols="12" md="4" class="block-list" ref="blockList">
@@ -18,32 +14,23 @@
           <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
           <div class="category-buttons-wrapper">
             <div class="category-buttons">
-              <v-btn
-                  v-for="(color, category) in categoryColors"
-                  :key="category"
-                  :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
-                  @click="filterByCategory(category)"
-              >
+              <v-btn v-for="(color, category) in categoryColors" :key="category"
+                :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+                @click="filterByCategory(category)">
                 #{{ categoryMap[category] }}
               </v-btn>
             </div>
           </div>
           <!-- 좋아요 수에 따른 블럭 정렬 -->
           <v-list>
-            <v-list-item
-                v-for="block in sortedFilteredDataSource"
-                :key="block.id"
-                :style="getStyle(block.category, block.heartCount)"
-                @click="updateBlock(block)"
-            >
+            <v-list-item v-for="block in sortedFilteredDataSource" :key="block.id"
+              :style="getStyle(block.category, block.heartCount)" @click="updateBlock(block)">
               <div class="block-title">
                 {{ block.title }}
               </div>
               <div class="block-heart">
                 <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
-                <v-icon
-                    @click.stop="toggleLike(block)"
-                >
+                <v-icon @click.stop="toggleLike(block)">
                   <!-- 좋아요 상태에 따라 아이콘 변경 -->
                   <template v-if="block.liked">
                     mdi-heart
@@ -63,16 +50,16 @@
         </v-col>
       </v-row>
     </v-container>
-    <FooterComponent/>
+    <FooterComponent />
   </v-app>
 </template>
 
 <script>
 import "devextreme/dist/css/dx.light.css";
-import {DxScheduler} from "devextreme-vue/scheduler";
+import { DxScheduler } from "devextreme-vue/scheduler";
 import axios from "axios";
 import FooterComponent from "@/components/head_and_foot/FooterComponent.vue";
-import {mdiHeart, mdiHeartOutline} from '@mdi/js';
+import { mdiHeart, mdiHeartOutline } from '@mdi/js';
 
 export default {
   components: {
@@ -111,15 +98,15 @@ export default {
   computed: {
     sortedDataSource() {
       return this.dataSource
-          ? this.dataSource.slice().sort((a, b) => b.heartCount - a.heartCount)
-          : [];
+        ? this.dataSource.slice().sort((a, b) => b.heartCount - a.heartCount)
+        : [];
     },
     sortedFilteredDataSource() {
       if (this.selectedCategory === null) {
         return this.sortedDataSource;
       }
       return this.sortedDataSource.filter(
-          (block) => block.category === this.selectedCategory
+        (block) => block.category === this.selectedCategory
       );
     },
     translatedCategories() {
@@ -138,7 +125,7 @@ export default {
         const projectId = 1;
         // 카테고리를 파라미터 형식으로 전달
         const response = await axios.get(
-            `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list` );
+          `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`);
         const blockList = response.data.result;
         console.log(response);
         if (blockList && Array.isArray(blockList)) {
@@ -148,11 +135,11 @@ export default {
             liked: block.isHearted  // 서버에서 받아온 isHearted 값을 liked로 설정
           }));
 
-        // if (blockList && Array.isArray(blockList)) {
-        //   this.dataSource = blockList.map(block => ({
-        //     ...block,
-        //     liked: block.liked || false,  // 서버에서 받은 좋아요 상태를 DB 반영
-        //   }));
+          // if (blockList && Array.isArray(blockList)) {
+          //   this.dataSource = blockList.map(block => ({
+          //     ...block,
+          //     liked: block.liked || false,  // 서버에서 받은 좋아요 상태를 DB 반영
+          //   }));
 
         } else {
           console.error("잘못된 데이터 형식입니다.");
@@ -166,8 +153,8 @@ export default {
     async onAppointmentUpdated(e) {
       const updatedBlock = e.appointmentData;
       const url = updatedBlock.active
-          ? `/block/addDate`
-          : `/block/${updatedBlock.id}/not/active`;
+        ? `/block/addDate`
+        : `/block/${updatedBlock.id}/not/active`;
       try {
         await axios.patch(url, updatedBlock);
       } catch (error) {
@@ -185,13 +172,18 @@ export default {
         liked: false, // 초기 상태 추가
       };
       this.dataSource.push(newBlock);
-      this.selectedBlock = {...newBlock};
+      this.selectedBlock = { ...newBlock };
       this.dialog = true;
     },
 
     updateBlock(block) {
-      this.$router.push({name: 'BlockUpdate', params: {id: block.blockId}});
-    },
+    const blockId = block.blockId || block.id;
+    if (!blockId) {
+      console.error("Block ID가 누락되었습니다.");
+      return;
+    }
+    this.$router.push({ name: 'BlockBoard', params: { blockId } });
+  },
 
     async toggleLike(block) {
       const wasLiked = block.liked;
@@ -200,13 +192,13 @@ export default {
       block.heartCount = newHeartCount;
       try {
         await axios.post(
-            `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
-            {}, // 빈 본문으로 요청
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 헤더에 포함
-              },
-            }
+          `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
+          {}, // 빈 본문으로 요청
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 헤더에 포함
+            },
+          }
         );
       } catch (error) {
         console.error("좋아요 업데이트 중 오류 발생:", error);
@@ -219,13 +211,13 @@ export default {
     async handleUpdate(updatedBlock) {
       try {
         const response = await axios.patch(
-            `http://localhost:8088/api/v1/block/update/${updatedBlock.id}`,
-            updatedBlock,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
+          `http://localhost:8088/api/v1/block/detail/${updatedBlock.id}`,
+          updatedBlock,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
         if (response.status === 200) {
           alert("블럭이 성공적으로 업데이트되었습니다.");
