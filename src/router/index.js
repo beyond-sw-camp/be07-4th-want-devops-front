@@ -7,6 +7,9 @@ import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
 import BlockMain from '@/views/BlockMain.vue';
 import BlockDetail from '@/views/BlockDetail.vue';
+import BlockBoard from '@/views/BlockBoard.vue';
+import BlockMain from '@/views/BlockMain.vue';
+import BlockDetail from '@/views/BlockDetail.vue';
 import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
 import {myPageRouter} from './myPageRouter';
 
@@ -64,6 +67,11 @@ const routes = [
     path: "/block/main",
     name: "BlockMain",
     component: BlockMain,
+  },
+  {
+    path: "/block/:blockId/board",
+    name: "BlockBoard",
+    component: BlockBoard,
   },
   {
     path: "/second",
