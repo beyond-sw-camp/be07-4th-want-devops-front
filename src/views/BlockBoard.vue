@@ -11,53 +11,65 @@
                             </v-card-title>
                             <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
                                 <v-card-subtitle>
-                                    {{ localBlock.placeName }}
+                                    <template v-if="localBlock.placeName">
+                                        {{ localBlock.placeName }}
+                                    </template>
+                                    <template v-else>
+                                        📍 지도에서 장소 지정하기
+                                    </template>
                                 </v-card-subtitle>
                                 <CustomModal v-model:modelValue="showMapModal">
                                     <GoogleMap @place-selected="handlePlaceSelected" />
                                 </CustomModal>
                             </span>
                             <v-img :src="localBlock.imageUrl" alt="블록 이미지" class="mb-3"></v-img>
-                            <v-textarea v-model="localBlock.content" label="내용" />
+                            <v-textarea v-model="localBlock.content" label="내용" style="margin-left: 15px;"/>
                         </v-form>
                     </v-col>
 
                     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
                     <v-col cols="4">
-                        <v-card>
-                            <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-                            <div class="category-buttons-wrapper">
-                                <div class="category-buttons">
-                                    <v-btn v-for="item in filteredCategories" :key="item.category"
-                                        :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff' }">
-                                        #{{ item.label }}
-                                    </v-btn>
-                                </div>
+
+                        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+                        <div class="category-buttons-wrapper">
+                            <div class="category-buttons">
+                                <v-btn v-for="item in filteredCategories" :key="item.category"
+                                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff' }">
+                                    #{{ item.label }}
+                                </v-btn>
                             </div>
-                            <v-divider></v-divider>
-                            <v-list-item>
-                                <v-list-item-content>
-                                    <v-list-item-title>블록 {{ selectedBlock }}</v-list-item-title>
-                                    <v-list-item-subtitle>선택한 블록</v-list-item-subtitle>
-                                </v-list-item-content>
-                            </v-list-item>
-                            <v-divider></v-divider>
-                            <v-list-item>
-                                <v-list-item-content>
-                                    <v-icon left :color="localBlock.liked ? 'red' : ''">mdi-heart</v-icon>
-                                    <v-list-item-title>{{ localBlock.likes }} 좋아요</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                            <v-divider></v-divider>
-                            <v-list-item>
-                                <v-list-item-content>
-                                    <v-list-item-title>댓글</v-list-item-title>
-                                    <v-list-item-subtitle>
-                                        {{ localBlock.comments ? localBlock.comments.join(', ') : '댓글 없음' }}
-                                    </v-list-item-subtitle>
-                                </v-list-item-content>
-                            </v-list-item>
-                        </v-card>
+                        </div>
+                        <v-list-item :style="getStyle()">
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    {{ localBlock.title }}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item>
+                            <div class="block-heart">
+                                <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
+                                <v-icon @click.stop="toggleLike(localBlock)">
+                                    <!-- 좋아요 상태에 따라 아이콘 변경 -->
+                                    <template v-if="localBlock.isHearted">
+                                        mdi-heart
+                                    </template>
+                                    <template v-else>
+                                        mdi-heart-outline
+                                    </template>
+                                </v-icon>
+                                <span class="heart-count" style="font-size: small;"> 좋아요 {{ localBlock.heartCount }}
+                                    개</span>
+                            </div>
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>댓글</v-list-item-title>
+                                <v-list-item-subtitle>
+                                    {{ localBlock.comments ? localBlock.comments.join(', ') : '댓글 없음' }}
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
                     </v-col>
                 </v-row>
                 <div style="float: right; width:fit-content; margin-top: 16px;">
@@ -121,9 +133,8 @@ export default {
             content: '',
             placeName: '',
             imageUrl: '',
-            likes: 0,
+            heartCount: 0,
             comments: null, // 초기값을 null로 설정
-            liked: false,
             startTime: null,
             endTime: null,
         });
@@ -154,6 +165,7 @@ export default {
                 localBlock.value = {
                     ...blockData,
                     category: categoryMap[blockData.category] || blockData.category,
+                    isHearted: blockData.isHearted
                 };
             } catch (error) {
                 console.error('블록 정보를 가져오는 중 오류 발생:', error);
@@ -226,5 +238,39 @@ export default {
             handlePlaceSelected,
         };
     },
+    methods: {
+        async toggleLike(localBlock) {
+            const wasLiked = localBlock.isHearted;
+            const newHeartCount = wasLiked ? localBlock.heartCount - 1 : localBlock.heartCount + 1;
+            localBlock.isHearted = !wasLiked;
+            localBlock.heartCount = newHeartCount;
+            try {
+                await axios.post(
+                    `http://localhost:8088/api/v1/block/${localBlock.blockId}/heart`,
+                    {}, // 빈 본문으로 요청
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 헤더에 포함
+                        },
+                    }
+                );
+            } catch (error) {
+                console.error("좋아요 업데이트 중 오류 발생:", error);
+                // 업데이트 실패 시 로컬에서 변경 사항 되돌리기
+                localBlock.isHearted = wasLiked;
+                localBlock.heartCount = wasLiked ? localBlock.heartCount + 1 : localBlock.heartCount - 1;
+            }
+        },
+        getStyle() {
+            return {
+                backgroundColor: localStorage.getItem('backgroundColor'),
+                padding: "20px",
+                margin: "10px 0",
+                borderRadius: "10px !important",
+                color: "#000",
+            };
+        },
+    }
+
 };
 </script>

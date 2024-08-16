@@ -24,7 +24,7 @@
           <!-- 좋아요 수에 따른 블럭 정렬 -->
           <v-list>
             <v-list-item v-for="block in sortedFilteredDataSource" :key="block.id"
-              :style="getStyle(block.category, block.heartCount)" @click="updateBlock(block)">
+              :style="getStyle(block.category, block.heartCount)" @click="updateBlock(block, getStyle(block.category, block.heartCount))">
               <div class="block-title">
                 {{ block.title }}
               </div>
@@ -176,12 +176,13 @@ export default {
       this.dialog = true;
     },
 
-    updateBlock(block) {
+    updateBlock(block, getStyle) {
     const blockId = block.blockId || block.id;
     if (!blockId) {
       console.error("Block ID가 누락되었습니다.");
       return;
     }
+    localStorage.setItem('backgroundColor', getStyle.backgroundColor)
     this.$router.push({ name: 'BlockBoard', params: { blockId } });
   },
 
@@ -250,7 +251,7 @@ export default {
         backgroundColor: `rgb(${r}, ${g}, ${b})`,
         padding: "20px",
         margin: "10px 0",
-        borderRadius: "5px",
+        borderRadius: "10px !important",
         color: "#000",
       };
     },
