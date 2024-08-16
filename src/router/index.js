@@ -5,8 +5,9 @@ import {projectRouter} from "@/router/projectRouter";
 // import GoogleLogin from "@/components/login/GoogleLogin";
 import Oauth2Callback from '@/components/login/OAuth2Callback.vue';
 import FirstPage from "@/views/FirstPage";
-import BlockBoard from '@/views/BlockBoard.vue';
-import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
+import BlockMain from "@/views/BlockMain.vue";
+import BlockDetail from "@/views/BlockDetail.vue";
+import BlockBoard from "@/views/BlockBoard.vue";
 import AccessDenied from "@/components/Scheduler/AccessDenied.vue";
 
 import { myPageRouter } from "./myPageRouter";
@@ -39,11 +40,6 @@ const routes = [
     path: "/oauth2/callback",
     name: "Oauth2Callback",
     component: Oauth2Callback,
-  },
-  {
-    path: "/schedule/:projectId",
-    name: "MyScheduler",
-    component: MyScheduler,
   },
   // {
   //   path: "/test/:id",
@@ -84,7 +80,6 @@ const routes = [
   ...practiceRouter,
   ...projectRouter,
   ...myPageRouter,
-
 ];
 
 const router = new createRouter(

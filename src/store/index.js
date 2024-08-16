@@ -28,7 +28,7 @@ export default createStore({
         );
         commit("setProjectDetail", response.data.result);
       } catch (error) {
-        console.error("Error fetching project detail:", error);
+        throw new Error("Access Denied");
       }
     },
     async fetchUser({ commit }) {
