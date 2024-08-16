@@ -46,6 +46,7 @@
             class="projectCard"
             v-for="project in filteredProjects"
             :key="project.projectId"
+            @click="goToMyPage(project.projectId)"
           >
             <div class="modalContainer">
               <span class="material-symbols-outlined moreBtn" @click="toggleMenu(project.projectId)">
@@ -93,7 +94,8 @@
 
 
 <script>
-import axios from 'axios';
+import router from "@/router";
+import axios from "axios";
 
 export default {
   data() {
@@ -156,6 +158,7 @@ export default {
           this.projectList = [...this.projectList, ...newProjects];
           this.filterProjects(); // 필터링을 적용
           this.currentPage++;
+          console.log("ProjectList: ", this.projectList);
         }
       } catch (e) {
         console.log(e);
@@ -216,6 +219,9 @@ export default {
     closeModal() {
       this.showModal = false;
       this.currentProject = null;
+    },
+    goToMyPage(projectId) {
+      router.push({ name: "ProjectDetail", params: { projectId: projectId } });
     },
     async confirmDeletion() {
       try {
