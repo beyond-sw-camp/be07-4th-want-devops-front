@@ -179,7 +179,7 @@
         </v-col>
       </v-row>
 
-      <!-- Scheduler -->
+      <!-- Scheduler and Block List -->
       <v-row class="scheduler-row">
         <v-col cols="9">
           <DxScheduler
@@ -205,6 +205,21 @@
           </DxScheduler>
         </v-col>
         <v-col cols="3" class="block-list-col">
+          <h2>BLOCK LIST</h2>
+          <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+          <div class="category-buttons-wrapper">
+            <div class="category-buttons">
+              <v-btn
+                v-for="(color, category) in categoryColors"
+                :key="category"
+                :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+                @click="filterByCategory(category)"
+              >
+                #{{ categoryMap[category] }}
+              </v-btn>
+            </div>
+          </div>
+
           <DxScrollView id="scroll" class="task-scroll-view">
             <DxDraggable
               id="list"
@@ -217,7 +232,7 @@
               </div>
               <DxDraggable
                 time-zone="Asia/Seoul"
-                v-for="task in tasks"
+                v-for="task in sortedFilteredDataSource"
                 :key="task.blockId"
                 :clone="true"
                 :group="draggingGroupName"
@@ -225,11 +240,26 @@
                 :on-drag-start="onItemDragStart"
                 :on-drag-end="onItemDragEnd"
                 class="item dx-card"
+                @click="updateBlock(task)"
               >
-                {{ task.title }}
+                <div class="block-title">
+                  {{ task.title }}
+                </div>
+                <div class="block-heart">
+                  <v-icon @click.stop="toggleLike(task)">
+                    <template v-if="task.liked"> mdi-heart </template>
+                    <template v-else> mdi-heart-outline </template>
+                  </v-icon>
+                  <span class="heart-count">{{ task.heartCount }}</span>
+                </div>
               </DxDraggable>
             </DxDraggable>
           </DxScrollView>
+
+          <!-- Block 생성 버튼 -->
+          <v-btn @click="createTemporaryBlock" color="primary" class="create-button"
+            >블럭 생성</v-btn
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -264,19 +294,16 @@ const user = computed(() => store.getters.user);
 const showInviteModal = ref(false);
 const inviteEmail = ref("");
 
-const isLogin = ref(false);
-const profileUrl = ref("");
+// 이 두 변수는 사용되지 않으므로 제거합니다
+// const isLogin = ref(false);
+// const profileUrl = ref("");
+
+const selectedCategory = ref(null);
 
 onMounted(async () => {
   try {
     console.log("Fetching project details...");
-    try {
-      await store.dispatch("fetchProjectDetail", projectId);
-    } catch (error) {
-      if (error.message === "Access Denied") {
-        router.push({ name: "AccessDenied" });
-      }
-    } // projectId만 전달
+    await store.dispatch("fetchProjectDetail", projectId);
     projectDetail.value = store.getters.projectDetail;
     console.log("Project Detail Data:", projectDetail.value);
 
@@ -292,7 +319,13 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Error initializing data:", error);
+    if (error.message === "Access Denied") {
+      router.push({ name: "AccessDenied" });
+    }
   }
+  fetchTasks();
+  fetchAppointments();
+  store.dispatch("fetchUser");
 });
 
 async function fetchTasks() {
@@ -306,7 +339,8 @@ async function fetchTasks() {
       content: block.content,
       startTime: block.startTime,
       endTime: block.endTime,
-      // 필요한 경우 추가 필드를 매핑합니다
+      heartCount: block.heartCount,
+      liked: block.isHearted,
     }));
     console.log("tasks data : ", tasks.value);
   } catch (error) {
@@ -324,19 +358,13 @@ async function fetchAppointments() {
       text: block.title,
       startDate: new Date(block.startTime),
       endDate: new Date(block.endTime),
-      allDay: false, // 필요시 조건에 따라 설정
+      allDay: false,
     }));
     console.log("Appointments data:", appointments.value);
   } catch (error) {
     console.error("Failed to fetch appointments:", error);
   }
 }
-
-onMounted(() => {
-  fetchTasks();
-  fetchAppointments();
-  store.dispatch("fetchUser");
-});
 
 async function onAppointmentRemove({ itemData }) {
   console.log("Removing appointment:", itemData);
@@ -345,18 +373,9 @@ async function onAppointmentRemove({ itemData }) {
 
   if (index >= 0) {
     const blockId = itemData.id;
-    console.log("blockId :", blockId);
     const originalStartTime = itemData.startDate.toISOString();
     const originalEndTime = itemData.endDate.toISOString();
     const blockTitle = itemData.title;
-
-    console.log("Sending to server:", {
-      blockId,
-      originalStartTime,
-      originalEndTime,
-      blockTitle,
-    });
-    console.log("itemData: ", itemData);
 
     try {
       const response = await axios.patch(
@@ -375,12 +394,11 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
     } catch (error) {
-      console.error("Failed to Remomve block:", error);
+      console.error("Failed to Remove block:", error);
     }
   }
 }
 
-// 끌어다 놓기 O
 async function onAppointmentAdd(e) {
   console.log("Before add tv :", tasks.value);
   console.log("Before add av :", appointments.value);
@@ -408,10 +426,9 @@ async function onAppointmentAdd(e) {
       console.log(response);
 
       if (index >= 0) {
-        // tasks에 해당 task가 존재하면
-        tasks.value = [...tasks.value]; // tasks를 복사하여 갱신
-        tasks.value.splice(index, 1); // tasks에서 해당 task를 제거
-        appointments.value = [...appointments.value, e.itemData]; // appointments에 추가
+        tasks.value = [...tasks.value];
+        tasks.value.splice(index, 1);
+        appointments.value = [...appointments.value, e.itemData];
       }
       console.log("after tv :", tasks.value);
       console.log("after av :", appointments.value);
@@ -423,19 +440,13 @@ async function onAppointmentAdd(e) {
 
 async function onAppointmentUpdated(e) {
   const updatedAppointment = e.appointmentData;
-  const appoitnmentId = updatedAppointment.id;
-  const updateStartTime = updatedAppointment.startDate.toISOString(); // 변경된 시작 시간
-  const updateEndTime = updatedAppointment.endDate.toISOString(); // 변경된 시작 시간
-
-  console.log("updatedAppointment : ", updatedAppointment);
-  console.log("appoitnmentId : ", appoitnmentId);
-  console.log("updateStartTime : ", updateStartTime);
-  console.log("updateEndTime : ", updateEndTime);
+  const appointmentId = updatedAppointment.id;
+  const updateStartTime = updatedAppointment.startDate.toISOString();
+  const updateEndTime = updatedAppointment.endDate.toISOString();
 
   try {
-    // 서버로 업데이트 된 데이터를 전송하여 DB에 반영
     await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`, {
-      blockId: appoitnmentId,
+      blockId: appointmentId,
       startTime: updateStartTime,
       endTime: updateEndTime,
     });
@@ -448,11 +459,11 @@ async function onAppointmentUpdated(e) {
 async function confirmDeletion() {
   try {
     await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}`);
-    router.go(); // 현재 페이지를 새로고침
+    router.go();
   } catch (e) {
     console.log(e);
   } finally {
-    closeDialog(); // 모달 닫기
+    closeDialog();
   }
 }
 
@@ -470,23 +481,7 @@ function onItemDragEnd(e) {
   }
 }
 
-function loadStylesheet() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
-  document.head.appendChild(link);
-}
-
-function checkLoginStatus() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    isLogin.value = true;
-    profileUrl.value = localStorage.getItem("profileUrl");
-  }
-}
-
 function goToMyPage() {
-  // 마이페이지로 이동
   router.push({ name: "MyPage" });
 }
 
@@ -502,20 +497,15 @@ async function inviteMembers() {
   const newMemberEmail = inviteEmail.value;
 
   try {
-    // 초대 요청을 서버에 보냄
     await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/invite`, {
-      projectId: projectId, // 현재 프로젝트 ID
-      otherMemberEmail: user.value.email, // 초대할 멤버의 이메일
-      email: newMemberEmail, // 현재 로그인된 사용자의 이메일
+      projectId: projectId,
+      otherMemberEmail: user.value.email,
+      email: newMemberEmail,
     });
 
-    // 성공 시 사용자에게 알림
     alert("초대가 성공적으로 완료되었습니다.");
-
-    // 모달 닫기
     showInviteModal.value = false;
   } catch (error) {
-    // 오류 발생 시 사용자에게 알림
     if (
       error.response &&
       error.response.data.status_message === "Member already exists."
@@ -529,10 +519,62 @@ async function inviteMembers() {
   console.log("Inviting:", newMemberEmail);
 }
 
-onMounted(() => {
-  loadStylesheet();
-  checkLoginStatus();
+const sortedFilteredDataSource = computed(() => {
+  if (!selectedCategory.value) {
+    return tasks.value;
+  }
+  return tasks.value.filter((task) => task.category === selectedCategory.value);
 });
+
+function toggleLike(block) {
+  block.liked = !block.liked;
+  block.heartCount += block.liked ? 1 : -1;
+
+  axios
+    .post(
+      `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
+    .catch((error) => {
+      console.error("좋아요 업데이트 중 오류 발생:", error);
+      block.liked = !block.liked;
+      block.heartCount += block.liked ? 1 : -1;
+    });
+}
+
+function createTemporaryBlock() {
+  const newBlock = {
+    id: `temp-${Date.now()}`,
+    title: "새 블럭",
+    projectId: projectId,
+    category: "",
+    heartCount: 0,
+    liked: false,
+  };
+  tasks.value.push(newBlock);
+}
+
+function updateBlock(block) {
+  const blockId = block.blockId || block.id;
+  if (!blockId) {
+    console.error("Block ID가 누락되었습니다.");
+    return;
+  }
+  router.push({ name: "BlockBoard", params: { blockId } });
+}
+
+function filterByCategory(category) {
+  if (selectedCategory.value === category) {
+    selectedCategory.value = null;
+  } else {
+    selectedCategory.value = category;
+  }
+}
 </script>
 
 <style scoped>
@@ -558,9 +600,9 @@ onMounted(() => {
   right: 0;
   top: 2px;
   bottom: 0;
-  width: 300px; /* 고정된 너비 */
+  width: 300px;
   background-color: #424242;
-  overflow-y: auto; /* 스크롤 가능하도록 설정 */
+  overflow-y: auto;
 }
 
 .task-scroll-view {
@@ -586,19 +628,48 @@ onMounted(() => {
 }
 
 .empty-list {
-  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
-  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
-  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  min-height: 100px;
+  background-color: #f5f5f5;
+  border: 2px dashed #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   font-size: 16px;
   color: #666;
-  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
-  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
-  user-select: none; /* 텍스트가 선택되지 않도록 */
-  pointer-events: none; /* 클릭 이벤트 무시 */
-  -webkit-user-drag: none; /* 드래그 방지 */
+  position: relative;
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.category-buttons-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 20px;
+}
+
+.category-buttons {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.category-buttons .v-btn {
+  margin: 0 5px;
+}
+
+.block-title {
+  width: fit-content;
+}
+
+.block-heart {
+  width: fit-content;
+  float: right;
+}
+
+.create-button {
+  margin-top: 10px;
+  width: 100%;
 }
 </style>
