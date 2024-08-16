@@ -9,39 +9,85 @@
           {{ block.title }}: {{ block.latitude }}, {{ block.longitude }}
         </li>
       </ul>
+      <div class="pagination-controls">
+        <button @click="prevPage" :disabled="currentPage === 0">Previous</button>
+        <button @click="nextPage" :disabled="currentPage === dateList.length - 1">Next</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
-import { loadGoogleMapsApi } from '@/plugins/google-maps.js';  // 플러그인 import
+import { loadGoogleMapsApi } from '@/plugins/google-maps.js';
 
 export default {
   setup() {
     const blocks = ref([]);
-    const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY; // 환경 변수에서 API 키 가져오기
-    const projectId = 1; // 사용할 프로젝트 ID
-    const date = '2024-08-014'; // 날짜 예시
-    const apiUrl = `http://localhost:8088/api/v1/project/${projectId}/block/list/date?date=${date}`;
+    const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
+    const projectId = 1;
+    const dateList = ref([]);
+    const currentPage = ref(0);
 
-    const fetchBlocks = async () => {
+    // Fetches project date range and initialize dates
+    const fetchDates = async () => {
       try {
-        const response = await axios.get(apiUrl);
-        blocks.value = response.data.result; // API 응답 구조 확인 필요
-        initMap(); // 데이터 로드 후 지도 초기화
+        console.log("Fetching project details...");
+
+        const projectResponse = await axios.get(`http://localhost:8088/api/v1/project/${projectId}/detail`);
+        console.log("Project details response:", projectResponse.data);
+        const {startTravel, endTravel} = projectResponse.data.result;
+
+        // Generate the date range between startDate and endDate
+        dateList.value = getDateRange(new Date(startTravel), new Date(endTravel));
+        console.log("Generated date range:", dateList.value);
+
+        // Load blocks for the initial page
+        if (dateList.value.length > 0) {
+          await fetchBlocksForDate(dateList.value[currentPage.value]);
+        }
       } catch (error) {
-        console.error('Error fetching blocks:', error);
+        console.error('Error fetching project details:', error);
       }
     };
 
+    // Generates an array of dates between startDate and endDate
+    const getDateRange = (startTravel, endTravel) => {
+      const dateList = [];
+      let currentDate = startTravel;
+
+      while (currentDate <= endTravel) {
+        dateList.push(currentDate.toISOString().split('T')[0]); // 'YYYY-MM-DD' format
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dateList;
+    };
+
+    // Fetch blocks for a specific date
+    const fetchBlocksForDate = async (date) => {
+      try {
+        console.log(`Fetching blocks for date: ${date}`);
+        const apiUrl = `http://localhost:8088/api/v1/project/${projectId}/block/list/date?date=${date}`;
+        const response = await axios.get(apiUrl);
+        console.log(`Blocks fetched for date ${date}:`, response.data.result);
+        blocks.value = response.data.result;
+        initMap();
+      } catch (error) {
+        console.error(`Error fetching blocks for date ${date}:`, error);
+      }
+    };
+
+    // Initialize and render Google Map with blocks
     const initMap = () => {
+      console.log("Initializing map...");
       loadGoogleMapsApi(apiKey)
           .then(maps => {
+            console.log("Google Maps API loaded successfully.");
             const map = new maps.Map(document.getElementById('map'), {
               center: {lat: 37.5651, lng: 126.9760},
-              zoom: 14
+              zoom: 14,
             });
 
             const bounds = new maps.LatLngBounds();
@@ -56,29 +102,35 @@ export default {
               }
 
               const position = {lat, lng};
+              console.log(`Adding marker for block: ${block.title}, position:`, position);
 
+              // Create a marker for each block
               new maps.Marker({
-                position: position,
-                map: map,
-                title: block.title
+                position,
+                map,
+                title: block.title,
               });
 
               path.push(position);
               bounds.extend(position);
             });
 
+            // Draw a polyline connecting the blocks if there are multiple blocks
             if (path.length > 1) {
+              console.log("Drawing polyline with path:", path);
               new maps.Polyline({
-                path: path,
+                path,
                 geodesic: true,
                 strokeColor: '#FF0000',
                 strokeOpacity: 1.0,
                 strokeWeight: 2,
-                map: map
+                map,
               });
             }
 
+            // Adjust the map view to fit all markers
             if (!bounds.isEmpty()) {
+              console.log("Fitting map to bounds:", bounds);
               map.fitBounds(bounds);
             }
           })
@@ -87,11 +139,37 @@ export default {
           });
     };
 
+    // Change page to the previous date
+    const prevPage = async () => {
+      if (currentPage.value > 0) {
+        currentPage.value--;
+        await fetchBlocksForDate(dateList.value[currentPage.value]);
+      }
+    };
+
+    // Change page to the next date
+    const nextPage = async () => {
+      if (currentPage.value < dateList.value.length - 1) {
+        currentPage.value++;
+        await fetchBlocksForDate(dateList.value[currentPage.value]);
+      }
+    };
+
+    // Watch for changes in currentPage to update blocks
+    watch(currentPage, async (newPage) => {
+      if (dateList.value.length > 0) {
+        await fetchBlocksForDate(dateList.value[newPage]);
+      }
+    });
+
     onMounted(() => {
-      fetchBlocks();
-    });    return {blocks};
-  }
-}
+      console.log("Component mounted, fetching dates...");
+      fetchDates(); // Fetch dates when the component is mounted
+    });
+
+    return {blocks, prevPage, nextPage, dateList, currentPage};
+  },
+};
 </script>
 
 <style>
@@ -112,5 +190,13 @@ export default {
 #map {
   width: 100%;
   height: 100%;
+}
+
+.pagination-controls {
+  margin-top: 10px;
+}
+
+.pagination-controls button {
+  margin-right: 5px;
 }
 </style>
