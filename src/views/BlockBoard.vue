@@ -426,7 +426,8 @@ export default {
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: rgba(255, 0, 0, 0.7);
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     color: white;
     border-radius: 50%;
     padding: 5px;
