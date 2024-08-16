@@ -4,7 +4,7 @@
     <div class="projectBoard">
         <div class="blockHeader">
             <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
-                <v-btn v-for="item in filteredCategories" :key="item.category"
+                <v-btn v-for="item in filteredCategories" :key="item.category" style="font-size: 17px; font-weight: 700"
                     :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
                     #{{ item.label }}
                 </v-btn>
@@ -12,7 +12,7 @@
             <div class="blockTitle" style="font-size: 32px;">
                 {{ localBlock.title }}
             </div>
-            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
+            <span @click="showMapModal = true" style="cursor: pointer;">
                 <v-card-subtitle>
                     <template v-if="localBlock.placeName">
                         {{ localBlock.placeName }}
@@ -59,7 +59,7 @@
     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
     <div class="projectComment" style="display: inline-block;">
         <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-            <div class="block-heart" style="margin: 20px 0;">
+            <div class="block-heart" style="margin: 60px 0 30px;">
                 <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
                 <v-icon @click.stop="toggleLike(localBlock)">
                     <!-- 좋아요 상태에 따라 아이콘 변경 -->
@@ -70,10 +70,9 @@
                         mdi-heart-outline
                     </template>
                 </v-icon>
-                <span class="heart-count" style="font-size: 15px;"> 좋아요 {{ localBlock.heartCount }}
-                    개</span>
+                <span class="heart-count" style="font-size: 17px; font-weight: 700;"> 좋아요 {{ localBlock.heartCount }}개</span>
             </div>
-
+            <hr>
         <CommentSection :blockId="blockId" />
     </div>
 </div>
@@ -330,20 +329,19 @@ export default {
 
 .projectBoard {
     flex: 1;
-    margin: 50px 0;
+    margin: 20px 0;
     padding: 20px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     width: 62vw;
 }
 
 .projectComment {
-    width: 400px;
+    width: 430px;
     height: 100vh;
     position: absolute;
     top: 0;
     right: 0;
     background-color: white;
-    padding: 100px 20px 0;
+    padding: 80px 20px 0;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
     border-radius: 8px;
 }
@@ -402,8 +400,6 @@ export default {
 .photo-container {
     position: relative;
 }
-
-
 .comment-text {
     white-space: pre-wrap;
     /* 줄바꿈과 공백을 유지 */

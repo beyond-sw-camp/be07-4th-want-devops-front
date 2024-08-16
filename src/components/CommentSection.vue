@@ -54,7 +54,7 @@
         class="form-control"
         placeholder="댓글"
         type="text"
-        style="width: 280px; display: inline-block;"
+        style="width: 320px; display: inline-block;"
         />
       </div>
       <v-btn type="submit" color="primary" style="display: inline-block; width: 20px">게시</v-btn>
