@@ -1,95 +1,84 @@
 <template>
-    <v-app>
-        <v-container>
-            <v-card>
-                <v-row>
-                    <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
-                    <v-col cols="8">
-                        <v-card-title>
-                            <v-text-field v-model="localBlock.title" label="제목" required />
-                            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
-                                <v-card-subtitle>
-                                    <template v-if="localBlock.placeName">
-                                        {{ localBlock.placeName }}
-                                    </template>
-                                    <template v-else>
-                                        📍 지도에서 장소 지정하기
-                                    </template>
-                                </v-card-subtitle>
-                                <CustomModal v-model:modelValue="showMapModal">
-                                    <GoogleMap @place-selected="handlePlaceSelected" />
-                                </CustomModal>
-                            </span>
-                        </v-card-title>
-                        <div class="slider-container">
-                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                                <v-icon>mdi-chevron-left</v-icon>
-                            </button>
-                            <div class="slider">
-                                <div
-                                    class="slider-item"
-                                    v-for="(photo, index) in blockPhotos"
-                                    :key="photo.photoId"
-                                    :class="{ active: index === activeIndex }"
-                                >
-                                    <div class="photo-container">
-                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                                <v-icon>mdi-chevron-right</v-icon>
-                            </button>
-                        </div>
-                            
-                            <!-- 블럭내 이미지 -->
-                    
-                            <v-textarea v-model="localBlock.content" label="내용" style="margin-left: 15px;" />
-                    </v-col>
 
-                    <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
-                    <v-col cols="4">
-                        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-                        <div class="category-buttons-wrapper">
-                            <div class="category-buttons">
-                                <v-btn v-for="item in filteredCategories" :key="item.category"
-                                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff' }">
-                                    #{{ item.label }}
-                                </v-btn>
-                            </div>
-                        </div>
-                        <v-list-item :style="getStyle()">
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    {{ localBlock.title }}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <div class="block-heart">
-                                <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
-                                <v-icon @click.stop="toggleLike(localBlock)">
-                                    <!-- 좋아요 상태에 따라 아이콘 변경 -->
-                                    <template v-if="localBlock.isHearted">
-                                        mdi-heart
-                                    </template>
-                                    <template v-else>
-                                        mdi-heart-outline
-                                    </template>
-                                </v-icon>
-                                <span class="heart-count" style="font-size: small;"> 좋아요 {{ localBlock.heartCount }}
-                                    개</span>
-                            </div>
-                        </v-list-item>
-                        <CommentSection :blockId="blockId" />
-                    </v-col>
-                </v-row>
-            </v-card>
+<div class="container">
+    <div class="projectBoard">
+        <div class="blockHeader">
+            <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
+                <v-btn v-for="item in filteredCategories" :key="item.category"
+                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
+                    #{{ item.label }}
+                </v-btn>
+            </div>
+            <div class="blockTitle" style="font-size: 32px;">
+                {{ localBlock.title }}
+            </div>
+            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
+                <v-card-subtitle>
+                    <template v-if="localBlock.placeName">
+                        {{ localBlock.placeName }}
+                    </template>
+                    <template v-else>
+                        📍 지도에서 장소 지정하기
+                    </template>
+                </v-card-subtitle>
+                <CustomModal v-model:modelValue="showMapModal">
+                    <GoogleMap @place-selected="handlePlaceSelected" />
+                </CustomModal>
+            </span>
+            <span @click.stop="handleMoreOptions" class="material-symbols-outlined" style="margin-left: 5px; cursor: pointer;">more_vert</span>
+        </div>
+        <hr>
+        <div class="slider-container">
+            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                <v-icon>mdi-chevron-left</v-icon>
+            </button>
+            <div class="slider">
+                <div
+                    class="slider-item"
+                    v-for="(photo, index) in blockPhotos"
+                    :key="photo.photoId"
+                    :class="{ active: index === activeIndex }"
+                >
+                    <div class="photo-container">
+                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                    </div>
+                </div>
+                
+            </div>
+            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                <v-icon>mdi-chevron-right</v-icon>
+            </button>
+        </div>
+        <hr>
+        <div class="blockContent" style="margin: 0 20px;">
+            {{ localBlock.content }}
+        </div>
+            
+    </div>
 
+    <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
+    <div class="projectComment" style="display: inline-block;">
+        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+            <div class="block-heart" style="margin: 20px 0;">
+                <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
+                <v-icon @click.stop="toggleLike(localBlock)">
+                    <!-- 좋아요 상태에 따라 아이콘 변경 -->
+                    <template v-if="localBlock.isHearted">
+                        mdi-heart
+                    </template>
+                    <template v-else>
+                        mdi-heart-outline
+                    </template>
+                </v-icon>
+                <span class="heart-count" style="font-size: 15px;"> 좋아요 {{ localBlock.heartCount }}
+                    개</span>
+            </div>
 
-        </v-container>
-    </v-app>
+        <CommentSection :blockId="blockId" />
+    </div>
+</div>
+        
+
 </template>
 
 
@@ -238,7 +227,7 @@ export default {
             }
         };
         const nextSlide = () => {
-            activeIndex.value = (activeIndex.value + 1) % (blockPhotos.value.length + 1);
+            activeIndex.value = (activeIndex.value + 1) % blockPhotos.value.length;
             updateSliderPosition();
         };
 
@@ -317,6 +306,49 @@ export default {
 </script>
 
 <style>
+.blockHeader {
+    display: flex;
+    align-items: center; /* 요소들을 수평으로 정렬 */
+    justify-content: space-between; /* 요소들 사이의 간격을 고르게 배치 */
+    padding: 10px 0; /* 패딩 추가 */
+}
+
+.category-buttons v-btn {
+    margin-right: 10px; /* 버튼 간 간격 추가 */
+}
+
+
+.blockHeader span {
+    margin-left: auto; /* 맵 아이콘을 오른쪽으로 밀기 */
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%; 
+}
+
+.projectBoard {
+    flex: 1;
+    margin: 50px 0;
+    padding: 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    width: 62vw;
+}
+
+.projectComment {
+    width: 400px;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: white;
+    padding: 100px 20px 0;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px;
+}
+
+/* 사진 슬라이더 부분 */
 .slider-container {
     display: flex;
     align-items: center;
@@ -338,16 +370,13 @@ export default {
     min-width: 500px;
     height: 500px;
     transition: opacity 0.3s ease-in-out;
-    opacity: 1; /* 기본적으로 모든 이미지 뚜렷하게 */
+    opacity: 1;
 }
-
-
 .slider-image {
     width: 500px;
     height: 500px;
     object-fit: cover;
 }
-
 .slider-btn {
     position: absolute;
     top: 50%;
@@ -360,39 +389,20 @@ export default {
     cursor: pointer;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
-
 .prev-btn {
     left: 10px;
 }
-
 .next-btn {
     right: 10px;
 }
-
 .slider-btn v-icon {
     font-size: 24px;
     color: black;
 }
-
 .photo-container {
     position: relative;
 }
 
-
-
-.delete-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    color: white;
-    border-radius: 50%;
-    padding: 5px;
-    cursor: pointer;
-    z-index: 3;
-    display: none;
-}
 
 .comment-text {
     white-space: pre-wrap;
