@@ -46,7 +46,6 @@
             class="projectCard"
             v-for="project in filteredProjects"
             :key="project.projectId"
-            @click="goToMyPage(project.projectId)"
           >
             <div class="modalContainer">
               <span class="material-symbols-outlined moreBtn" @click="toggleMenu(project.projectId)">
@@ -59,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <div class="projectImage">
+            <div class="projectImage" @click="goToMyPage(project.projectId)">
               <!-- 추후에 프로젝트 이미지로 수정 -->
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
