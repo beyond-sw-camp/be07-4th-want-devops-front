@@ -39,9 +39,7 @@
                   <v-divider class="my-3"></v-divider>
                   <v-btn variant="text" rounded @click="goToMyPage"> 마이페이지 </v-btn>
                   <v-divider class="my-3"></v-divider>
-                  <v-btn variant="text" rounded @click="openWithdrawDialog">
-                    탈퇴하기
-                  </v-btn>
+                  <v-btn variant="text" rounded @click="openModal"> 탈퇴하기 </v-btn>
                 </div>
               </v-card-text>
             </v-card>
@@ -150,12 +148,34 @@
             v-for="member in projectDetail.projectMembers"
             :key="member.userId"
             class="ma-2"
-            size="x-large"
+            size="large"
           >
             <img :src="member.userProfile" alt="User profile" />
           </v-avatar>
 
-          <v-btn class="ml-3" color="primary">초대</v-btn>
+          <v-btn class="ml-3" color="primary" @click="showInviteModal = true">초대</v-btn>
+
+          <!-- Invite Modal -->
+          <v-dialog v-model="showInviteModal" persistent max-width="400px">
+            <v-card>
+              <v-card-title class="headline">사용자 초대</v-card-title>
+              <v-card-text>
+                초대할 사용자의 이메일을 입력해주세요
+                <v-text-field
+                  v-model="inviteEmail"
+                  label="이메일"
+                  required
+                ></v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="showInviteModal = false"
+                  >취소</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="inviteMembers">초대</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-col>
       </v-row>
 
@@ -241,6 +261,8 @@ const projectDetail = ref(null);
 const tasks = ref([]);
 const appointments = ref([]);
 const user = computed(() => store.getters.user);
+const showInviteModal = ref(false);
+const inviteEmail = ref("");
 
 const isLogin = ref(false);
 const profileUrl = ref("");
@@ -278,7 +300,7 @@ async function fetchTasks() {
     const response = await axios.get(
       `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
     );
-    tasks.value = response.data.result.content.map((block) => ({
+    tasks.value = response.data.result.map((block) => ({
       id: block.blockId,
       title: block.title,
       content: block.content,
@@ -468,12 +490,43 @@ function goToMyPage() {
   router.push({ name: "MyPage" });
 }
 
-function openWithdrawDialog() {
+function openModal() {
   dialog.value = true;
 }
 
 function closeDialog() {
   dialog.value = false;
+}
+
+async function inviteMembers() {
+  const newMemberEmail = inviteEmail.value;
+
+  try {
+    // 초대 요청을 서버에 보냄
+    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/invite`, {
+      projectId: projectId, // 현재 프로젝트 ID
+      otherMemberEmail: user.value.email, // 초대할 멤버의 이메일
+      email: newMemberEmail, // 현재 로그인된 사용자의 이메일
+    });
+
+    // 성공 시 사용자에게 알림
+    alert("초대가 성공적으로 완료되었습니다.");
+
+    // 모달 닫기
+    showInviteModal.value = false;
+  } catch (error) {
+    // 오류 발생 시 사용자에게 알림
+    if (
+      error.response &&
+      error.response.data.status_message === "Member already exists."
+    ) {
+      alert("이 사용자는 이미 프로젝트에 속해 있습니다.");
+    } else {
+      alert("초대 중 오류가 발생했습니다: " + error.response.data.status_message);
+    }
+  }
+
+  console.log("Inviting:", newMemberEmail);
 }
 
 onMounted(() => {
