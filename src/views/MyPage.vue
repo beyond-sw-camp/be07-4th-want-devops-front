@@ -17,6 +17,7 @@
 
   <div class="section">
     <div class="sectionProject">
+      <!-- 필터링 & 정렬 -->
       <div class="filter">
         <div class="controls" style="display: flex; justify-content: flex-end;">
           <select class="form-select mt-2" v-model="sortOption" @change="sortProjects">
@@ -57,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <div class="projectImage">
+            <div class="projectImage" @click="goToMyPage(project.projectId)">
               <!-- 추후에 프로젝트 이미지로 수정 -->
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
@@ -92,7 +93,8 @@
 
 
 <script>
-import axios from 'axios';
+import router from "@/router";
+import axios from "axios";
 
 export default {
   data() {
@@ -106,7 +108,7 @@ export default {
       userName: "",
       userEmail: "",
       currentPage: 0,
-      pageSize: 8,
+      pageSize: 5,
       isLastPage: false,
       isLoading: false,
       showModal: false,
@@ -124,7 +126,7 @@ export default {
   methods: {
     async getMyInfo() {
       try {
-        const response = await axios.get('http://localhost:8088/member/me');
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/member/me`);
         this.profileUrl = response.data.profileUrl;
         this.userName = response.data.name;
         this.userEmail = response.data.email;
@@ -155,6 +157,7 @@ export default {
           this.projectList = [...this.projectList, ...newProjects];
           this.filterProjects(); // 필터링을 적용
           this.currentPage++;
+          console.log("ProjectList: ", this.projectList);
         }
       } catch (e) {
         console.log(e);
@@ -185,11 +188,22 @@ export default {
       }
     },
     scrollPagination() {
-      const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-      if (isBottom && !this.isLastPage && !this.isLoading) {
-        this.fetchProjects();
-      }
-    },
+    const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+    if (isBottom && !this.isLastPage && !this.isLoading) {
+      this.fetchProjects().then(() => {
+        this.$nextTick(() => {
+          this.updateSectionHeight();
+        });
+      });
+    }
+  },
+  updateSectionHeight() {
+    const section = document.querySelector('.section');
+    const sectionProject = document.querySelector('.sectionProject');
+    if (section && sectionProject) {
+      section.style.height = `${sectionProject.offsetHeight + 100}px`;
+    }
+  },
     toggleMenu(projectId) {
       if (this.activeMenu === projectId) {
         this.activeMenu = null;
@@ -205,6 +219,9 @@ export default {
       this.showModal = false;
       this.currentProject = null;
     },
+    goToMyPage(projectId) {
+      router.push({ name: "ProjectDetail", params: { projectId: projectId } });
+    },
     async confirmDeletion() {
       try {
         await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${this.currentProject.projectId}`);
@@ -214,17 +231,14 @@ export default {
       } finally {
         this.closeModal(); // 모달 닫기
       }
-    }
+    },
+
   },
 };
 </script>
 
 
-
-
-
 <style>
-/* 기존 스타일 */
 .profile {
   padding: 40px;
 }
@@ -261,7 +275,8 @@ export default {
   justify-content: center;
   align-items: flex-start;
   width: 100vw;
-  min-height: 100%;
+  height: auto; /* 높이를 자동으로 조정 */
+  min-height: 100vh; /* 페이지의 최소 높이 설정 (화면 높이에 맞추기) */
   padding: 30px;
   background-color: #f0f0f0;
 }
@@ -274,6 +289,7 @@ export default {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: auto; /* 높이를 내용에 맞게 조정 */
 }
 .controls {
   display: flex;

@@ -23,7 +23,7 @@ export default {
     const blocks = ref([]);
     const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY; // 환경 변수에서 API 키 가져오기
     const projectId = 1; // 사용할 프로젝트 ID
-    const date = '2024-08-01'; // 날짜 예시
+    const date = '2024-08-014'; // 날짜 예시
     const apiUrl = `http://localhost:8088/api/v1/project/${projectId}/block/list/date?date=${date}`;
 
     const fetchBlocks = async () => {
