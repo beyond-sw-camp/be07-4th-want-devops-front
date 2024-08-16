@@ -1,49 +1,12 @@
 <template>
     <v-app>
         <v-container>
-            
             <v-card>
                 <v-row>
                     <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
                     <v-col cols="8">
-                        <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
-                            <v-card-title>
-                                <v-text-field v-model="localBlock.title" label="제목" required />
-                            </v-card-title>
-                        </v-form>
-                        <div class="slider-container">
-                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                                <v-icon>mdi-chevron-left</v-icon>
-                            </button>
-                            <div class="slider">
-                                <div
-                                    class="slider-item"
-                                    v-for="(photo, index) in blockPhotos"
-                                    :key="photo.photoId"
-                                    :class="{ active: index === activeIndex }"
-                                >
-                                    <div class="photo-container">
-                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
-                                            delete
-                                        </span>
-                                    </div>
-                                </div>
-                                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
-                                    <v-icon large>mdi-plus</v-icon>
-                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                                </div>
-                                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
-                                    <v-icon large>mdi-camera</v-icon>
-                                    <p>사진을 추가하세요</p>
-                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                                </div>
-                            </div>
-                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                                <v-icon>mdi-chevron-right</v-icon>
-                            </button>
-                        </div>
-                        <v-form>
+                        <v-card-title>
+                            <v-text-field v-model="localBlock.title" label="제목" required />
                             <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
                                 <v-card-subtitle>
                                     <template v-if="localBlock.placeName">
@@ -57,10 +20,32 @@
                                     <GoogleMap @place-selected="handlePlaceSelected" />
                                 </CustomModal>
                             </span>
+                        </v-card-title>
+                        <div class="slider-container">
+                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                                <v-icon>mdi-chevron-left</v-icon>
+                            </button>
+                            <div class="slider">
+                                <div
+                                    class="slider-item"
+                                    v-for="(photo, index) in blockPhotos"
+                                    :key="photo.photoId"
+                                    :class="{ active: index === activeIndex }"
+                                >
+                                    <div class="photo-container">
+                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                                <v-icon>mdi-chevron-right</v-icon>
+                            </button>
+                        </div>
+                            
                             <!-- 블럭내 이미지 -->
                     
                             <v-textarea v-model="localBlock.content" label="내용" style="margin-left: 15px;" />
-                        </v-form>
                     </v-col>
 
                     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
@@ -100,11 +85,6 @@
                         <CommentSection :blockId="blockId" />
                     </v-col>
                 </v-row>
-                <div style="float: right; width:fit-content; margin-top: 16px;">
-                    <v-btn type="submit" color="primary">저장</v-btn>
-                    <v-btn @click="cancel" color="secondary">취소</v-btn>
-                    <v-btn @click="deleteBlock" color="red" class="ml-2">삭제</v-btn>
-                </div>
             </v-card>
 
 
@@ -170,7 +150,6 @@ export default {
         });
         const blockPhotos = ref([]);
         const activeIndex = ref(0);
-        const oldFiles = ref([]);
 
         const valid = ref(true);
         const startDateMenu = ref(false);
@@ -273,62 +252,9 @@ export default {
             const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
-        const deletePhoto = async (photoId, photoUrl) => {
-            // URL을 oldFiles에 추가
-            oldFiles.value.push(photoUrl);
 
-            // 업데이트 요청
-            try {
-                const formData = new FormData();
-                formData.append('blockId', selectedBlock.value);
-                formData.append('oldFiles', JSON.stringify(oldFiles.value));
-                formData.append('newFiles', JSON.stringify([])); // 새로운 파일 없음
 
-                await axios.put('http://localhost:8088/api/v1/photo/update', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                // 삭제된 사진을 블록 사진 목록에서 제거
-                blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-                alert('사진이 성공적으로 삭제되었습니다.');
-            } catch (error) {
-                console.error('사진 삭제 중 오류 발생:', error);
-                alert('사진 삭제 중 오류가 발생했습니다.');
-            }
-        };
-        const triggerFileUpload = () => {
-            document.querySelector("input[type='file']").click();
-        };
-        const uploadPhoto = async (event) => {
-            const files = event.target.files;
-            if (files.length > 0) {
-                const formData = new FormData();
-                formData.append('blockId', selectedBlock.value); // 블록 ID를 추가합니다.
-
-                for (const file of files) {
-                    formData.append('files', file);
-                }
-                try {
-                    const response = await axios.post(
-                        'http://localhost:8088/api/v1/photo/upload', // 업로드 API 엔드포인트
-                        formData,
-                        {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                            },
-                        }
-                    );
-                    const photoList = response.data.result.photoList;
-                    blockPhotos.value.push(...photoList.map(photo => ({ ...photo, url: photo.url })));
-                    alert('사진이 성공적으로 업로드되었습니다.');
-                } catch (error) {
-                    console.error('사진 업로드 중 오류 발생:', error);
-                    alert('사진 업로드 중 오류가 발생했습니다.');
-                }
-            }
-        };
+        
         onMounted(async () => {
             selectedBlock.value = route.params.blockId;
             await fetchBlock();
@@ -346,14 +272,12 @@ export default {
             updateBlock,
             cancel,
             deleteBlock,
-            deletePhoto,
             handlePlaceSelected,
             blockPhotos,
             nextSlide,
             prevSlide,
-            triggerFileUpload,
-            uploadPhoto,
-            oldFiles,
+
+
         };
     },
     methods: {
@@ -454,13 +378,7 @@ export default {
     position: relative;
 }
 
-.add-photo-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
-    cursor: pointer;
-}
+
 
 .delete-btn {
     position: absolute;
@@ -474,13 +392,6 @@ export default {
     cursor: pointer;
     z-index: 3;
     display: none;
-}
-
-.photo-container:hover .delete-btn {
-    display: block; /* 사진에 커서가 올라가면 삭제 버튼 표시 */
-}
-.camera-item p {
-    margin-left: 8px;
 }
 
 .comment-text {

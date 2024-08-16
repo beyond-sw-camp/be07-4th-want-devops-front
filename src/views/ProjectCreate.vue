@@ -214,6 +214,7 @@ export default {
         console.log('Project created:', response.data);
         this.snackbar = true;  // 프로젝트 생성 성공 시 스낵바 표시
         // 추가적인 성공 처리 (예: 페이지 이동 등)
+        this.$router.push("/mypage");
       } catch (e) {
         console.error('Error creating project:', e);
       }
