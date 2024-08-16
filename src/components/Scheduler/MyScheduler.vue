@@ -169,7 +169,7 @@
             :current-date="currentDate"
             :views="views"
             :height="600"
-            :start-day-hour="9"
+            :start-day-hour="1"
             :end-day-hour="23"
             :editing="true"
             :on-appointment-updated="onAppointmentUpdated"
