@@ -13,7 +13,7 @@
                     
                         <!-- 블럭내 이미지 -->
                         <div class="slider-container">
-                            <button class="slider-btn prev-btn" @click="prevSlide">
+                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
                                 <v-icon>mdi-chevron-left</v-icon>
                             </button>
                             <div class="slider">
@@ -30,20 +30,21 @@
                                         </span>
                                     </div>
                                 </div>
-                                <!-- 마지막 슬라이드 뒤에 사진 추가 버튼 추가 -->
-                                <div
-                                    class="slider-item add-photo-item"
-                                    :class="{ active: blockPhotos.length === activeIndex }"
-                                    @click="triggerFileUpload"
-                                >
+                                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
                                     <v-icon large>mdi-plus</v-icon>
                                     <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
                                 </div>
+                                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
+                                    <v-icon large>mdi-camera</v-icon>
+                                    <p>사진을 추가하세요</p>
+                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                                </div>
                             </div>
-                            <button class="slider-btn next-btn" @click="nextSlide">
+                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
                                 <v-icon>mdi-chevron-right</v-icon>
                             </button>
                         </div>
+                        
                         
                         <v-card-text>{{ localBlock.content }}</v-card-text>
                     </v-col>
@@ -156,6 +157,7 @@ export default {
         });
         const blockPhotos = ref([]);
         const activeIndex = ref(0);
+        const oldFiles = ref([]);
 
         const valid = ref(true);
         const startDateMenu = ref(false);
@@ -232,25 +234,12 @@ export default {
                 }
             }
         };
-        // const deletePhoto = async (photoId) => {
-        //     if (confirm('정말로 이 사진을 삭제하시겠습니까?')) {
-        //         try {
-        //             await axios.delete(`http://localhost:8088/api/v1/photo/${photoId}/delete`, {
-        //                 headers: {
-        //                     Authorization: `Bearer ${localStorage.getItem('token')}`,
-        //                 },
-        //             });
-        //             alert('사진이 성공적으로 삭제되었습니다.');
-        //             blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-        //         } catch (error) {
-        //             console.error('사진 삭제 중 오류 발생:', error);
-        //             alert('사진 삭제 중 오류가 발생했습니다.');
-        //         }
-        //     }
-        // };
+
         const handlePlaceSelected = (place) => {
             localBlock.value.placeName = place.name;
         };
+        
+        // 사진 관련 로직
         const getPhotos = async () => {
             try {
                 const blockId = route.params.blockId;
@@ -273,26 +262,64 @@ export default {
 
         const updateSliderPosition = () => {
             const slider = document.querySelector('.slider');
-            const offset = -activeIndex.value * 525; // 이미지 크기와 동일한 너비로 오프셋 계산
+            const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
-        const deletePhoto = (photoId) => {
-            blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-        };
+        const deletePhoto = async (photoId, photoUrl) => {
+            // URL을 oldFiles에 추가
+            oldFiles.value.push(photoUrl);
 
+            // 업데이트 요청
+            try {
+                const formData = new FormData();
+                formData.append('blockId', selectedBlock.value);
+                formData.append('oldFiles', JSON.stringify(oldFiles.value));
+                formData.append('newFiles', JSON.stringify([])); // 새로운 파일 없음
+
+                await axios.put('http://localhost:8088/api/v1/photo/update', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                // 삭제된 사진을 블록 사진 목록에서 제거
+                blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
+                alert('사진이 성공적으로 삭제되었습니다.');
+            } catch (error) {
+                console.error('사진 삭제 중 오류 발생:', error);
+                alert('사진 삭제 중 오류가 발생했습니다.');
+            }
+        };
         const triggerFileUpload = () => {
             document.querySelector("input[type='file']").click();
         };
+        const uploadPhoto = async (event) => {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const formData = new FormData();
+                formData.append('blockId', selectedBlock.value); // 블록 ID를 추가합니다.
 
-        const uploadPhoto = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                // 업로드 로직을 구현합니다.
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    blockPhotos.value.push({ url: e.target.result });
-                };
-                reader.readAsDataURL(file);
+                for (const file of files) {
+                    formData.append('files', file);
+                }
+
+                try {
+                    const response = await axios.post(
+                        'http://localhost:8088/api/v1/photo/upload', // 업로드 API 엔드포인트
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }
+                    );
+                    const photoList = response.data.result.photoList;
+                    blockPhotos.value.push(...photoList.map(photo => ({ ...photo, url: photo.url })));
+                    alert('사진이 성공적으로 업로드되었습니다.');
+                } catch (error) {
+                    console.error('사진 업로드 중 오류 발생:', error);
+                    alert('사진 업로드 중 오류가 발생했습니다.');
+                }
             }
         };
         onMounted(async () => {
@@ -318,6 +345,7 @@ export default {
             prevSlide,
             triggerFileUpload,
             uploadPhoto,
+            oldFiles,
         };
     },
     
@@ -325,16 +353,14 @@ export default {
 </script>
 
 <style>
-/* 기존 스타일 유지 */
 .slider-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    margin: 20px 0;
     width: 500px;
-    max-width: 600px;
+    max-width: 500px;
     height: 500px;
 }
 
@@ -347,18 +373,10 @@ export default {
 .slider-item {
     min-width: 500px;
     height: 500px;
-    margin: 0 10px;
     transition: opacity 0.3s ease-in-out;
     opacity: 1; /* 기본적으로 모든 이미지 뚜렷하게 */
 }
 
-.slider-item.active {
-    opacity: 1;
-}
-
-.slider-item:not(.active) {
-    opacity: 1; /* 흐리지 않게 설정 */
-}
 
 .slider-image {
     width: 500px;
@@ -419,5 +437,8 @@ export default {
 
 .photo-container:hover .delete-btn {
     display: block; /* 사진에 커서가 올라가면 삭제 버튼 표시 */
+}
+.camera-item p {
+    margin-left: 8px;
 }
 </style>
