@@ -367,7 +367,7 @@ export default {
   align-items: center;
   gap: 3px;
 }
-.menu-item:hover {
+.menu-item:hover span{
   color: red;
 }
 .menu-item span {
