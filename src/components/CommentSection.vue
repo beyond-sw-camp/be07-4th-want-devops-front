@@ -1,43 +1,49 @@
 <template>
   <v-card class="mx-auto" max-width="425">
-    <v-list lines="two" style="max-height: 300px; overflow-y: auto;" ref="commentList">
-      <v-list-subheader>댓글</v-list-subheader>
+    <div class="comment-container" ref="commentList">
+      <div v-if="comments.length === 0" class="no-comments">
+        댓글 없음
+      </div>
 
-      <!-- 댓글이 없을 때 -->
-      <template v-if="comments.length === 0">
-        <v-list-item>
-          <v-list-item-content>
-            댓글 없음
-          </v-list-item-content>
-        </v-list-item>
-      </template>
-
-      <!-- 댓글이 있을 때 -->
-      <template v-else>
-        <v-list-item
+      <div v-else>
+        <div
             v-for="comment in comments"
             :key="comment.commentId"
-            :prepend-avatar="comment.memberProfile"
+            class="comment-item"
         >
-          <template v-slot:title>
-            {{ comment.memberName }} &mdash; {{ formatDate(comment.createdTime) }}
-          </template>
-          <div>
-            <div class="comment-text">{{ comment.contents }}</div>
+          <div class="comment-header">
+            <img :src="comment.memberProfile" class="avatar" alt="Profile Picture" />
+            <div class="comment-info">
+              <strong>{{ comment.memberName }}</strong> &mdash; {{ formatDate(comment.createdTime) }}
+            </div>
+            <div class="modalContainer" style="width:fit-content">
+              <span class="material-symbols-outlined moreBtn" @click="toggleMenu(comment.commentId)">
+                more_horiz
+              </span>
+              <div class="menu" v-if="activeMenu === comment.commentId">
+                <div class="menu-item" @click="showConfirmationModal(comment, 'delete')">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span>삭제</span>
+                </div>
+                <div class="menu-item" @click="showConfirmationModal(comment, 'update')">
+                  <span class="material-symbols-outlined">update</span>
+                  <span>수정</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </v-list-item>
-      </template>
+          <div class="comment-text" style="margin-left:40px">{{ comment.contents }}</div>
+        </div>
+      </div>
 
       <!-- 로딩 스피너 -->
-      <v-list-item v-if="loading" class="text-center">
-        <v-list-item-content>
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        </v-list-item-content>
-      </v-list-item>
+      <div v-if="loading" class="loading-spinner">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </div>
 
       <!-- 감지용 엘리먼트 -->
       <div ref="observerElement"></div>
-    </v-list>
+    </div>
 
     <!-- 댓글 작성 -->
     <v-form ref="commentForm" v-model="valid" @submit.prevent="submitComment">
@@ -50,6 +56,26 @@
       ></v-textarea>
       <v-btn type="submit" color="primary" class="mt-2">댓글 달기</v-btn>
     </v-form>
+
+    <!-- 댓글 수정 모달 -->
+    <v-dialog v-model="showEditDialog" max-width="500">
+      <v-card>
+        <v-card-title>댓글 수정</v-card-title>
+        <v-card-text>
+          <v-textarea
+              v-model="editComment"
+              label="댓글 내용"
+              rows="3"
+              required
+              auto-grow
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" @click="updateComment">수정</v-btn>
+          <v-btn @click="showEditDialog = false">취소</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -72,8 +98,11 @@ export default {
     const hasNext = ref(true);
     const observerElement = ref(null);
     const commentList = ref(null);
+    const activeMenu = ref(null);
+    const showEditDialog = ref(false);
+    const editComment = ref('');
+    const commentToEdit = ref(null);
 
-    // 댓글 목록을 가져오는 메서드
     const fetchComments = async (page = 0, reset = false) => {
       if (loading.value || (!reset && !hasNext.value)) return;
       loading.value = true;
@@ -101,7 +130,6 @@ export default {
       }
     };
 
-    // 댓글을 서버로 전송하는 메서드
     const submitComment = async () => {
       if (newComment.value) {
         try {
@@ -109,13 +137,11 @@ export default {
             blockId: props.blockId,
             contents: newComment.value,
           });
-          newComment.value = ''; // 댓글 입력창 초기화
-
-          // 댓글 목록을 다시 가져오고, 스크롤을 최신 댓글로 이동
+          newComment.value = '';
           await fetchComments(0, true);
           nextTick(() => {
             const list = commentList.value;
-            list.scrollTop = list.scrollHeight; // 스크롤을 최신 댓글로 이동
+            list.scrollTop = list.scrollHeight;
           });
         } catch (error) {
           console.error('댓글 작성 중 오류 발생:', error);
@@ -123,14 +149,12 @@ export default {
       }
     };
 
-    // 추가 댓글을 로드하는 메서드
     const loadMore = () => {
       if (hasNext.value) {
         fetchComments(currentPage.value);
       }
     };
 
-    // IntersectionObserver 콜백
     const handleIntersection = (entries) => {
       if (entries[0].isIntersecting) {
         loadMore();
@@ -148,14 +172,12 @@ export default {
         observer.observe(observerElement.value);
       }
 
-      // Cleanup observer on unmount
       onUnmounted(() => {
         if (observerElement.value) {
           observer.unobserve(observerElement.value);
         }
       });
 
-      // 초기 댓글 목록을 가져옴
       fetchComments();
     });
 
@@ -172,6 +194,46 @@ export default {
       return date.toLocaleDateString('ko-KR', options);
     };
 
+    const toggleMenu = (commentId) => {
+      activeMenu.value = activeMenu.value === commentId ? null : commentId;
+    };
+
+    const showConfirmationModal = (comment, action) => {
+      if (action === 'delete') {
+        if (confirm(`댓글을 삭제하시겠습니까? 댓글 ID: ${comment.commentId}`)) {
+          deleteComment(comment.commentId);
+        }
+      } else if (action === 'update') {
+        commentToEdit.value = comment;
+        editComment.value = comment.contents;
+        showEditDialog.value = true;
+      }
+    };
+
+    const deleteComment = async (commentId) => {
+      try {
+        await axios.delete(`http://localhost:8088/api/v1/block_comment/delete/${commentId}`);
+        await fetchComments(0, true);
+      } catch (error) {
+        console.error('댓글 삭제 중 오류 발생:', error);
+      }
+    };
+
+    const updateComment = async () => {
+      if (editComment.value && commentToEdit.value) {
+        try {
+          await axios.patch(`http://localhost:8088/api/v1/block_comment/update`, {
+            commentId: commentToEdit.value.commentId,
+            contents: editComment.value,
+          });
+          showEditDialog.value = false;
+          await fetchComments(0, true);
+        } catch (error) {
+          console.error('댓글 수정 중 오류 발생:', error);
+        }
+      }
+    };
+
     return {
       comments,
       newComment,
@@ -180,13 +242,90 @@ export default {
       submitComment,
       observerElement,
       commentList,
+      activeMenu,
+      toggleMenu,
+      showConfirmationModal,
+      deleteComment,
+      updateComment,
+      showEditDialog,
+      editComment,
+      commentToEdit,
     };
   },
 };
 </script>
 
 <style scoped>
-.comment-text {
-  white-space: pre-wrap;
+  .comment-container {
+    max-height: 300px;
+  overflow-y: auto;
+}
+
+  .comment-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+  position: relative;
+}
+
+  .comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Align children in a row */
+}
+
+  .avatar {
+    border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+  .comment-info {
+  flex: 1;
+  /* Takes up remaining space */
+}
+
+  .modalContainer {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+  .moreBtn {
+  cursor: pointer;
+}
+
+  .menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 120px;
+}
+
+  .menu-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+  .menu-item:hover {
+    background-color: #f5f5f5;
+}
+
+  .no-comments {
+  padding: 10px;
+  text-align: center;
+}
+
+  .loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
 }
 </style>
