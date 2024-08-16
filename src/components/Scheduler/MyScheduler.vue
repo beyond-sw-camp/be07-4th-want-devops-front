@@ -204,7 +204,7 @@
             <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
-        <v-col cols="3" class="block-list-col">
+        <v-col cols="3" class="block-list">
           <h2>BLOCK LIST</h2>
           <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
           <div class="category-buttons-wrapper">
@@ -220,18 +220,13 @@
             </div>
           </div>
 
-          <DxScrollView id="scroll" class="task-scroll-view">
+          <DxScrollView id="scroll">
             <DxDraggable
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              data="tasks.length > 0 ? 'dropArea' : 'emptyArea'"
             >
-              <div v-if="tasks.length === 0" class="empty-list">
-                Drop here to add to the list
-              </div>
               <DxDraggable
-                time-zone="Asia/Seoul"
                 v-for="task in sortedFilteredDataSource"
                 :key="task.blockId"
                 :clone="true"
@@ -239,8 +234,7 @@
                 :data="task"
                 :on-drag-start="onItemDragStart"
                 :on-drag-end="onItemDragEnd"
-                class="item dx-card"
-                @click="updateBlock(task)"
+                class="item"
               >
                 <div class="block-title">
                   {{ task.title }}
@@ -293,12 +287,22 @@ const appointments = ref([]);
 const user = computed(() => store.getters.user);
 const showInviteModal = ref(false);
 const inviteEmail = ref("");
-
-// 이 두 변수는 사용되지 않으므로 제거합니다
-// const isLogin = ref(false);
-// const profileUrl = ref("");
-
 const selectedCategory = ref(null);
+
+// 카테고리와 관련된 데이터 정의
+const categoryMap = ref({
+  SPOT: "명소",
+  RESTAURANT: "식당",
+  CAFE: "카페",
+  ETC: "기타",
+});
+
+const categoryColors = ref({
+  SPOT: [255, 182, 193],
+  CAFE: [255, 180, 110],
+  RESTAURANT: [173, 216, 230],
+  ETC: [192, 192, 192],
+});
 
 onMounted(async () => {
   try {
@@ -558,23 +562,6 @@ function createTemporaryBlock() {
   };
   tasks.value.push(newBlock);
 }
-
-function updateBlock(block) {
-  const blockId = block.blockId || block.id;
-  if (!blockId) {
-    console.error("Block ID가 누락되었습니다.");
-    return;
-  }
-  router.push({ name: "BlockBoard", params: { blockId } });
-}
-
-function filterByCategory(category) {
-  if (selectedCategory.value === category) {
-    selectedCategory.value = null;
-  } else {
-    selectedCategory.value = category;
-  }
-}
 </script>
 
 <style scoped>
@@ -594,29 +581,23 @@ function filterByCategory(category) {
   width: 900px;
 }
 
-.block-list-col {
-  padding: 0;
-  position: absolute;
-  right: 0;
-  top: 2px;
-  bottom: 0;
-  width: 300px;
-  background-color: #424242;
+.block-list {
+  padding: 20px;
+  background-color: white; /* 회색 배경을 흰색으로 변경 */
   overflow-y: auto;
-}
-
-.task-scroll-view {
-  padding: 16px;
 }
 
 .item {
   width: 100%;
   height: 80px;
-  color: var(--dx-color-text);
-  background-color: var(--dx-component-color-bg);
+  color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
+  background-color: #f5f5f5; /* 카드 배경을 밝은 회색으로 변경 */
   box-sizing: border-box;
-  padding: 0px 0px;
+  padding: 10px;
+  margin-bottom: 10px;
   text-align: center;
+  border-radius: 5px;
+  cursor: grab;
 }
 
 .dx-draggable-source {
@@ -637,7 +618,6 @@ function filterByCategory(category) {
   text-align: center;
   font-size: 16px;
   color: #666;
-  position: relative;
   cursor: default;
   user-select: none;
   pointer-events: none;
@@ -645,8 +625,6 @@ function filterByCategory(category) {
 }
 
 .category-buttons-wrapper {
-  overflow-x: auto;
-  white-space: nowrap;
   margin-bottom: 20px;
 }
 
@@ -661,11 +639,16 @@ function filterByCategory(category) {
 
 .block-title {
   width: fit-content;
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .block-heart {
   width: fit-content;
-  float: right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
 }
 
 .create-button {
