@@ -1,38 +1,7 @@
 <template>
     <v-app>
         <v-container>
-            <div class="slider-container">
-                <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                    <v-icon>mdi-chevron-left</v-icon>
-                </button>
-                <div class="slider">
-                    <div
-                        class="slider-item"
-                        v-for="(photo, index) in blockPhotos"
-                        :key="photo.photoId"
-                        :class="{ active: index === activeIndex }"
-                    >
-                        <div class="photo-container">
-                            <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                            <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
-                                delete
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
-                        <v-icon large>mdi-plus</v-icon>
-                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                    </div>
-                    <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
-                        <v-icon large>mdi-camera</v-icon>
-                        <p>사진을 추가하세요</p>
-                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                    </div>
-                </div>
-                <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                    <v-icon>mdi-chevron-right</v-icon>
-                </button>
-            </div>
+            
             <v-card>
                 <v-row>
                     <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
@@ -41,6 +10,40 @@
                             <v-card-title>
                                 <v-text-field v-model="localBlock.title" label="제목" required />
                             </v-card-title>
+                        </v-form>
+                        <div class="slider-container">
+                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                                <v-icon>mdi-chevron-left</v-icon>
+                            </button>
+                            <div class="slider">
+                                <div
+                                    class="slider-item"
+                                    v-for="(photo, index) in blockPhotos"
+                                    :key="photo.photoId"
+                                    :class="{ active: index === activeIndex }"
+                                >
+                                    <div class="photo-container">
+                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
+                                            delete
+                                        </span>
+                                    </div>
+                                </div>
+                                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
+                                    <v-icon large>mdi-plus</v-icon>
+                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                                </div>
+                                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
+                                    <v-icon large>mdi-camera</v-icon>
+                                    <p>사진을 추가하세요</p>
+                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                                </div>
+                            </div>
+                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                                <v-icon>mdi-chevron-right</v-icon>
+                            </button>
+                        </div>
+                        <v-form>
                             <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
                                 <v-card-subtitle>
                                     <template v-if="localBlock.placeName">
