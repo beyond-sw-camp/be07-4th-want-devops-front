@@ -9,14 +9,15 @@ import BlockMain from '@/views/BlockMain.vue';
 import BlockDetail from '@/views/BlockDetail.vue';
 import BlockBoard from '@/views/BlockBoard.vue';
 import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
-import {myPageRouter} from './myPageRouter';
+import AccessDenied from "@/components/Scheduler/AccessDenied.vue";
+import { myPageRouter } from "./myPageRouter";
+
 
 //@는 src 디렉토리를 의미한다.
 //파일 내부에 export default 있는 경우에는 {} 가 필요없고, 그러지 않으면 {}가 필요하다.
 // import 하는 요소가 여러개 있을때에도 {}를 사용한다.
 // import HomeComponent from '@/components/HomeComponent.vue'
 // import TestComponent from '@/components/TestComponent.vue'
-
 
 const routes = [
   // {
@@ -40,11 +41,6 @@ const routes = [
     path: "/oauth2/callback",
     name: "Oauth2Callback",
     component: Oauth2Callback,
-  },
-  {
-    path: "/schedule/:projectId",
-    name: "MyScheduler",
-    component: MyScheduler,
   },
   // {
   //   path: "/test/:id",
@@ -76,10 +72,15 @@ const routes = [
     name: "SecondPage",
     component: () => import("@/views/SecondTestPage.vue"),
   },
+  {
+    path: "/accessDenied",
+    name: "AccessDenied",
+    component: AccessDenied,
+  },
+
   ...practiceRouter,
   ...projectRouter,
   ...myPageRouter,
-
 ];
 
 const router = new createRouter(

@@ -58,7 +58,7 @@
                 </div>
               </div>
             </div>
-            <div class="projectImage">
+            <div class="projectImage" @click="goToMyPage(project.projectId)">
               <!-- 추후에 프로젝트 이미지로 수정 -->
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
@@ -93,7 +93,8 @@
 
 
 <script>
-import axios from 'axios';
+import router from "@/router";
+import axios from "axios";
 
 export default {
   data() {
@@ -156,6 +157,7 @@ export default {
           this.projectList = [...this.projectList, ...newProjects];
           this.filterProjects(); // 필터링을 적용
           this.currentPage++;
+          console.log("ProjectList: ", this.projectList);
         }
       } catch (e) {
         console.log(e);
@@ -216,6 +218,9 @@ export default {
     closeModal() {
       this.showModal = false;
       this.currentProject = null;
+    },
+    goToMyPage(projectId) {
+      router.push({ name: "ProjectDetail", params: { projectId: projectId } });
     },
     async confirmDeletion() {
       try {
