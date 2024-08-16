@@ -30,6 +30,15 @@
                                         </span>
                                     </div>
                                 </div>
+                                <!-- 마지막 슬라이드 뒤에 사진 추가 버튼 추가 -->
+                                <div
+                                    class="slider-item add-photo-item"
+                                    :class="{ active: blockPhotos.length === activeIndex }"
+                                    @click="triggerFileUpload"
+                                >
+                                    <v-icon large>mdi-plus</v-icon>
+                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                                </div>
                             </div>
                             <button class="slider-btn next-btn" @click="nextSlide">
                                 <v-icon>mdi-chevron-right</v-icon>
@@ -223,22 +232,22 @@ export default {
                 }
             }
         };
-        const deletePhoto = async (photoId) => {
-            if (confirm('정말로 이 사진을 삭제하시겠습니까?')) {
-                try {
-                    await axios.delete(`http://localhost:8088/api/v1/photo/${photoId}/delete`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
-                    });
-                    alert('사진이 성공적으로 삭제되었습니다.');
-                    blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-                } catch (error) {
-                    console.error('사진 삭제 중 오류 발생:', error);
-                    alert('사진 삭제 중 오류가 발생했습니다.');
-                }
-            }
-        };
+        // const deletePhoto = async (photoId) => {
+        //     if (confirm('정말로 이 사진을 삭제하시겠습니까?')) {
+        //         try {
+        //             await axios.delete(`http://localhost:8088/api/v1/photo/${photoId}/delete`, {
+        //                 headers: {
+        //                     Authorization: `Bearer ${localStorage.getItem('token')}`,
+        //                 },
+        //             });
+        //             alert('사진이 성공적으로 삭제되었습니다.');
+        //             blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
+        //         } catch (error) {
+        //             console.error('사진 삭제 중 오류 발생:', error);
+        //             alert('사진 삭제 중 오류가 발생했습니다.');
+        //         }
+        //     }
+        // };
         const handlePlaceSelected = (place) => {
             localBlock.value.placeName = place.name;
         };
@@ -253,12 +262,12 @@ export default {
             }
         };
         const nextSlide = () => {
-            activeIndex.value = (activeIndex.value + 1) % blockPhotos.value.length;
+            activeIndex.value = (activeIndex.value + 1) % (blockPhotos.value.length + 1);
             updateSliderPosition();
         };
 
         const prevSlide = () => {
-            activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length) % blockPhotos.value.length;
+            activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length + 1) % (blockPhotos.value.length + 1);
             updateSliderPosition();
         };
 
@@ -266,6 +275,25 @@ export default {
             const slider = document.querySelector('.slider');
             const offset = -activeIndex.value * 525; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
+        };
+        const deletePhoto = (photoId) => {
+            blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
+        };
+
+        const triggerFileUpload = () => {
+            document.querySelector("input[type='file']").click();
+        };
+
+        const uploadPhoto = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // 업로드 로직을 구현합니다.
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    blockPhotos.value.push({ url: e.target.result });
+                };
+                reader.readAsDataURL(file);
+            }
         };
         onMounted(async () => {
             selectedBlock.value = route.params.blockId;
@@ -288,6 +316,8 @@ export default {
             blockPhotos,
             nextSlide,
             prevSlide,
+            triggerFileUpload,
+            uploadPhoto,
         };
     },
     
@@ -295,6 +325,7 @@ export default {
 </script>
 
 <style>
+/* 기존 스타일 유지 */
 .slider-container {
     display: flex;
     align-items: center;
@@ -330,8 +361,8 @@ export default {
 }
 
 .slider-image {
-    width: 100%;
-    height: 100%;
+    width: 500px;
+    height: 500px;
     object-fit: cover;
 }
 
@@ -360,8 +391,17 @@ export default {
     font-size: 24px;
     color: black;
 }
+
 .photo-container {
     position: relative;
+}
+
+.add-photo-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    cursor: pointer;
 }
 
 .delete-btn {
@@ -376,6 +416,7 @@ export default {
     z-index: 3;
     display: none;
 }
+
 .photo-container:hover .delete-btn {
     display: block; /* 사진에 커서가 올라가면 삭제 버튼 표시 */
 }
