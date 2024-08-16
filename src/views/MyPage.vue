@@ -38,7 +38,7 @@
       <div class="projectList">
         <div class="projectGrid">
           <div class="projectCard plusBtn" @click="toCreateProject">
-            <div class="material-symbols-outlined">add_box</div>
+            <span class="material-symbols-outlined plusIcon">add_box</span>
             <div>새로운 프로젝트 생성하기</div>
           </div>
 
@@ -372,7 +372,7 @@ export default {
   align-items: center;
   gap: 3px;
 }
-.menu-item:hover {
+.menu-item:hover span{
   color: red;
 }
 .menu-item span {
@@ -382,7 +382,7 @@ export default {
   justify-content: center;
   background-color: #c0c0c0;
 }
-.plusBtn .material-symbols-outlined {
+.plusBtn .plusIcon {
   font-size: 40px;
   color: #333;
 }
