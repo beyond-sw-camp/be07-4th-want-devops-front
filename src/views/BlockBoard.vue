@@ -23,7 +23,12 @@
                                     :key="photo.photoId"
                                     :class="{ active: index === activeIndex }"
                                 >
-                                    <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                                    <div class="photo-container">
+                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
+                                            delete
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <button class="slider-btn next-btn" @click="nextSlide">
@@ -218,6 +223,22 @@ export default {
                 }
             }
         };
+        const deletePhoto = async (photoId) => {
+            if (confirm('정말로 이 사진을 삭제하시겠습니까?')) {
+                try {
+                    await axios.delete(`http://localhost:8088/api/v1/photo/${photoId}/delete`, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    });
+                    alert('사진이 성공적으로 삭제되었습니다.');
+                    blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
+                } catch (error) {
+                    console.error('사진 삭제 중 오류 발생:', error);
+                    alert('사진 삭제 중 오류가 발생했습니다.');
+                }
+            }
+        };
         const handlePlaceSelected = (place) => {
             localBlock.value.placeName = place.name;
         };
@@ -262,6 +283,7 @@ export default {
             updateBlock,
             cancel,
             deleteBlock,
+            deletePhoto,
             handlePlaceSelected,
             blockPhotos,
             nextSlide,
@@ -337,5 +359,24 @@ export default {
 .slider-btn v-icon {
     font-size: 24px;
     color: black;
+}
+.photo-container {
+    position: relative;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 3;
+    display: none;
+}
+.photo-container:hover .delete-btn {
+    display: block; /* 사진에 커서가 올라가면 삭제 버튼 표시 */
 }
 </style>
