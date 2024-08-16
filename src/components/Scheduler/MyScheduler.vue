@@ -181,7 +181,7 @@
 
       <!-- Scheduler and Block List -->
       <v-row class="scheduler-row">
-        <v-col cols="9">
+        <v-col cols="8">
           <DxScheduler
             time-zone="Asia/Seoul"
             id="scheduler"
@@ -204,8 +204,7 @@
             <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
-        <v-col cols="3" class="block-list">
-          <h2>BLOCK LIST</h2>
+        <v-col cols="4" class="block-list" style="height: 600px;">
           <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
           <div class="category-buttons-wrapper">
             <div class="category-buttons">
@@ -225,6 +224,7 @@
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
+              style="height: 5px;"
             >
               <DxDraggable
                 v-for="task in sortedFilteredDataSource"
@@ -335,7 +335,7 @@ onMounted(async () => {
     if (projectDetail.value) {
       const startTravel = new Date(projectDetail.value.startTravel);
       const endTravel = new Date(projectDetail.value.endTravel);
-      const intervalCount = Math.ceil((endTravel - startTravel) / (1000 * 60 * 60 * 24));
+      const intervalCount = Math.ceil((endTravel - startTravel+1) / (1000 * 60 * 60 * 24));
 
       views.value = [
         { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
@@ -547,19 +547,48 @@ async function inviteMembers() {
 }
 
 const sortedFilteredDataSource = computed(() => {
-  if (!selectedCategory.value) {
-    return tasks.value;
+  let filteredTasks = tasks.value;
+
+  // 필터링
+  if (selectedCategory.value) {
+    filteredTasks = filteredTasks.filter(task => task.category === selectedCategory.value);
   }
-  return tasks.value.filter((task) => task.category === selectedCategory.value);
+
+  // 정렬: 좋아요 수를 기준으로 내림차순
+  return filteredTasks.sort((a, b) => b.heartCount - a.heartCount);
 });
 
+async function filterByCategory(category) {
+  // 선택한 카테고리 업데이트
+  if (selectedCategory.value === category) {
+    selectedCategory.value = null;
+  } else {
+    selectedCategory.value = category;
+  }
+
+  // 데이터 필터링
+  if (!tasks.value.length) {
+    await fetchTasks(); // 태스크가 없는 경우에만 데이터 가져오기
+  }
+
+  // 클라이언트 측에서 필터링
+  if (selectedCategory.value) {
+    tasks.value = tasks.value.filter(task => task.category === selectedCategory.value);
+  } else {
+    // 선택된 카테고리가 없으면 모든 태스크 표시
+    await fetchTasks(); // 전체 데이터 다시 가져오기
+  }
+}
+
+
 function toggleLike(block) {
+  console.log("좋아요 토글 대상 블록:", block);
   block.liked = !block.liked;
   block.heartCount += block.liked ? 1 : -1;
 
   axios
     .post(
-      `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
+      `http://localhost:8088/api/v1/block/${block.id}/heart`,
       {},
       {
         headers: {
@@ -567,12 +596,17 @@ function toggleLike(block) {
         },
       }
     )
+    .then(response => {
+      console.log("좋아요 업데이트 성공:", response);
+    })
     .catch((error) => {
       console.error("좋아요 업데이트 중 오류 발생:", error);
+      // API 호출 실패 시 로컬 상태를 원래대로 복구
       block.liked = !block.liked;
       block.heartCount += block.liked ? 1 : -1;
     });
 }
+
 
 function createTemporaryBlock() {
   const newBlock = {
@@ -602,7 +636,7 @@ function createTemporaryBlock() {
 }
 
 #scheduler {
-  width: 900px;
+  width: 800px;
 }
 
 .block-list {

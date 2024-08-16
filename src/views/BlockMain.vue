@@ -195,11 +195,6 @@ export default {
         await axios.post(
           `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
           {}, // 빈 본문으로 요청
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 헤더에 포함
-            },
-          }
         );
       } catch (error) {
         console.error("좋아요 업데이트 중 오류 발생:", error);
