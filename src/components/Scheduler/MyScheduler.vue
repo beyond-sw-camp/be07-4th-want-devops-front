@@ -179,9 +179,9 @@
         </v-col>
       </v-row>
 
-      <!-- Scheduler -->
+      <!-- Scheduler and Block List -->
       <v-row class="scheduler-row">
-        <v-col cols="9">
+        <v-col cols="8">
           <DxScheduler
             time-zone="Asia/Seoul"
             id="scheduler"
@@ -204,32 +204,57 @@
             <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
-        <v-col cols="3" class="block-list-col">
-          <DxScrollView id="scroll" class="task-scroll-view">
+        <v-col cols="4" class="block-list" style="height: 600px;">
+          <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+          <div class="category-buttons-wrapper">
+            <div class="category-buttons">
+              <v-btn
+                v-for="(color, category) in categoryColors"
+                :key="category"
+                :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+                @click="filterByCategory(category)"
+              >
+                #{{ categoryMap[category] }}
+              </v-btn>
+            </div>
+          </div>
+
+          <DxScrollView id="scroll">
             <DxDraggable
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              data="tasks.length > 0 ? 'dropArea' : 'emptyArea'"
+              style="height: 5px;"
             >
-              <div v-if="tasks.length === 0" class="empty-list">
-                Drop here to add to the list
-              </div>
               <DxDraggable
-                time-zone="Asia/Seoul"
-                v-for="task in tasks"
+                v-for="task in sortedFilteredDataSource"
+                :style="getStyle(task.category, task.heartCount)"
                 :key="task.blockId"
                 :clone="true"
                 :group="draggingGroupName"
                 :data="task"
                 :on-drag-start="onItemDragStart"
                 :on-drag-end="onItemDragEnd"
-                class="item dx-card"
+                class="item"
               >
-                {{ task.title }}
+                <div class="block-title">
+                  {{ task.title }}
+                </div>
+                <div class="block-heart">
+                  <v-icon @click.stop="toggleLike(task)">
+                    <template v-if="task.liked"> mdi-heart </template>
+                    <template v-else> mdi-heart-outline </template>
+                  </v-icon>
+                  <span class="heart-count">{{ task.heartCount }}</span>
+                </div>
               </DxDraggable>
             </DxDraggable>
           </DxScrollView>
+
+          <!-- Block 생성 버튼 -->
+          <v-btn @click="createTemporaryBlock" color="primary" class="create-button"
+            >블럭 생성</v-btn
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -240,7 +265,6 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
-
 import axios from "axios";
 import DxScheduler, {
   DxAppointmentDragging,
@@ -263,27 +287,55 @@ const appointments = ref([]);
 const user = computed(() => store.getters.user);
 const showInviteModal = ref(false);
 const inviteEmail = ref("");
+const selectedCategory = ref(null);
+const maxHeartCount = ref(0);
 
-const isLogin = ref(false);
-const profileUrl = ref("");
+// 카테고리와 관련된 데이터 정의
+const categoryMap = ref({
+  SPOT: "명소",
+  RESTAURANT: "식당",
+  CAFE: "카페",
+  ETC: "기타",
+});
+
+const categoryColors = ref({
+  SPOT: [255, 182, 193],
+  CAFE: [255, 180, 110],
+  RESTAURANT: [173, 216, 230],
+  ETC: [192, 192, 192],
+});
+
+// Calculate max heart count
+onMounted(() => {
+  maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
+});
+
+function getStyle(category, heartCount) {
+  const baseColor = categoryColors.value[category] || categoryColors.value["ETC"];
+  const minFactor = 0.9;
+  const maxFactor = 1.3;
+  const lightnessFactor = maxFactor - ((heartCount / maxHeartCount.value) * (maxFactor - minFactor));
+  const [r, g, b] = baseColor.map(c => Math.round(c * lightnessFactor));
+  return {
+    backgroundColor: `rgb(${r}, ${g}, ${b})`,
+    padding: "20px",
+    margin: "10px 0",
+    borderRadius: "10px",
+    color: "#000",
+  };
+}
 
 onMounted(async () => {
   try {
     console.log("Fetching project details...");
-    try {
-      await store.dispatch("fetchProjectDetail", projectId);
-    } catch (error) {
-      if (error.message === "Access Denied") {
-        router.push({ name: "AccessDenied" });
-      }
-    } // projectId만 전달
+    await store.dispatch("fetchProjectDetail", projectId);
     projectDetail.value = store.getters.projectDetail;
     console.log("Project Detail Data:", projectDetail.value);
 
     if (projectDetail.value) {
       const startTravel = new Date(projectDetail.value.startTravel);
       const endTravel = new Date(projectDetail.value.endTravel);
-      const intervalCount = Math.ceil((endTravel - startTravel) / (1000 * 60 * 60 * 24));
+      const intervalCount = Math.ceil((endTravel - startTravel+1) / (1000 * 60 * 60 * 24));
 
       views.value = [
         { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
@@ -292,7 +344,13 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Error initializing data:", error);
+    if (error.message === "Access Denied") {
+      router.push({ name: "AccessDenied" });
+    }
   }
+  fetchTasks();
+  fetchAppointments();
+  store.dispatch("fetchUser");
 });
 
 async function fetchTasks() {
@@ -306,9 +364,12 @@ async function fetchTasks() {
       content: block.content,
       startTime: block.startTime,
       endTime: block.endTime,
-      // 필요한 경우 추가 필드를 매핑합니다
+      heartCount: block.heartCount,
+      liked: block.isHearted,
+      category: block.category, // Assuming block.category exists
     }));
     console.log("tasks data : ", tasks.value);
+    maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
@@ -324,19 +385,13 @@ async function fetchAppointments() {
       text: block.title,
       startDate: new Date(block.startTime),
       endDate: new Date(block.endTime),
-      allDay: false, // 필요시 조건에 따라 설정
+      allDay: false,
     }));
     console.log("Appointments data:", appointments.value);
   } catch (error) {
     console.error("Failed to fetch appointments:", error);
   }
 }
-
-onMounted(() => {
-  fetchTasks();
-  fetchAppointments();
-  store.dispatch("fetchUser");
-});
 
 async function onAppointmentRemove({ itemData }) {
   console.log("Removing appointment:", itemData);
@@ -345,18 +400,9 @@ async function onAppointmentRemove({ itemData }) {
 
   if (index >= 0) {
     const blockId = itemData.id;
-    console.log("blockId :", blockId);
     const originalStartTime = itemData.startDate.toISOString();
     const originalEndTime = itemData.endDate.toISOString();
     const blockTitle = itemData.title;
-
-    console.log("Sending to server:", {
-      blockId,
-      originalStartTime,
-      originalEndTime,
-      blockTitle,
-    });
-    console.log("itemData: ", itemData);
 
     try {
       const response = await axios.patch(
@@ -375,12 +421,11 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
     } catch (error) {
-      console.error("Failed to Remomve block:", error);
+      console.error("Failed to Remove block:", error);
     }
   }
 }
 
-// 끌어다 놓기 O
 async function onAppointmentAdd(e) {
   console.log("Before add tv :", tasks.value);
   console.log("Before add av :", appointments.value);
@@ -408,10 +453,9 @@ async function onAppointmentAdd(e) {
       console.log(response);
 
       if (index >= 0) {
-        // tasks에 해당 task가 존재하면
-        tasks.value = [...tasks.value]; // tasks를 복사하여 갱신
-        tasks.value.splice(index, 1); // tasks에서 해당 task를 제거
-        appointments.value = [...appointments.value, e.itemData]; // appointments에 추가
+        tasks.value = [...tasks.value];
+        tasks.value.splice(index, 1);
+        appointments.value = [...appointments.value, e.itemData];
       }
       console.log("after tv :", tasks.value);
       console.log("after av :", appointments.value);
@@ -423,19 +467,13 @@ async function onAppointmentAdd(e) {
 
 async function onAppointmentUpdated(e) {
   const updatedAppointment = e.appointmentData;
-  const appoitnmentId = updatedAppointment.id;
-  const updateStartTime = updatedAppointment.startDate.toISOString(); // 변경된 시작 시간
-  const updateEndTime = updatedAppointment.endDate.toISOString(); // 변경된 시작 시간
-
-  console.log("updatedAppointment : ", updatedAppointment);
-  console.log("appoitnmentId : ", appoitnmentId);
-  console.log("updateStartTime : ", updateStartTime);
-  console.log("updateEndTime : ", updateEndTime);
+  const appointmentId = updatedAppointment.id;
+  const updateStartTime = updatedAppointment.startDate.toISOString();
+  const updateEndTime = updatedAppointment.endDate.toISOString();
 
   try {
-    // 서버로 업데이트 된 데이터를 전송하여 DB에 반영
     await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`, {
-      blockId: appoitnmentId,
+      blockId: appointmentId,
       startTime: updateStartTime,
       endTime: updateEndTime,
     });
@@ -448,11 +486,11 @@ async function onAppointmentUpdated(e) {
 async function confirmDeletion() {
   try {
     await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}`);
-    router.go(); // 현재 페이지를 새로고침
+    router.go();
   } catch (e) {
     console.log(e);
   } finally {
-    closeDialog(); // 모달 닫기
+    closeDialog();
   }
 }
 
@@ -470,23 +508,7 @@ function onItemDragEnd(e) {
   }
 }
 
-function loadStylesheet() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
-  document.head.appendChild(link);
-}
-
-function checkLoginStatus() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    isLogin.value = true;
-    profileUrl.value = localStorage.getItem("profileUrl");
-  }
-}
-
 function goToMyPage() {
-  // 마이페이지로 이동
   router.push({ name: "MyPage" });
 }
 
@@ -502,20 +524,15 @@ async function inviteMembers() {
   const newMemberEmail = inviteEmail.value;
 
   try {
-    // 초대 요청을 서버에 보냄
     await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/invite`, {
-      projectId: projectId, // 현재 프로젝트 ID
-      otherMemberEmail: user.value.email, // 초대할 멤버의 이메일
-      email: newMemberEmail, // 현재 로그인된 사용자의 이메일
+      projectId: projectId,
+      otherMemberEmail: user.value.email,
+      email: newMemberEmail,
     });
 
-    // 성공 시 사용자에게 알림
     alert("초대가 성공적으로 완료되었습니다.");
-
-    // 모달 닫기
     showInviteModal.value = false;
   } catch (error) {
-    // 오류 발생 시 사용자에게 알림
     if (
       error.response &&
       error.response.data.status_message === "Member already exists."
@@ -529,11 +546,81 @@ async function inviteMembers() {
   console.log("Inviting:", newMemberEmail);
 }
 
-onMounted(() => {
-  loadStylesheet();
-  checkLoginStatus();
+const sortedFilteredDataSource = computed(() => {
+  let filteredTasks = tasks.value;
+
+  // 필터링
+  if (selectedCategory.value) {
+    filteredTasks = filteredTasks.filter(task => task.category === selectedCategory.value);
+  }
+
+  // 정렬: 좋아요 수를 기준으로 내림차순
+  return filteredTasks.sort((a, b) => b.heartCount - a.heartCount);
 });
+
+async function filterByCategory(category) {
+  // 선택한 카테고리 업데이트
+  if (selectedCategory.value === category) {
+    selectedCategory.value = null;
+  } else {
+    selectedCategory.value = category;
+  }
+
+  // 데이터 필터링
+  if (!tasks.value.length) {
+    await fetchTasks(); // 태스크가 없는 경우에만 데이터 가져오기
+  }
+
+  // 클라이언트 측에서 필터링
+  if (selectedCategory.value) {
+    tasks.value = tasks.value.filter(task => task.category === selectedCategory.value);
+  } else {
+    // 선택된 카테고리가 없으면 모든 태스크 표시
+    await fetchTasks(); // 전체 데이터 다시 가져오기
+  }
+}
+
+
+function toggleLike(block) {
+  console.log("좋아요 토글 대상 블록:", block);
+  block.liked = !block.liked;
+  block.heartCount += block.liked ? 1 : -1;
+
+  axios
+    .post(
+      `http://localhost:8088/api/v1/block/${block.id}/heart`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
+    .then(response => {
+      console.log("좋아요 업데이트 성공:", response);
+    })
+    .catch((error) => {
+      console.error("좋아요 업데이트 중 오류 발생:", error);
+      // API 호출 실패 시 로컬 상태를 원래대로 복구
+      block.liked = !block.liked;
+      block.heartCount += block.liked ? 1 : -1;
+    });
+}
+
+
+function createTemporaryBlock() {
+  const newBlock = {
+    id: `temp-${Date.now()}`,
+    title: "새 블럭",
+    projectId: projectId,
+    category: "",
+    heartCount: 0,
+    liked: false,
+  };
+  tasks.value.push(newBlock);
+}
 </script>
+
 
 <style scoped>
 .project-title {
@@ -549,32 +636,26 @@ onMounted(() => {
 }
 
 #scheduler {
-  width: 900px;
+  width: 800px;
 }
 
-.block-list-col {
-  padding: 0;
-  position: absolute;
-  right: 0;
-  top: 2px;
-  bottom: 0;
-  width: 300px; /* 고정된 너비 */
-  background-color: #424242;
-  overflow-y: auto; /* 스크롤 가능하도록 설정 */
-}
-
-.task-scroll-view {
-  padding: 16px;
+.block-list {
+  padding: 20px;
+  background-color: white; /* 회색 배경을 흰색으로 변경 */
+  overflow-y: auto;
 }
 
 .item {
   width: 100%;
   height: 80px;
-  color: var(--dx-color-text);
-  background-color: var(--dx-component-color-bg);
+  color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
+  background-color: #f5f5f5; /* 카드 배경을 밝은 회색으로 변경 */
   box-sizing: border-box;
-  padding: 0px 0px;
+  padding: 10px;
+  margin-bottom: 10px;
   text-align: center;
+  border-radius: 5px;
+  cursor: grab;
 }
 
 .dx-draggable-source {
@@ -586,19 +667,50 @@ onMounted(() => {
 }
 
 .empty-list {
-  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
-  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
-  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  min-height: 100px;
+  background-color: #f5f5f5;
+  border: 2px dashed #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   font-size: 16px;
   color: #666;
-  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
-  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
-  user-select: none; /* 텍스트가 선택되지 않도록 */
-  pointer-events: none; /* 클릭 이벤트 무시 */
-  -webkit-user-drag: none; /* 드래그 방지 */
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.category-buttons-wrapper {
+  margin-bottom: 20px;
+}
+
+.category-buttons {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.category-buttons .v-btn {
+  margin: 0 5px;
+}
+
+.block-title {
+  width: fit-content;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.block-heart {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.create-button {
+  margin-top: 10px;
+  width: 100%;
 }
 </style>
