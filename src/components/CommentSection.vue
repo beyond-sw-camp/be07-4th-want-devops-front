@@ -268,7 +268,7 @@ export default {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid #ccc;
-  padding: 10px;
+  padding: 10px 10px 15px;
   position: relative;
 }
 

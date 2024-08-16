@@ -57,9 +57,9 @@
     </div>
 
     <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
-    <div class="projectComment" style="display: inline-block;">
+    <div class="projectComment" style="display: inline-block; background-color: #F6F6F6">
         <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-            <div class="block-heart" style="margin: 60px 0 30px;">
+            <div class="block-heart" style="margin: 60px 10px 30px;">
                 <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
                 <v-icon @click.stop="toggleLike(localBlock)">
                     <!-- 좋아요 상태에 따라 아이콘 변경 -->
