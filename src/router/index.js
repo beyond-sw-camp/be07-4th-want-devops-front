@@ -8,7 +8,7 @@ import FirstPage from "@/views/FirstPage";
 import BlockMain from '@/views/BlockMain.vue';
 import BlockDetail from '@/views/BlockDetail.vue';
 import BlockBoard from '@/views/BlockBoard.vue';
-import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
+// import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
 import AccessDenied from "@/components/Scheduler/AccessDenied.vue";
 import { myPageRouter } from "./myPageRouter";
 

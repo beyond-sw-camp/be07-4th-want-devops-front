@@ -1,6 +1,38 @@
 <template>
     <v-app>
         <v-container>
+            <div class="slider-container">
+                <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                    <v-icon>mdi-chevron-left</v-icon>
+                </button>
+                <div class="slider">
+                    <div
+                        class="slider-item"
+                        v-for="(photo, index) in blockPhotos"
+                        :key="photo.photoId"
+                        :class="{ active: index === activeIndex }"
+                    >
+                        <div class="photo-container">
+                            <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                            <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
+                                delete
+                            </span>
+                        </div>
+                    </div>
+                    <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
+                        <v-icon large>mdi-plus</v-icon>
+                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                    </div>
+                    <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
+                        <v-icon large>mdi-camera</v-icon>
+                        <p>사진을 추가하세요</p>
+                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                    </div>
+                </div>
+                <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                    <v-icon>mdi-chevron-right</v-icon>
+                </button>
+            </div>
             <v-card>
                 <v-row>
                     <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
@@ -23,38 +55,7 @@
                                 </CustomModal>
                             </span>
                             <!-- 블럭내 이미지 -->
-                        <div class="slider-container">
-                            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                                <v-icon>mdi-chevron-left</v-icon>
-                            </button>
-                            <div class="slider">
-                                <div
-                                    class="slider-item"
-                                    v-for="(photo, index) in blockPhotos"
-                                    :key="photo.photoId"
-                                    :class="{ active: index === activeIndex }"
-                                >
-                                    <div class="photo-container">
-                                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
-                                            delete
-                                        </span>
-                                    </div>
-                                </div>
-                                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
-                                    <v-icon large>mdi-plus</v-icon>
-                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                                </div>
-                                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
-                                    <v-icon large>mdi-camera</v-icon>
-                                    <p>사진을 추가하세요</p>
-                                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                                </div>
-                            </div>
-                            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                                <v-icon>mdi-chevron-right</v-icon>
-                            </button>
-                        </div>
+                    
                             <v-textarea v-model="localBlock.content" label="내용" style="margin-left: 15px;" />
                         </v-form>
                     </v-col>
@@ -306,9 +307,6 @@ export default {
                 for (const file of files) {
                     formData.append('files', file);
                 }
-        }
-
-
                 try {
                     const response = await axios.post(
                         'http://localhost:8088/api/v1/photo/upload', // 업로드 API 엔드포인트
