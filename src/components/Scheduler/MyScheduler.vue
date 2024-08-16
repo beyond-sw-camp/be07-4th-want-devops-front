@@ -228,6 +228,7 @@
             >
               <DxDraggable
                 v-for="task in sortedFilteredDataSource"
+                :style="getStyle(task.category, task.heartCount)"
                 :key="task.blockId"
                 :clone="true"
                 :group="draggingGroupName"
@@ -264,7 +265,6 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
-
 import axios from "axios";
 import DxScheduler, {
   DxAppointmentDragging,
@@ -288,6 +288,7 @@ const user = computed(() => store.getters.user);
 const showInviteModal = ref(false);
 const inviteEmail = ref("");
 const selectedCategory = ref(null);
+const maxHeartCount = ref(0);
 
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
@@ -303,6 +304,26 @@ const categoryColors = ref({
   RESTAURANT: [173, 216, 230],
   ETC: [192, 192, 192],
 });
+
+// Calculate max heart count
+onMounted(() => {
+  maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
+});
+
+function getStyle(category, heartCount) {
+  const baseColor = categoryColors.value[category] || categoryColors.value["ETC"];
+  const minFactor = 0.9;
+  const maxFactor = 1.3;
+  const lightnessFactor = maxFactor - ((heartCount / maxHeartCount.value) * (maxFactor - minFactor));
+  const [r, g, b] = baseColor.map(c => Math.round(c * lightnessFactor));
+  return {
+    backgroundColor: `rgb(${r}, ${g}, ${b})`,
+    padding: "20px",
+    margin: "10px 0",
+    borderRadius: "10px",
+    color: "#000",
+  };
+}
 
 onMounted(async () => {
   try {
@@ -345,8 +366,10 @@ async function fetchTasks() {
       endTime: block.endTime,
       heartCount: block.heartCount,
       liked: block.isHearted,
+      category: block.category, // Assuming block.category exists
     }));
     console.log("tasks data : ", tasks.value);
+    maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
@@ -563,6 +586,7 @@ function createTemporaryBlock() {
   tasks.value.push(newBlock);
 }
 </script>
+
 
 <style scoped>
 .project-title {
