@@ -2,13 +2,14 @@
 
     <div class="container" style="width: 60%">
         <!-- 삭제 버튼을 첫 번째 v-col 내부에 위치 -->
-        <div style="display: flex; margin: 15px 5px">
-            <v-btn @click="cancel" color="#999">취소</v-btn>
-            <v-btn type="submit" color="primary" style="margin-left: auto">저장하기</v-btn>
-        </div>
-        <hr>
+        
 
         <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
+            <div style="display: flex; margin: 15px 5px">
+                <v-btn @click="cancel" color="#999">취소</v-btn>
+                <v-btn type="submit" color="primary" style="margin-left: auto">저장하기</v-btn>
+            </div>
+            <hr>
             <div class="blockFormHeader" style="display: flex; gap: 10px">
                 <div class="form-floating" style="width: 20%; font-size: 18px;">
                     <select 
