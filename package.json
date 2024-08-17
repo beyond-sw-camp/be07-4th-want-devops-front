@@ -18,6 +18,7 @@
     "core-js": "^3.8.3",
     "devextreme": "^24.1.4",
     "devextreme-vue": "^24.1.4",
+    "event-source-polyfill": "^1.0.31",
     "gsap": "^3.12.5",
     "jwt-decode": "^4.0.0",
     "vue": "^3.4.37",
