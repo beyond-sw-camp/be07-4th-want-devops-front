@@ -23,10 +23,15 @@ import axios from 'axios';
 import { loadGoogleMapsApi } from '@/plugins/google-maps.js';
 
 export default {
-  setup() {
+  props: {
+    projectId: {
+      type: Number,
+      required: true,
+    },
+  },
+  setup(props) {
     const blocks = ref([]);
     const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
-    const projectId = 1;
     const dateList = ref([]);
     const currentPage = ref(0);
 
@@ -35,7 +40,7 @@ export default {
       try {
         console.log("Fetching project details...");
 
-        const projectResponse = await axios.get(`http://localhost:8088/api/v1/project/${projectId}/detail`);
+        const projectResponse = await axios.get(`http://localhost:8088/api/v1/project/${props.projectId}/detail`);
         console.log("Project details response:", projectResponse.data);
         const {startTravel, endTravel} = projectResponse.data.result;
 
@@ -69,7 +74,7 @@ export default {
     const fetchBlocksForDate = async (date) => {
       try {
         console.log(`Fetching blocks for date: ${date}`);
-        const apiUrl = `http://localhost:8088/api/v1/project/${projectId}/block/list/date?date=${date}`;
+        const apiUrl = `http://localhost:8088/api/v1/project/${props.projectId}/block/list/date?date=${date}`;
         const response = await axios.get(apiUrl);
         console.log(`Blocks fetched for date ${date}:`, response.data.result);
         blocks.value = response.data.result;

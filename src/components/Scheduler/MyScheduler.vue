@@ -14,6 +14,11 @@
               {{ projectDetail.projectStates[0].country }}&gt;
             </h4>
             <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
+            <button @click="showMapListModal = true">Show Google List Map</button>
+            <CustomModal v-model:modelValue="showMapListModal">
+              <GoogleMapList :projectId="projectId"/>
+            </CustomModal>
+
           </div>
 
           <!-- 프로필 아바타와 메뉴 -->
@@ -272,6 +277,8 @@ import DxScheduler, {
 } from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
+import CustomModal from "@/components/CustomModal.vue";
+import GoogleMapList from "@/components/GoogleMapList.vue";
 
 const store = useStore();
 const route = useRoute();
@@ -289,6 +296,7 @@ const showInviteModal = ref(false);
 const inviteEmail = ref("");
 const selectedCategory = ref(null);
 const maxHeartCount = ref(0);
+const showMapListModal = ref(false);
 
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
