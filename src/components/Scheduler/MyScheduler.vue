@@ -199,6 +199,7 @@
             :editing="true"
             :on-appointment-updated="onAppointmentUpdated"
             :show-all-day-panel="false"
+            @appointment-form-opening="onAppointmentFormOpening"
           >
             <DxAppointmentDragging
               :group="draggingGroupName"
@@ -209,7 +210,7 @@
             <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
-        <v-col cols="4" class="block-list" style="height: 600px;">
+        <v-col cols="4" class="block-list" style="height: 600px">
           <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
           <div class="category-buttons-wrapper">
             <div class="category-buttons">
@@ -229,7 +230,7 @@
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              style="height: 5px;"
+              style="height: 5px"
             >
               <DxDraggable
                 v-for="task in sortedFilteredDataSource"
@@ -315,15 +316,16 @@ const categoryColors = ref({
 
 // Calculate max heart count
 onMounted(() => {
-  maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
+  maxHeartCount.value = Math.max(...tasks.value.map((task) => task.heartCount), 1);
 });
 
 function getStyle(category, heartCount) {
   const baseColor = categoryColors.value[category] || categoryColors.value["ETC"];
   const minFactor = 0.9;
   const maxFactor = 1.3;
-  const lightnessFactor = maxFactor - ((heartCount / maxHeartCount.value) * (maxFactor - minFactor));
-  const [r, g, b] = baseColor.map(c => Math.round(c * lightnessFactor));
+  const lightnessFactor =
+    maxFactor - (heartCount / maxHeartCount.value) * (maxFactor - minFactor);
+  const [r, g, b] = baseColor.map((c) => Math.round(c * lightnessFactor));
   return {
     backgroundColor: `rgb(${r}, ${g}, ${b})`,
     padding: "20px",
@@ -343,7 +345,9 @@ onMounted(async () => {
     if (projectDetail.value) {
       const startTravel = new Date(projectDetail.value.startTravel);
       const endTravel = new Date(projectDetail.value.endTravel);
-      const intervalCount = Math.ceil((endTravel - startTravel+1) / (1000 * 60 * 60 * 24));
+      const intervalCount = Math.ceil(
+        (endTravel - startTravel + 1) / (1000 * 60 * 60 * 24)
+      );
 
       views.value = [
         { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
@@ -377,7 +381,7 @@ async function fetchTasks() {
       category: block.category, // Assuming block.category exists
     }));
     console.log("tasks data : ", tasks.value);
-    maxHeartCount.value = Math.max(...tasks.value.map(task => task.heartCount), 1);
+    maxHeartCount.value = Math.max(...tasks.value.map((task) => task.heartCount), 1);
   } catch (error) {
     console.error("Failed to fetch tasks:", error);
   }
@@ -559,7 +563,9 @@ const sortedFilteredDataSource = computed(() => {
 
   // 필터링
   if (selectedCategory.value) {
-    filteredTasks = filteredTasks.filter(task => task.category === selectedCategory.value);
+    filteredTasks = filteredTasks.filter(
+      (task) => task.category === selectedCategory.value
+    );
   }
 
   // 정렬: 좋아요 수를 기준으로 내림차순
@@ -581,13 +587,12 @@ async function filterByCategory(category) {
 
   // 클라이언트 측에서 필터링
   if (selectedCategory.value) {
-    tasks.value = tasks.value.filter(task => task.category === selectedCategory.value);
+    tasks.value = tasks.value.filter((task) => task.category === selectedCategory.value);
   } else {
     // 선택된 카테고리가 없으면 모든 태스크 표시
     await fetchTasks(); // 전체 데이터 다시 가져오기
   }
 }
-
 
 function toggleLike(block) {
   console.log("좋아요 토글 대상 블록:", block);
@@ -604,7 +609,7 @@ function toggleLike(block) {
         },
       }
     )
-    .then(response => {
+    .then((response) => {
       console.log("좋아요 업데이트 성공:", response);
     })
     .catch((error) => {
@@ -614,7 +619,6 @@ function toggleLike(block) {
       block.heartCount += block.liked ? 1 : -1;
     });
 }
-
 
 function createTemporaryBlock() {
   const newBlock = {
@@ -627,8 +631,17 @@ function createTemporaryBlock() {
   };
   tasks.value.push(newBlock);
 }
-</script>
 
+function onAppointmentFormOpening(e) {
+  const blockId = e.appointmentData.id;
+
+  // 해당 일정의 상세 페이지로 라우팅
+  router.push({ name: "BlockBoard", params: { blockId: blockId } });
+
+  // 폼 열림을 취소합니다.
+  e.cancel = true;
+}
+</script>
 
 <style scoped>
 .project-title {
