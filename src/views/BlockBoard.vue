@@ -15,10 +15,10 @@
             <span @click="showMapModal = true" style="cursor: pointer;">
                 <v-card-subtitle>
                     <template v-if="localBlock.placeName">
-                        {{ localBlock.placeName }}
+                        📍 {{ localBlock.placeName }}
                     </template>
                     <template v-else>
-                        📍 지도에서 장소 지정하기
+                        🗺️ 지도에서 장소 지정하기
                     </template>
                 </v-card-subtitle>
                 <CustomModal v-model:modelValue="showMapModal">

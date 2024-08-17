@@ -1,90 +1,91 @@
 <template>
-  <v-app>
-      <v-container>
-          <v-card>
-              <!-- 삭제 버튼을 첫 번째 v-col 내부에 위치 -->
-              <div style="display: flex; justify-content: flex-start; padding: 8px 0;">
-                  <v-btn @click="deleteBlock" color="red" small>
-                      <v-icon left small>mdi-delete</v-icon>
-                      일정 삭제하기
-                  </v-btn>
-                  <div style="float: right; width:fit-content;">
-                      <v-btn type="submit" color="primary">저장</v-btn>
-                      <v-btn @click="cancel" color="secondary">취소</v-btn>
-                  </div>
-              </div>
 
-              <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
-                  <v-row>
-                      <v-col cols="3" style="padding: 5px">
-                          <v-select v-model="localBlock.category" label="카테고리" required>
-                              <option 
-                                  v-for="category in categoryMap" 
-                                  :key="category.id" 
-                              >
-                                  {{ category.category }}
-                              </option>
-                          </v-select> 
-                      </v-col>
-                      <v-col cols="9" style="padding: 5px">
-                          <v-text-field v-model="localBlock.title" label="제목" required />
-                      </v-col>
-                      
-                  </v-row>
-                  <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
-                      <v-card-subtitle style="margin: 0 0 20px">
-                          <template v-if="localBlock.placeName">
-                              📍 {{ localBlock.placeName }}
-                          </template>
-                          <template v-else>
-                              📍 지도에서 장소 지정하기
-                          </template>
-                      </v-card-subtitle>
-                      <CustomModal v-model:modelValue="showMapModal">
-                          <GoogleMap @place-selected="handlePlaceSelected" />
-                      </CustomModal>
-                  </span>
-              </v-form>
+    <div class="container" style="width: 60%">
+        <!-- 삭제 버튼을 첫 번째 v-col 내부에 위치 -->
+        <div style="display: flex; margin: 15px 5px">
+            <v-btn @click="cancel" color="#999">취소</v-btn>
+            <v-btn type="submit" color="primary" style="margin-left: auto">저장하기</v-btn>
+        </div>
+        <hr>
 
-              <div class="slider-container">
-                  <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                      <v-icon>mdi-chevron-left</v-icon>
-                  </button>
-                  <div class="slider">
-                      <div
-                          class="slider-item"
-                          v-for="(photo, index) in blockPhotos"
-                          :key="photo.photoId"
-                          :class="{ active: index === activeIndex }"
-                      >
-                          <div class="photo-container">
-                              <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                              <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
-                                  delete
-                              </span>
-                          </div>
-                      </div>
-                      <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
-                          <v-icon large>mdi-plus</v-icon>
-                          <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                      </div>
-                      <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
-                          <v-icon large>mdi-camera</v-icon>
-                          <p>사진을 추가하세요</p>
-                          <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                      </div>
-                  </div>
-                  <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                      <v-icon>mdi-chevron-right</v-icon>
-                  </button>
-              </div>
-              <v-form>
-                  <v-textarea v-model="localBlock.content" label="내용" style="margin: 40px 0 0" />
-              </v-form>
-              
-          </v-card>
-      </v-container>
-  </v-app>
+        <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
+            <div class="blockFormHeader" style="display: flex; gap: 10px">
+                <div class="form-floating" style="width: 20%; font-size: 18px;">
+                    <select 
+                    class="form-select" 
+                    v-model="localBlock.category">
+                    <option value="" disabled :selected="!localBlock.category">카테고리를 선택해주세요</option>
+                        <option 
+                        v-for="(item, index) in translatedCategories" 
+                        :key="index" 
+                        :value="item.category">
+                        {{ item.label }}
+                        </option>
+                    </select>
+                    <label for="floatingSelect">CATEGORY</label>
+                </div>
+                <div class="form-floating" style="width: 80%">
+                    <textarea class="form-control" v-model="localBlock.title" placeholder="제목을 입력해주세요" required></textarea>
+                    <label for="floatingTextarea">TITLE</label>
+                </div>
+            </div>
+            
+            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
+                <v-card-subtitle style="margin: 15px 0; font-size: 15px">
+                    <template v-if="localBlock.placeName">
+                        📍 {{ localBlock.placeName }}
+                    </template>
+                    <template v-else>
+                        🗺️ 지도에서 장소 지정하기
+                    </template>
+                </v-card-subtitle>
+                <CustomModal v-model:modelValue="showMapModal">
+                    <GoogleMap @place-selected="handlePlaceSelected" />
+                </CustomModal>
+            </span>
+        </v-form>
+
+        <div class="slider-container">
+            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                <v-icon>mdi-chevron-left</v-icon>
+            </button>
+            <div class="slider">
+                <div
+                    class="slider-item"
+                    v-for="(photo, index) in blockPhotos"
+                    :key="photo.photoId"
+                    :class="{ active: index === activeIndex }"
+                >
+                    <div class="photo-container">
+                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
+                            delete
+                        </span>
+                    </div>
+                </div>
+                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
+                    <v-icon large>mdi-plus</v-icon>
+                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                </div>
+                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
+                    <v-icon large>mdi-camera</v-icon>
+                    <p>사진을 추가하세요</p>
+                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                </div>
+            </div>
+            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                <v-icon>mdi-chevron-right</v-icon>
+            </button>
+        </div>
+        <v-form>
+        <div class="form-floating" style="margin: 20px 0 40px">
+            <textarea class="form-control" v-model="localBlock.content" placeholder="내용을 입력해주세요" required style="height: 300px;"></textarea>
+            <label for="floatingTextarea">CONTENT</label>
+        </div>    
+        </v-form>
+    </div>
+    
+            
 </template>
 
 
@@ -373,61 +374,26 @@ export default {
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-  width: 500px;
-  max-width: 500px;
-  height: 500px;
+  width: 400px;
+  max-width: 400px;
+  height: 400px;
   margin: auto;
 }
 
-.slider {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-  height: 100%;
-}
-
-.slider-item {
-  min-width: 500px;
-  height: 500px;
-  transition: opacity 0.3s ease-in-out;
-  opacity: 1; /* 기본적으로 모든 이미지 뚜렷하게 */
-}
 
 
-.slider-image {
-  width: 500px;
-  height: 500px;
-  object-fit: cover;
-}
 
-.slider-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  padding: 10px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-}
 
-.prev-btn {
-  left: 10px;
-}
 
-.next-btn {
-  right: 10px;
-}
 
-.slider-btn v-icon {
-  font-size: 24px;
-  color: black;
-}
 
-.photo-container {
-  position: relative;
-}
+
+
+
+
+
+
+
 
 .add-photo-item {
   display: flex;
