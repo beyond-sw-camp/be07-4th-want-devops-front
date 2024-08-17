@@ -526,11 +526,12 @@ function closeDialog() {
 
 async function inviteMembers() {
   const newMemberEmail = inviteEmail.value;
-
+  const inviterName = user.value.userName;
   try {
     await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/invite`, {
       projectId: projectId,
       email: newMemberEmail,
+      inviterName: inviterName,
     });
 
     alert("초대가 성공적으로 완료되었습니다.");
