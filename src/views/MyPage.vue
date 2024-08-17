@@ -46,7 +46,6 @@
             class="projectCard"
             v-for="project in filteredProjects"
             :key="project.projectId"
-            @click="goToProjectDetail(project.projectId)"
           >
             <div class="modalContainer">
               <span class="material-symbols-outlined moreBtn" @click="toggleMenu(project.projectId)">
@@ -59,8 +58,7 @@
                 </div>
               </div>
             </div>
-
-            <div class="projectImage">
+            <div class="projectImage" @click="goToMyPage(project.projectId)">
               <!-- 추후에 프로젝트 이미지로 수정 -->
               <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
             </div>
@@ -95,6 +93,7 @@
 
 
 <script>
+// import router from "@/router";
 import axios from "axios";
 
 export default {
@@ -220,7 +219,7 @@ export default {
       this.showModal = false;
       this.currentProject = null;
     },
-    goToProjectDetail(projectId) {
+    goToMyPage(projectId) {
       this.$router.push({ path: `/project/${projectId}/detail` });
     },
     async confirmDeletion() {

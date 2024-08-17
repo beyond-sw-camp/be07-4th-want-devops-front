@@ -25,7 +25,23 @@
                     <GoogleMap @place-selected="handlePlaceSelected" />
                 </CustomModal>
             </span>
-            <span @click.stop="handleMoreOptions" class="material-symbols-outlined" style="margin-left: 5px; cursor: pointer;">more_vert</span>
+            <span 
+            @click.stop="toggleMenu" 
+            ref="moreVertButton"
+            class="material-symbols-outlined" 
+            style="margin-left: 5px; cursor: pointer;">
+            more_vert
+            </span>
+
+            <!-- 모달 -->
+            <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+            <div class="menu-item" @click="editBlock">
+                <v-icon>mdi-pencil</v-icon> 수정하기
+            </div>
+            <div class="menu-item" @click="deleteBlock">
+                <v-icon>mdi-delete</v-icon> 삭제하기
+            </div>
+            </div>
         </div>
         <hr>
         <div class="slider-container">
@@ -104,6 +120,7 @@ export default {
                 RESTAURANT: [173, 216, 230],
                 ETC: [192, 192, 192],
             },
+            menuOpen: false,
         }
     },
     computed: {
@@ -207,6 +224,7 @@ export default {
                     console.error('블록 삭제 중 오류 발생:', error);
                     alert('블록 삭제 중 오류가 발생했습니다.');
                 }
+                this.menuOpen = false;
             }
         }
 
@@ -300,6 +318,22 @@ export default {
                 color: "#000",
             };
         },
+        toggleMenu() {
+            this.menuOpen = !this.menuOpen;
+            if (this.menuOpen) {
+            this.$nextTick(() => {
+                const buttonRect = this.$refs.moreVertButton.getBoundingClientRect();
+                const modalMenu = this.$refs.modalMenu;
+
+                modalMenu.style.top = `${buttonRect.bottom + window.scrollY}px`; // 버튼의 아래쪽에 위치 설정
+                modalMenu.style.left = `${buttonRect.right - modalMenu.offsetWidth}px`; // 버튼의 왼쪽 정렬에 맞춤
+            });
+            }
+        },
+        editBlock() {
+            const blockId = this.blockId; // 현재 블록 ID 가져오기
+            this.$router.push(`/block/${blockId}/detail`); // 해당 블록의 detail 페이지로 이동
+        },
     }
 };
 </script>
@@ -315,8 +349,6 @@ export default {
 .category-buttons v-btn {
     margin-right: 10px; /* 버튼 간 간격 추가 */
 }
-
-
 .blockHeader span {
     margin-left: auto; /* 맵 아이콘을 오른쪽으로 밀기 */
 }
@@ -326,22 +358,46 @@ export default {
     align-items: flex-start;
     width: 100%; 
 }
-
+/* 수정 & 삭제 모달 */
+.modal-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+}
+.menu-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+.menu-item v-icon {
+    margin-right: 8px;
+}
 .projectBoard {
     flex: 1;
     margin: 20px 0;
     padding: 20px;
-    width: 62vw;
+    width: 60vw;
 }
 
 .projectComment {
-    width: 430px;
+    width: 450px;
     height: 100vh;
     position: absolute;
     top: 0;
     right: 0;
     background-color: white;
-    padding: 80px 20px 0;
+    padding: 80px 50px 0 20px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
     border-radius: 8px;
 }
