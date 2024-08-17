@@ -263,7 +263,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -636,6 +636,8 @@ function onAppointmentFormOpening(e) {
 }
 
 // SSE 연결 설정
+let eventSource;
+
 function connectSSE() {
   const eventSource = new EventSourcePolyfill(
     `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
@@ -650,12 +652,22 @@ function connectSSE() {
     console.log("SSE connection opened");
   };
 
-  eventSource.onmessage = function (event) {
+  eventSource.addEventListener('connected', (event) => {
+    console.log("SSE connected:", event);
+  });
+
+  eventSource.addEventListener('message', (event) => {
     const notificationMessage = event.data;
     displayNotification(notificationMessage);
+    router.go(0);
+  });
 
-    window.location.reload();
-  };
+  // eventSource.onmessage = function (event) {
+  //   const notificationMessage = event.data;
+  //   displayNotification(notificationMessage);
+  //
+  //   window.location.reload();
+  // };
 
   eventSource.onerror = function (error) {
     eventSource.close();
@@ -669,9 +681,23 @@ function displayNotification(message) {
   console.log("New notification received:", message);
   // 이곳에서 UI에 알림을 표시하는 로직을 추가할 수 있음
 }
+function handleBeforeUnload() {
+  if (eventSource) {
+    eventSource.close(); // 페이지가 언로드되기 전에 SSE 연결을 종료
+    console.log("SSE connection closed due to page unload");
+  }
+}
 
 onMounted(() => {
   connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+});
+onBeforeUnmount(() => {
+  if (eventSource) {
+    eventSource.close(); // 컴포넌트 언마운트 시에도 SSE 연결 종료
+    console.log("SSE connection closed due to component unmount");
+  }
+
+  window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 </script>
 
