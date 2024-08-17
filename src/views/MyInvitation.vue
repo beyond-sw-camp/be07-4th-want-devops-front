@@ -1,7 +1,7 @@
 <template>
   <div class="profile" align="center">
-    <v-avatar style="width: 100px; height: 100px;">
-      <img :src="profileUrl"/>
+    <v-avatar style="width: 100px; height: 100px">
+      <img :src="profileUrl" />
     </v-avatar>
     <p class="userName">{{ userName }}</p>
     <p class="userEmail">{{ userEmail }}</p>
@@ -18,7 +18,11 @@
   <div class="section">
     <div class="sectionInvitation">
       <!-- 초대가 없는 경우 -->
-      <div v-if="filteredInvitations.length === 0" class="no-invitations" style="margin: auto;">
+      <div
+        v-if="filteredInvitations.length === 0"
+        class="no-invitations"
+        style="margin: auto"
+      >
         초대받은 프로젝트가 없습니다
       </div>
       <!-- 초대가 있는 경우 -->
@@ -29,7 +33,7 @@
         :key="invitation.projectId"
         @click="openModal(invitation)"
       >
-        <span style="font-weight: 700;">[{{ invitation.projectTitle }}]</span>
+        <span style="font-weight: 700">[{{ invitation.projectTitle }}]</span>
         에 초대되었습니다
       </div>
     </div>
@@ -41,9 +45,18 @@
       <button class="close-btn" @click="modalOpen">×</button>
 
       <div v-if="selectedInvitation">
-        <h2><strong>[{{ selectedInvitation.projectTitle }}]</strong>에 초대되었습니다</h2>
-        <p><strong>여행지:</strong> {{ selectedInvitation.projectStates[0].country }} {{ selectedInvitation.projectStates[0].city }}</p>
-        <p><strong>여행일:</strong> {{ selectedInvitation.startTravel }} ~ {{ selectedInvitation.endTravel }}</p>
+        <h2>
+          <strong>[{{ selectedInvitation.projectTitle }}]</strong>에 초대되었습니다
+        </h2>
+        <p>
+          <strong>여행지:</strong> {{ selectedInvitation.projectStates[0].country }}
+          {{ selectedInvitation.projectStates[0].city }}
+        </p>
+        <p>
+          <strong>여행일:</strong> {{ selectedInvitation.startTravel }} ~
+          {{ selectedInvitation.endTravel }}
+        </p>
+        <p><strong>초대 보낸 사람:</strong> {{ selectedInvitation.inviterName }}</p>
       </div>
       <div class="modal-btn">
         <v-btn @click="handleInvitation('accept')">수락</v-btn>
@@ -54,7 +67,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
@@ -69,19 +82,26 @@ export default {
   },
   computed: {
     filteredInvitations() {
-      return this.invitationList.filter(invitation => invitation.invitationAccepted !== 'Y');
-    }
+      return this.invitationList.filter(
+        (invitation) => invitation.invitationAccepted !== "Y"
+      );
+    },
   },
   async created() {
     await this.getMyInfo();
     try {
-      const response = await axios.get('http://localhost:8088/member/invitations', {
+      const response = await axios.get("http://localhost:8088/member/invitations", {
         params: {
           page: 0,
           size: 30,
         },
       });
-      this.invitationList = response.data.content;
+      console.log("Invitations List:", response.data.content); // inviterName이 포함되었는지 확인
+      this.invitationList = response.data.content.map((invitation) => ({
+        ...invitation,
+        inviterName: invitation.inviterName || "초대 보낸 사람 이름 없음", // inviterName을 포함
+      }));
+
       console.log(this.invitationList);
     } catch (e) {
       console.log(e);
@@ -90,7 +110,7 @@ export default {
   methods: {
     async getMyInfo() {
       try {
-        const response = await axios.get('http://localhost:8088/member/me');
+        const response = await axios.get("http://localhost:8088/member/me");
         this.profileUrl = response.data.profileUrl;
         this.userName = response.data.name;
         this.userEmail = response.data.email;
@@ -99,6 +119,7 @@ export default {
       }
     },
     openModal(invitation) {
+      console.log("Invitation Details:", invitation);
       this.selectedInvitation = invitation;
       this.modalCheck = true;
     },
@@ -111,20 +132,25 @@ export default {
     async handleInvitation(action) {
       if (!this.selectedInvitation) return;
       try {
-        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/member/invitations/response`, {
-          projectId: this.selectedInvitation.projectId,
-          action: action
-        });
+        await axios.post(
+          `${process.env.VUE_APP_API_BASE_URL}/member/invitations/response`,
+          {
+            projectId: this.selectedInvitation.projectId,
+            action: action,
+          }
+        );
 
         // 초대 응답 후 처리
-        this.invitationList = this.invitationList.filter(invitation => invitation.projectId !== this.selectedInvitation.projectId);
+        this.invitationList = this.invitationList.filter(
+          (invitation) => invitation.projectId !== this.selectedInvitation.projectId
+        );
         console.log(this.invitationList);
         this.modalOpen(); // 모달 닫기
       } catch (e) {
         console.error(e.response?.data || e.message); // 에러 메시지 로그 추가
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
