@@ -26,7 +26,13 @@ export default createStore({
             },
           }
         );
-        commit("setProjectDetail", response.data.result);
+        const filteredDetail = {
+          ...response.data.result,
+          projectMembers: response.data.result.projectMembers.filter(
+            (member) => member.isExist === "Y"
+          ),
+        };
+        commit("setProjectDetail", filteredDetail);
       } catch (error) {
         throw new Error("Access Denied");
       }
