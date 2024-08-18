@@ -1,11 +1,9 @@
 <template>
     <div>
-        <!-- Header Section -->
         <div class="header">
             <h1>인기 여행지</h1>
         </div>
 
-        <!-- Destination List Section -->
         <div class="destination-list">
             <v-row justify="center">
                 <v-col cols="12" md="8">
@@ -17,12 +15,14 @@
                             <p>전 세계에서 인기 있는 도시를 확인하세요.</p>
                         </v-card-subtitle>
                         <v-list>
-                            <v-list-item-group v-if="destinations.length">
-                                <v-list-item v-for="destination in destinations" :key="destination.id" @click="goToTasks(destination)">
+                            <v-list-item-group v-if="sortedDestinations.length">
+                                <v-list-item v-for="destination in sortedDestinations" :key="destination.id"
+                                    @click="goToTasks(destination)">
                                     <v-list-item-content>
                                         <v-list-item-title>{{ destination.city }}</v-list-item-title>
                                         <v-list-item-subtitle>{{ destination.country }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle v-if="destination.projectCount !== undefined">프로젝트 수: {{ destination.projectCount }}</v-list-item-subtitle>
+                                        <v-list-item-subtitle v-if="destination.projectCount !== undefined">프로젝트 수: {{
+                                            destination.projectCount }}</v-list-item-subtitle>
                                     </v-list-item-content>
                                 </v-list-item>
                             </v-list-item-group>
@@ -52,26 +52,31 @@ export default {
         try {
             const response = await axios.get('http://localhost:8088/api/v1/popular/destinations');
             const cities = response.data.result;
-
-            // 도시 데이터와 프로젝트 수를 destinations에 할당
             this.destinations = cities.map(city => ({
                 id: city.id,
                 city: city.city,
                 country: city.country,
-                projectCount: city.projectCount // 프로젝트 수 추가
+                projectCount: city.projectCount
             }));
         } catch (e) {
             console.error(e);
         }
     },
 
+    computed: {
+        sortedDestinations() {
+            return this.destinations.slice().sort((a, b) => b.projectCount - a.projectCount);
+        }
+    },
+
     methods: {
         goToTasks(destination) {
-        this.$router.push({ name: 'PopularBlocks', params: { stateId: destination.id } });
-    },
+            this.$router.push({ name: 'PopularBlocks', params: { stateId: destination.id } });
+        },
     },
 };
 </script>
+
 
 <style>
 .header {
