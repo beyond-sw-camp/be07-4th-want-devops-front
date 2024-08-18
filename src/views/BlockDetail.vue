@@ -54,14 +54,14 @@
         <div
             class="slider-item"
             v-for="(photo, index) in filteredPhotos"
-            :key="photo.photoId"
+            :key="photo.id"
             :class="{ active: index === activeIndex }"
         >
           <div class="photo-container">
             <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-            <span class="material-symbols-outlined delete-btn" @click="handleDelete(photo.photoId)">
+            <span class="material-symbols-outlined delete-btn" @click="handleDelete(photo.id)">
                     delete
-                </span>
+            </span>
           </div>
         </div>
         <div v-if="filteredPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
@@ -132,8 +132,8 @@ export default {
     },
     filteredPhotos() {
       // 삭제할 사진을 제외한 사진만 필터링
-      return this.blockPhotos.filter(photo => !this.delFiles.includes(photo.url))
-          .concat(this.newFiles.map(file => ({url: URL.createObjectURL(file), photoId: file.name})));
+      return this.blockPhotos.filter(photo => !this.delFiles.includes(photo.id))
+          .concat(this.newFiles.map(file => ({url: URL.createObjectURL(file), id: file.name})));
     }
   },
   components: {CustomModal, GoogleMap},
@@ -245,10 +245,10 @@ export default {
     };
 
     const filteredPhotos = computed(() => {
-      const delFileUrls = new Set(delFiles);
+      const delFileUrls = new Set(delFiles.value);
       return [
         ...blockPhotos.value.filter(photo => !delFileUrls.has(photo.id)),
-        ...newFiles.value.map(file => ({ url: URL.createObjectURL(file), photoId: file.name })) // 새로 추가된 사진
+        ...newFiles.value.map(file => ({ url: URL.createObjectURL(file), id: file.name })) // 새로 추가된 사진
       ];
     });
 
@@ -282,20 +282,24 @@ export default {
       console.log(newFiles.value);
     };
 
-    const handleDelete = (photoId) => {
-      blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-      delFiles.push(photoId);
-
+    const handleDelete = (id) => {
+      blockPhotos.value = blockPhotos.value.map(photo =>
+          photo.id === id ? { ...photo, isDeleted: true } : photo
+      );
+      delFiles.push(id);
+      console.log(id);
+      console.log("delFiles" + delFiles);
       // 새 파일 목록에서 삭제된 사진 제거
-      newFiles.value = newFiles.value.filter(file => file.name !== photoId);
+      newFiles.value = newFiles.value.filter(file => file.name !== id);
+      console.log("newFiles" + newFiles.value);
     };
-
 
     onMounted(async () => {
       selectedBlock.value = route.params.blockId;
       await fetchBlock();
       await getPhotos();
     });
+
     return {
       showMapModal,
       localBlock,
@@ -317,6 +321,7 @@ export default {
       handleDelete,
       delFiles,
       newFiles,
+      activeIndex,
     };
   },
   methods: {
