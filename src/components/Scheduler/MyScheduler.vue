@@ -243,6 +243,12 @@
                 :on-drag-end="onItemDragEnd"
                 class="item"
               >
+                <v-btn
+                  icon="mdi-dots-horizontal"
+                  variant="text"
+                  class="enter-button"
+                  @click="() => goToBlockBoard(task.id)"
+                ></v-btn>
                 <div class="block-title">
                   {{ task.title }}
                 </div>
@@ -643,6 +649,11 @@ function onAppointmentFormOpening(e) {
   e.cancel = true;
 }
 
+function goToBlockBoard(blockId) {
+  console.log("Navigating to block with ID:", blockId); // blockId 출력
+  router.push({ name: "BlockBoard", params: { blockId: blockId } });
+}
+
 // SSE 연결 설정
 let eventSource;
 
@@ -733,6 +744,7 @@ onBeforeUnmount(() => {
 }
 
 .item {
+  position: relative; /* 부모 요소를 상대 위치로 설정 */
   width: 100%;
   height: 80px;
   color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
@@ -799,5 +811,16 @@ onBeforeUnmount(() => {
 .create-button {
   margin-top: 10px;
   width: 100%;
+}
+
+.enter-button {
+  position: absolute; /* 버튼을 절대 위치로 설정 */
+  top: 1px; /* 상단에서 10px 떨어진 위치 */
+  right: 10px; /* 오른쪽에서 10px 떨어진 위치 */
+  color: white; /* 버튼 텍스트 색상 */
+  padding: 5px 5px; /* 버튼 패딩 */
+  border: none; /* 버튼 테두리 제거 */
+  border-radius: 3px; /* 버튼 모서리 둥글게 */
+  cursor: pointer; /* 커서 포인터 설정 */
 }
 </style>
