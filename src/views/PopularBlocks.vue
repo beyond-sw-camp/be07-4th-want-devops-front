@@ -1,11 +1,9 @@
 <template>
     <div>
-        <!-- Header Section -->
         <div class="header">
             <h1>블록들</h1>
         </div>
 
-        <!-- Block List Section -->
         <div class="block-list">
             <v-row justify="center">
                 <v-col cols="12" md="8">
@@ -17,14 +15,14 @@
                             <p>선택한 도시에서의 블록들을 확인하세요.</p>
                         </v-card-subtitle>
                         <v-list>
-                            <!-- 조건부 렌더링: 데이터가 로드되었는지 확인 -->
                             <v-list-item-group v-if="!loading && blocks.length">
                                 <v-list-item v-for="block in sortedBlocks" :key="block.blockId">
                                     <v-list-item-content>
                                         <v-list-item-title>{{ block.title }}</v-list-item-title>
                                         <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>장소: {{ block.placeName }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude }}</v-list-item-subtitle>
+                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude
+                                            }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
                                     </v-list-item-content>
                                     <v-list-item-action class="block-item-action">
@@ -34,13 +32,11 @@
                                     </v-list-item-action>
                                 </v-list-item>
                             </v-list-item-group>
-                            <!-- 로딩 상태에 대한 메시지 -->
                             <v-list-item v-if="loading">
                                 <v-list-item-content>
                                     <v-list-item-title>블록을 불러오는 중입니다...</v-list-item-title>
                                 </v-list-item-content>
                             </v-list-item>
-                            <!-- 데이터가 없을 때 메시지 -->
                             <v-list-item v-else-if="!blocks.length && !loading">
                                 <v-list-item-content>
                                     <v-list-item-title>블록이 없습니다.</v-list-item-title>
@@ -52,7 +48,6 @@
             </v-row>
         </div>
 
-        <!-- 프로젝트 선택 모달 -->
         <v-dialog v-model="showProjectDialog" max-width="500px">
             <v-card v-if="!loading">
                 <v-card-title>프로젝트 선택</v-card-title>
