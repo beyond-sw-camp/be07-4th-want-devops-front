@@ -160,7 +160,7 @@ export default {
     const selectedBlock = ref(null);
 
     const newFiles = ref([]); // 새로 추가된 파일
-    const delFiles = ref([]); // 삭제된 파일 URL
+    const delFiles = []; // 삭제된 파일 URL
 
     const categoryMap = {
       SPOT: "명소",
@@ -245,9 +245,9 @@ export default {
     };
 
     const filteredPhotos = computed(() => {
-      const delFileUrls = new Set(delFiles.value);
+      const delFileUrls = new Set(delFiles);
       return [
-        ...blockPhotos.value.filter(photo => !delFileUrls.has(photo.url)),
+        ...blockPhotos.value.filter(photo => !delFileUrls.has(photo.id)),
         ...newFiles.value.map(file => ({ url: URL.createObjectURL(file), photoId: file.name })) // 새로 추가된 사진
       ];
     });
@@ -283,14 +283,13 @@ export default {
     };
 
     const handleDelete = (photoId) => {
-      blockPhotos.value = blockPhotos.value.map(photo =>
-          photo.photoId === photoId ? { ...photo, isDeleted: true } : photo
-      );
-      delFiles.value.push(photoId);
-      console.log(delFiles.value);
+      blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
+      delFiles.push(photoId);
+
       // 새 파일 목록에서 삭제된 사진 제거
       newFiles.value = newFiles.value.filter(file => file.name !== photoId);
     };
+
 
     onMounted(async () => {
       selectedBlock.value = route.params.blockId;
