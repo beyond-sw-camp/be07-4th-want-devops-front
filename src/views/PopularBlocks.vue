@@ -24,9 +24,8 @@
                                         <v-list-item-title>{{ block.title }}</v-list-item-title>
                                         <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>장소: {{ block.placeName }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude
-                                            }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle>카테고리: {{ block.category.name }}</v-list-item-subtitle>
+                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude }}</v-list-item-subtitle>
+                                        <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
                                     </v-list-item-content>
                                     <v-list-item-action class="block-item-action">
                                         <v-btn @click="showProjectSelection(block)" icon>
