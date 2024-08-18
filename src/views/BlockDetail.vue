@@ -47,34 +47,34 @@
         </v-form>
 
         <div class="slider-container">
-            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+            <button v-if="filteredPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
                 <v-icon>mdi-chevron-left</v-icon>
             </button>
             <div class="slider">
                 <div
                     class="slider-item"
-                    v-for="(photo, index) in blockPhotos"
+                    v-for="(photo, index) in filteredPhotos"
                     :key="photo.photoId"
                     :class="{ active: index === activeIndex }"
                 >
                     <div class="photo-container">
                         <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                        <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
+                        <span class="material-symbols-outlined delete-btn" @click="handleDelete(photo.url)">
                             delete
                         </span>
                     </div>
                 </div>
-                <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
+                <div v-if="filteredPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
                     <v-icon large>mdi-plus</v-icon>
-                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                    <input type="file" ref="photoInput" @change="handleFileUpload" style="display: none;"/>
                 </div>
-                <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
+                <div v-if="filteredPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
                     <v-icon large>mdi-camera</v-icon>
                     <p>사진을 추가하세요</p>
-                    <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
+                    <input type="file" ref="photoInput" @change="handleFileUpload" style="display: none;"/>
                 </div>
             </div>
-            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+            <button v-if="filteredPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
                 <v-icon>mdi-chevron-right</v-icon>
             </button>
         </div>
@@ -95,7 +95,7 @@
 import axios from 'axios';
 import GoogleMap from "@/components/GoogleMap.vue";
 import CustomModal from "@/components/CustomModal.vue";
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export default {
@@ -113,6 +113,7 @@ export default {
               RESTAURANT: [173, 216, 230],
               ETC: [192, 192, 192],
           },
+          
       }
   },
   computed: {
@@ -127,6 +128,11 @@ export default {
           const filtered = this.translatedCategories.filter(item => item.label === this.localBlock.category);
           console.log('Filtered Categories:', filtered); // 디버깅을 위한 로그
           return filtered;
+      },
+      filteredPhotos() {
+          // 삭제할 사진을 제외한 사진만 필터링
+          return this.blockPhotos.filter(photo => !this.delFiles.includes(photo.url))
+            .concat(this.newFiles.map(file => ({ url: URL.createObjectURL(file), photoId: file.name })));
       }
   },
   components: { CustomModal, GoogleMap },
@@ -146,12 +152,14 @@ export default {
       });
       const blockPhotos = ref([]);
       const activeIndex = ref(0);
-      const oldFiles = ref([]);
 
       const valid = ref(true);
       const startDateMenu = ref(false);
       const endDateMenu = ref(false);
       const selectedBlock = ref(null);
+
+      const delFiles = [];
+      const newFiles = [];
 
       const categoryMap = {
           SPOT: "명소",
@@ -234,13 +242,21 @@ export default {
               console.log(e);
           }
       };
+      const filteredPhotos = computed(() => {
+          // 삭제할 사진은 제외하고, 새로 추가된 사진만 포함
+          const delFileUrls = new Set(delFiles);
+          return [
+              ...blockPhotos.value.filter(photo => !delFileUrls.has(photo.url)),
+              ...newFiles.map(file => ({ url: URL.createObjectURL(file), photoId: file.name })) // 새로 추가된 사진
+          ];
+      });
       const nextSlide = () => {
-          activeIndex.value = (activeIndex.value + 1) % (blockPhotos.value.length + 1);
+          activeIndex.value = (activeIndex.value + 1) % (filteredPhotos.value.length + 1);
           updateSliderPosition();
       };
 
       const prevSlide = () => {
-          activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length + 1) % (blockPhotos.value.length + 1);
+          activeIndex.value = (activeIndex.value - 1 + filteredPhotos.value.length) % filteredPhotos.value.length;
           updateSliderPosition();
       };
 
@@ -249,62 +265,28 @@ export default {
           const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
           slider.style.transform = `translateX(${offset}px)`;
       };
-      const deletePhoto = async (photoId, photoUrl) => {
-          // URL을 oldFiles에 추가
-          oldFiles.value.push(photoUrl);
-
-          // 업데이트 요청
-          try {
-              const formData = new FormData();
-              formData.append('blockId', selectedBlock.value);
-              formData.append('oldFiles', JSON.stringify(oldFiles.value));
-              formData.append('newFiles', JSON.stringify([])); // 새로운 파일 없음
-
-              await axios.put('http://localhost:8088/api/v1/photo/update', formData, {
-                  headers: {
-                      'Content-Type': 'multipart/form-data',
-                  },
-              });
-
-              // 삭제된 사진을 블록 사진 목록에서 제거
-              blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-              alert('사진이 성공적으로 삭제되었습니다.');
-          } catch (error) {
-              console.error('사진 삭제 중 오류 발생:', error);
-              alert('사진 삭제 중 오류가 발생했습니다.');
-          }
-      };
+      
       const triggerFileUpload = () => {
           document.querySelector("input[type='file']").click();
       };
-      const uploadPhoto = async (event) => {
+      const handleFileUpload = (event) => {
           const files = event.target.files;
           if (files.length > 0) {
-              const formData = new FormData();
-              formData.append('blockId', selectedBlock.value); // 블록 ID를 추가합니다.
-
-              for (const file of files) {
-                  formData.append('files', file);
-              }
-              try {
-                  const response = await axios.post(
-                      'http://localhost:8088/api/v1/photo/upload', // 업로드 API 엔드포인트
-                      formData,
-                      {
-                          headers: {
-                              'Content-Type': 'multipart/form-data',
-                          },
-                      }
-                  );
-                  const photoList = response.data.result.photoList;
-                  blockPhotos.value.push(...photoList.map(photo => ({ ...photo, url: photo.url })));
-                  alert('사진이 성공적으로 업로드되었습니다.');
-              } catch (error) {
-                  console.error('사진 업로드 중 오류 발생:', error);
-                  alert('사진 업로드 중 오류가 발생했습니다.');
+              for (let i = 0; i < files.length; i++) {
+                  newFiles.push(files[i]);
               }
           }
+          console.log(newFiles);
       };
+
+      const handleDelete = (photoId) => {
+          blockPhotos.value = blockPhotos.value.map(photo =>
+              photo.photoId === photoId ? { ...photo, isDeleted: true } : photo
+          );
+          delFiles.push(photoId);
+          console.log(delFiles);
+      };
+      
       onMounted(async () => {
           selectedBlock.value = route.params.blockId;
           await fetchBlock();
@@ -322,14 +304,15 @@ export default {
           updateBlock,
           cancel,
           deleteBlock,
-          deletePhoto,
           handlePlaceSelected,
           blockPhotos,
           nextSlide,
           prevSlide,
           triggerFileUpload,
-          uploadPhoto,
-          oldFiles,
+          handleFileUpload,
+          handleDelete,
+          delFiles,
+          newFiles,
       };
   },
   methods: {
