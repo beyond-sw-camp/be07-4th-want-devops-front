@@ -8,6 +8,9 @@
           <div class="mr-3">
             <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
           </div>
+          <v-btn class="map-btn" elevation="0" variant="text">
+            <v-icon left size="30" color="#4285F4">mdi-google-maps</v-icon>
+          </v-btn>
           <div class="mr-3">
             <h4 class="project-location" v-if="projectDetail.projectStates.length">
               &lt;{{ projectDetail.projectStates[0].city }},
@@ -20,35 +23,6 @@
             </CustomModal>
 
           </div>
-
-          <!-- 프로필 아바타와 메뉴 -->
-          <v-menu min-width="200px" rounded>
-            <template v-slot:activator="{ props }">
-              <v-btn icon v-bind="props">
-                <v-avatar :src="user?.profileUrl || ''" size="large">
-                  <span class="text-h5">{{ user?.initials || "" }}</span>
-                </v-avatar>
-              </v-btn>
-            </template>
-
-            <v-card v-if="user">
-              <v-card-text>
-                <div class="mx-auto text-center">
-                  <v-avatar :src="user?.profileUrl || ''">
-                    <span class="text-h5">{{ user?.initials || "" }}</span>
-                  </v-avatar>
-                  <h3>{{ user?.fullName || "Unknown User" }}</h3>
-                  <p class="text-caption mt-1">
-                    {{ user?.email || "No email provided" }}
-                  </p>
-                  <v-divider class="my-3"></v-divider>
-                  <v-btn variant="text" rounded @click="goToMyPage"> 마이페이지 </v-btn>
-                  <v-divider class="my-3"></v-divider>
-                  <v-btn variant="text" rounded @click="openModal"> 탈퇴하기 </v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-menu>
 
           <v-dialog v-model="dialog" max-width="500">
             <v-card class="elevation-3" style="border-radius: 16px">
@@ -158,7 +132,26 @@
             <img :src="member.userProfile" alt="User profile" />
           </v-avatar>
 
-          <v-btn class="ml-3" color="primary" @click="showInviteModal = true">초대</v-btn>
+          <v-btn
+            class="ml-3 invite-btn"
+            color="primary"
+            @click="showInviteModal = true"
+            elevation="5"
+          >
+            <v-icon left size="28">mdi-account-plus</v-icon>
+            초대
+          </v-btn>
+
+          <v-btn
+            class="ml-3 delete-btn"
+            color="error"
+            @click="openModal"
+            elevation="5"
+            style="margin-top: -20px"
+          >
+            <v-icon left size="28">mdi-account-remove</v-icon>
+            탈퇴
+          </v-btn>
 
           <!-- Invite Modal -->
           <v-dialog v-model="showInviteModal" persistent max-width="400px">
@@ -527,10 +520,6 @@ function onItemDragEnd(e) {
   }
 }
 
-function goToMyPage() {
-  router.push({ name: "MyPage" });
-}
-
 function openModal() {
   dialog.value = true;
 }
@@ -765,22 +754,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
-.empty-list {
-  min-height: 100px;
-  background-color: #f5f5f5;
-  border: 2px dashed #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-size: 16px;
-  color: #666;
-  cursor: default;
-  user-select: none;
-  pointer-events: none;
-  -webkit-user-drag: none;
-}
-
 .category-buttons-wrapper {
   margin-bottom: 20px;
 }
@@ -822,5 +795,34 @@ onBeforeUnmount(() => {
   border: none; /* 버튼 테두리 제거 */
   border-radius: 3px; /* 버튼 모서리 둥글게 */
   cursor: pointer; /* 커서 포인터 설정 */
+}
+
+.invite-btn,
+.delete-btn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #42a5f5, #478ed1);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+}
+.invite-btn:hover {
+  background: linear-gradient(45deg, #1e88e5, #2979ff);
+}
+
+.delete-btn {
+  background: linear-gradient(45deg, #e57373, #ef5350); /* 기본 빨간색 배경 */
+}
+
+.delete-btn:hover {
+  background: linear-gradient(45deg, #d32f2f, #c62828);
+}
+
+.v-icon {
+  margin-right: 8px;
 }
 </style>
