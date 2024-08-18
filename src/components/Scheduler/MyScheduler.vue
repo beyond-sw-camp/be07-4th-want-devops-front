@@ -268,7 +268,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -280,6 +280,7 @@ import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
 import CustomModal from "@/components/CustomModal.vue";
 import GoogleMapList from "@/components/GoogleMapList.vue";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 const store = useStore();
 const route = useRoute();
@@ -641,6 +642,71 @@ function onAppointmentFormOpening(e) {
   // 폼 열림을 취소합니다.
   e.cancel = true;
 }
+
+// SSE 연결 설정
+let eventSource;
+
+function connectSSE() {
+  const eventSource = new EventSourcePolyfill(
+    `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+
+  eventSource.onopen = function () {
+    console.log("SSE connection opened");
+  };
+
+  eventSource.addEventListener('connected', (event) => {
+    console.log("SSE connected:", event);
+  });
+
+  eventSource.addEventListener('message', (event) => {
+    const notificationMessage = event.data;
+    displayNotification(notificationMessage);
+    router.go(0);
+  });
+
+  // eventSource.onmessage = function (event) {
+  //   const notificationMessage = event.data;
+  //   displayNotification(notificationMessage);
+  //
+  //   window.location.reload();
+  // };
+
+  eventSource.onerror = function (error) {
+    eventSource.close();
+    console.error("SSE connection error:", error);
+    // 필요에 따라 재연결 로직을 추가할 수 있음
+  };
+}
+
+// 알림을 표시하는 함수 (예시로 콘솔에 출력)
+function displayNotification(message) {
+  console.log("New notification received:", message);
+  // 이곳에서 UI에 알림을 표시하는 로직을 추가할 수 있음
+}
+function handleBeforeUnload() {
+  if (eventSource) {
+    eventSource.close(); // 페이지가 언로드되기 전에 SSE 연결을 종료
+    console.log("SSE connection closed due to page unload");
+  }
+}
+
+onMounted(() => {
+  connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+});
+onBeforeUnmount(() => {
+  if (eventSource) {
+    eventSource.close(); // 컴포넌트 언마운트 시에도 SSE 연결 종료
+    console.log("SSE connection closed due to component unmount");
+  }
+
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
 </script>
 
 <style scoped>
