@@ -19,7 +19,7 @@
                         <v-list>
                             <!-- 조건부 렌더링: 데이터가 로드되었는지 확인 -->
                             <v-list-item-group v-if="!loading && blocks.length">
-                                <v-list-item v-for="block in blocks" :key="block.blockId">
+                                <v-list-item v-for="block in sortedBlocks" :key="block.blockId">
                                     <v-list-item-content>
                                         <v-list-item-title>{{ block.title }}</v-list-item-title>
                                         <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
@@ -51,7 +51,7 @@
 
 <script>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
@@ -75,10 +75,16 @@ export default {
             }
         });
 
+        // 좋아요 갯수 기준으로 블록을 정렬
+        const sortedBlocks = computed(() => {
+            return blocks.value.slice().sort((a, b) => b.heartCount - a.heartCount);
+        });
+
         return {
             blocks,
             loading,
             error,
+            sortedBlocks, // 정렬된 블록 목록 반환
         };
     },
 };
