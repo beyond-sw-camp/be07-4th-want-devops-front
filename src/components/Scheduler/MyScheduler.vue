@@ -235,10 +235,14 @@
                   icon="mdi-dots-horizontal"
                   variant="text"
                   class="enter-button"
+                  color="black"
                   @click="() => goToBlockBoard(task.id)"
                 ></v-btn>
                 <div class="block-title">
                   {{ task.title }}
+                </div>
+                <div class="block-date">
+                  {{ formatDate(task.startTime) }} ~ {{ formatDate(task.endTime) }}
                 </div>
                 <div class="block-heart">
                   <v-icon @click.stop="toggleLike(task)">
@@ -290,7 +294,6 @@ const showInviteModal = ref(false);
 const inviteEmail = ref("");
 const selectedCategory = ref(null);
 const maxHeartCount = ref(0);
-
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
   SPOT: "명소",
@@ -635,6 +638,16 @@ function goToBlockBoard(blockId) {
   router.push({ name: "BlockBoard", params: { blockId: blockId } });
 }
 
+function formatDate(dateTime) {
+  const dateObj = new Date(dateTime);
+  return dateObj.toLocaleString("ko-KR", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 // SSE 연결 설정
 function connectSSE() {
   const eventSource = new EventSourcePolyfill(
@@ -790,5 +803,15 @@ onMounted(() => {
 
 .v-icon {
   margin-right: 8px;
+}
+
+.block-date {
+  position: absolute;
+  bottom: 5px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
 }
 </style>
