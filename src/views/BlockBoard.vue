@@ -26,7 +26,11 @@
                         </template>
                     </v-card-subtitle>
                     <CustomModal v-model:modelValue="showMapModal">
-                        <GoogleMap @place-selected="handlePlaceSelected" />
+                        <ShowMap
+                            :latitude="localBlock.latitude"
+                            :longitude="localBlock.longitude"
+                            :placeName="localBlock.placeName"
+                        />
                     </CustomModal>
                 </span>
                 <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined"
@@ -99,7 +103,7 @@
 
 <script>
 import axios from 'axios';
-import GoogleMap from "@/components/GoogleMap.vue";
+import ShowMap from "@/components/ShowMap.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import CommentSection from "@/components/CommentSection.vue";
 import { ref, onMounted } from 'vue';
@@ -137,7 +141,7 @@ export default {
             return filtered;
         }
     },
-    components: { CustomModal, GoogleMap, CommentSection },
+    components: { CustomModal, ShowMap, CommentSection },
     setup() {
         const route = useRoute();
         const router = useRouter();
@@ -189,6 +193,8 @@ export default {
                     ...blockData,
                     category: categoryMap[blockData.category] || blockData.category,
                     isHearted: blockData.isHearted,
+                  latitude: blockData.latitude,
+                  longitude: blockData.longitude,
                 };
                 console.log(localBlock.value)
 
