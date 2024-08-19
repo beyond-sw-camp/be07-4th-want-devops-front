@@ -7,18 +7,22 @@
         <div class="projectHeader">
           <div class="left-section">
             <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
-            <v-btn class="map-btn" elevation="0" variant="text">
-              <v-icon left size="30" color="#4285F4">mdi-google-maps</v-icon>
+          </div>
+
+
+          <div class="d-flex align-center mr-3" >
+            <v-btn class="map-btn" elevation="0" variant="text" @click="showMapListModal = true">
+              <img src="@/assets/img/googleMap.png" alt="Google Map" style="height: 40px;">
             </v-btn>
+            <CustomModal v-model:modelValue="showMapListModal">
+              <GoogleMapList :projectId="projectId"/>
+            </CustomModal>
             <h4 class="project-location" v-if="projectDetail.projectStates.length">
               &lt;{{ projectDetail.projectStates[0].city }},
               {{ projectDetail.projectStates[0].country }}&gt;
             </h4>
             <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
-            <button @click="showMapListModal = true">Show Google List Map</button>
-            <CustomModal v-model:modelValue="showMapListModal">
-              <GoogleMapList :projectId="projectId" />
-            </CustomModal>
+            <!--            <button @click="showMapListModal = true">Show Google List Map</button>-->
           </div>
 
           <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
@@ -219,7 +223,7 @@ import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
 import CustomModal from "@/components/CustomModal.vue";
 import GoogleMapList from "@/components/GoogleMapList.vue";
-import { EventSourcePolyfill } from "event-source-polyfill";
+import {EventSourcePolyfill} from "event-source-polyfill";
 
 const store = useStore();
 const route = useRoute();
@@ -238,7 +242,6 @@ const inviteEmail = ref("");
 const selectedCategory = ref(null);
 const maxHeartCount = ref(0);
 const showMapListModal = ref(false);
-
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
   SPOT: "명소",
@@ -264,7 +267,7 @@ function getStyle(category, heartCount) {
   const minFactor = 0.9;
   const maxFactor = 1.3;
   const lightnessFactor =
-    maxFactor - (heartCount / maxHeartCount.value) * (maxFactor - minFactor);
+      maxFactor - (heartCount / maxHeartCount.value) * (maxFactor - minFactor);
   const [r, g, b] = baseColor.map((c) => Math.round(c * lightnessFactor));
   return {
     backgroundColor: `rgb(${r}, ${g}, ${b})`,
@@ -286,18 +289,18 @@ onMounted(async () => {
       const startTravel = new Date(projectDetail.value.startTravel);
       const endTravel = new Date(projectDetail.value.endTravel);
       const intervalCount = Math.ceil(
-        (endTravel - startTravel + 1) / (1000 * 60 * 60 * 24)
+          (endTravel - startTravel + 1) / (1000 * 60 * 60 * 24)
       );
 
       views.value = [
-        { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
+        {type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1},
       ];
       currentDate.value = startTravel;
     }
   } catch (error) {
     console.error("Error initializing data:", error);
     if (error.message === "Access Denied") {
-      router.push({ name: "AccessDenied" });
+      router.push({name: "AccessDenied"});
     }
   }
   fetchTasks();
@@ -308,12 +311,13 @@ onMounted(async () => {
 async function fetchTasks() {
   try {
     const response = await axios.get(
-      `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
+        `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
     );
     tasks.value = response.data.result.map((block) => ({
       id: block.blockId,
       title: block.title,
       content: block.content,
+      placeName: block.placeName,
       startTime: block.startTime,
       endTime: block.endTime,
       heartCount: block.heartCount,
@@ -330,7 +334,7 @@ async function fetchTasks() {
 async function fetchAppointments() {
   try {
     const response = await axios.get(
-      `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
+        `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
     );
     appointments.value = response.data.result.content.map((block) => ({
       id: block.blockId,
@@ -345,7 +349,7 @@ async function fetchAppointments() {
   }
 }
 
-async function onAppointmentRemove({ itemData }) {
+async function onAppointmentRemove({itemData}) {
   console.log("Removing appointment:", itemData);
 
   const index = appointments.value.indexOf(itemData);
@@ -358,13 +362,13 @@ async function onAppointmentRemove({ itemData }) {
 
     try {
       const response = await axios.patch(
-        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
-        {
-          blockId: blockId,
-          text: blockTitle,
-          startTime: originalStartTime,
-          endTime: originalEndTime,
-        }
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
+          {
+            blockId: blockId,
+            text: blockTitle,
+            startTime: originalStartTime,
+            endTime: originalEndTime,
+          }
       );
 
       console.log("API Response:", response);
@@ -372,6 +376,8 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value = [...appointments.value];
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
+
+      fetchTasks();
     } catch (error) {
       console.error("Failed to Remove block:", error);
     }
@@ -393,13 +399,13 @@ async function onAppointmentAdd(e) {
       const title = e.itemData.title;
 
       const response = await axios.patch(
-        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
-        {
-          blockId: blockId,
-          title: title,
-          startTime: originalStartTime.toISOString(),
-          endTime: originalEndTime.toISOString(),
-        }
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
+          {
+            blockId: blockId,
+            title: title,
+            startTime: originalStartTime.toISOString(),
+            endTime: originalEndTime.toISOString(),
+          }
       );
 
       console.log(response);
@@ -482,8 +488,8 @@ async function inviteMembers() {
     showInviteModal.value = false;
   } catch (error) {
     if (
-      error.response &&
-      error.response.data.status_message === "Member already exists."
+        error.response &&
+        error.response.data.status_message === "Member already exists."
     ) {
       alert("이 사용자는 이미 프로젝트에 속해 있습니다.");
     } else {
@@ -500,7 +506,7 @@ const sortedFilteredDataSource = computed(() => {
   // 필터링
   if (selectedCategory.value) {
     filteredTasks = filteredTasks.filter(
-      (task) => task.category === selectedCategory.value
+        (task) => task.category === selectedCategory.value
     );
   }
 
@@ -536,43 +542,51 @@ function toggleLike(block) {
   block.heartCount += block.liked ? 1 : -1;
 
   axios
-    .post(
-      `http://localhost:8088/api/v1/block/${block.id}/heart`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    )
-    .then((response) => {
-      console.log("좋아요 업데이트 성공:", response);
-    })
-    .catch((error) => {
-      console.error("좋아요 업데이트 중 오류 발생:", error);
-      // API 호출 실패 시 로컬 상태를 원래대로 복구
-      block.liked = !block.liked;
-      block.heartCount += block.liked ? 1 : -1;
-    });
+      .post(
+          `http://localhost:8088/api/v1/block/${block.id}/heart`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+      )
+      .then((response) => {
+        console.log("좋아요 업데이트 성공:", response);
+      })
+      .catch((error) => {
+        console.error("좋아요 업데이트 중 오류 발생:", error);
+        // API 호출 실패 시 로컬 상태를 원래대로 복구
+        block.liked = !block.liked;
+        block.heartCount += block.liked ? 1 : -1;
+      });
 }
 
-function createTemporaryBlock() {
-  const newBlock = {
-    id: `temp-${Date.now()}`,
-    title: "새 블럭",
-    projectId: projectId,
-    category: "",
-    heartCount: 0,
-    liked: false,
-  };
-  tasks.value.push(newBlock);
+async function createBlock() {
+  try {
+    // 요청 본문 데이터
+    const requestBody = {
+      projectId: projectId,
+      category: "ETC",
+    };
+
+    const response = await axios.post('http://localhost:8088/api/v1/block/create', requestBody);
+
+    // 성공 시 처리
+    tasks.value.push(response.data);
+    fetchTasks()
+  } catch (error) {
+    
+    console.error('블럭 생성 중 에러 발생:', error);
+  }
 }
+
 
 function onAppointmentFormOpening(e) {
   const blockId = e.appointmentData.id;
 
   // 해당 일정의 상세 페이지로 라우팅
-  router.push({ name: "BlockBoard", params: { blockId: blockId } });
+  router.push({name: "BlockBoard", params: {blockId: blockId}});
 
   // 폼 열림을 취소합니다.
   e.cancel = true;
@@ -580,7 +594,17 @@ function onAppointmentFormOpening(e) {
 
 function goToBlockBoard(blockId) {
   console.log("Navigating to block with ID:", blockId); // blockId 출력
-  router.push({ name: "BlockBoard", params: { blockId: blockId } });
+  router.push({name: "BlockBoard", params: {blockId: blockId}});
+}
+
+function formatDate(dateTime) {
+  const dateObj = new Date(dateTime);
+  return dateObj.toLocaleString("ko-KR", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // SSE 연결 설정
@@ -588,12 +612,12 @@ let eventSource;
 
 function connectSSE() {
   const eventSource = new EventSourcePolyfill(
-    `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
+      `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
   );
 
   eventSource.onopen = function () {
@@ -621,6 +645,7 @@ function connectSSE() {
     eventSource.close();
     console.error("SSE connection error:", error);
     // 필요에 따라 재연결 로직을 추가할 수 있음
+    connectSSE(); // Reconnect
   };
 }
 
@@ -629,6 +654,7 @@ function displayNotification(message) {
   console.log("New notification received:", message);
   // 이곳에서 UI에 알림을 표시하는 로직을 추가할 수 있음
 }
+
 function handleBeforeUnload() {
   if (eventSource) {
     eventSource.close(); // 페이지가 언로드되기 전에 SSE 연결을 종료
@@ -636,8 +662,15 @@ function handleBeforeUnload() {
   }
 }
 
+function loadStylesheet() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
+  document.head.appendChild(link);
+}
 onMounted(() => {
   connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+  loadStylesheet();
 });
 onBeforeUnmount(() => {
   if (eventSource) {
@@ -863,5 +896,42 @@ watch(menuOpen, (newValue) => {
 
 .v-icon {
   margin-right: 8px;
+}
+
+.block-date {
+  position: absolute;
+  bottom: 5px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
+}
+
+.place-name {
+  position: absolute;
+  bottom: 27px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
+}
+
+.empty-list {
+  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
+  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
+  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
+  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
+  user-select: none; /* 텍스트가 선택되지 않도록 */
+  pointer-events: none; /* 클릭 이벤트 무시 */
+  -webkit-user-drag: none; /* 드래그 방지 */
 }
 </style>
