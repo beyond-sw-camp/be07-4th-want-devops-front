@@ -21,9 +21,6 @@
               </div>
               <div class="project-location" v-else>&lt;여행지: 미정&gt;</div>
             </div>
-
-           
-
           </div>
 
           <div class="right-section">
@@ -50,13 +47,27 @@
           </div>
         </div>
 
-        <!-- Invite Modal -->
-        <v-dialog v-model="showInviteModal" persistent max-width="400px">
+
+        <!-- 새롭게 태어난 팀 초대 창 -->
+        <v-dialog v-model="showInviteModal" max-width="500">
           <v-card class="elevation-3" style="border-radius: 16px">
-            <v-card-title class="headline">사용자 초대</v-card-title>
-            <v-card-text>
+            <!-- 헤더 부분 -->
+            <v-card-title class="text-h5" style="
+                background-color: #37474f;
+                color: white;
+                border-top-left-radius: 16px;
+                border-top-right-radius: 16px;
+              ">
+              <v-row align="center">
+                <v-col cols="10"> 팀 초대 </v-col>
+                <v-col cols="2" class="text-right">
+                    <v-icon @click="closeInviteModal">mdi-close</v-icon>
+                </v-col>
+              </v-row>
+            </v-card-title>
+            <v-card-text style="padding: 24px">
               초대할 사용자의 이메일을 입력해주세요
-              <v-text-field v-model="inviteEmail" label="이메일" required></v-text-field>
+              <v-text-field v-model="inviteEmail" label="이메일" required style="margin: 20px 0 0"></v-text-field>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -65,6 +76,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
 
         <!-- 탈퇴 모달창 -->
         <v-dialog v-model="dialog" max-width="500">
@@ -79,9 +91,7 @@
               <v-row align="center">
                 <v-col cols="10"> 팀 탈퇴 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-btn icon @click="closeDialog" class="white--text" style="padding: 0">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
+                    <v-icon @click="closeDialog">mdi-close</v-icon>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -91,7 +101,7 @@
               <v-row class="align-center" style="background-color: #ffebee; padding: 16px; border-radius: 8px">
                 <v-icon color="red" size="36">mdi-alert-circle-outline</v-icon>
                 <p class="text-h6 ml-2" style="margin-top: 15px; color: #616161">
-                  정말 팀을 <strong style="color: #d32f2f">탈퇴</strong> 하시겠습니까?
+                  정말 팀을 <strong style="color: #d32f2f">탈퇴</strong>하시겠습니까?
                 </p>
               </v-row>
 
@@ -142,8 +152,7 @@
                   font-size: 18px;
                   height: 56px;
                   width: 160px;
-                  border-radius: 28px;
-                ">
+                  border-radius: 28px;">
                 동의
               </v-btn>
             </v-card-actions>
@@ -166,7 +175,6 @@
 
 
   <div class="projectBlockList">
-
     <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
     <div class="category-buttons-wrapper">
       <div class="category-buttons">
@@ -177,29 +185,36 @@
       </div>
     </div>
     <hr>
+    
     <!-- Block 생성 버튼 -->
     <v-btn @click="createBlock" color="#666" class="create-button">블럭 생성</v-btn>
 
     <div class="block-list" style="height: 80%">
-
-
       <DxScrollView id="scroll">
-        <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 80px">
+        <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 80px;">
           <DxDraggable v-for="task in sortedFilteredDataSource" :style="getStyle(task.category, task.heartCount)"
             :key="task.blockId" :clone="true" :group="draggingGroupName" :data="task" :on-drag-start="onItemDragStart"
             :on-drag-end="onItemDragEnd" class="item">
-            <v-btn icon="mdi-dots-horizontal" variant="text" class="enter-button"
-              @click="() => goToBlockBoard(task.id)"></v-btn>
-            <div class="block-title">
-              {{ task.title }}
+            
+            <div class="block-content">
+              <div class="block-heart">
+                <v-icon @click.stop="toggleLike(task)">
+                  <template v-if="task.liked">mdi-heart</template>
+                  <template v-else>mdi-heart-outline</template>
+                </v-icon>
+                <span class="heart-count">{{ task.heartCount }}&nbsp;&nbsp;</span>
+              </div>
+  
+              <div class="block-title">
+                {{ task.title }}
+              </div>
+
+              <span class="material-symbols-outlined edit-block" @click="() => goToBlockBoard(task.id)">
+                edit_square
+              </span>
             </div>
-            <div class="block-heart">
-              <v-icon @click.stop="toggleLike(task)">
-                <template v-if="task.liked"> mdi-heart </template>
-                <template v-else> mdi-heart-outline </template>
-              </v-icon>
-              <span class="heart-count">{{ task.heartCount }}</span>
-            </div>
+            
+
           </DxDraggable>
         </DxDraggable>
       </DxScrollView>
@@ -465,10 +480,14 @@ function onItemDragEnd(e) {
 
 function openModal() {
   dialog.value = true;
-}
 
+}
 function closeDialog() {
   dialog.value = false;
+}
+
+function closeInviteModal() {
+  showInviteModal.value = false;
 }
 
 async function inviteMembers() {
@@ -695,7 +714,7 @@ const toggleMenu = () => {
   /* 왼쪽 요소들이 서로 붙어서 정렬되도록 설정 */
 }
 .right-section {
-  display: flex;
+  position: relative;
   align-items: center;
 }
 .project-title {
@@ -726,11 +745,11 @@ const toggleMenu = () => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
-.menu-item {
+.modal-menu .menu-item {
   padding: 10px 20px;
   cursor: pointer;
 }
-.menu-item:hover {
+.modal-menu .menu-item:hover {
   background-color: #f5f5f5;
 }
 
@@ -809,19 +828,40 @@ const toggleMenu = () => {
 .category-buttons .v-btn {
   margin: 0 5px;
 }
-
-.block-title {
-  width: fit-content;
-  font-weight: bold;
-  margin-bottom: 5px;
+.block-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
-
+.block-title {
+  font-weight: bold;
+  text-align: left; /* 왼쪽 정렬 */
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .block-heart {
-  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px; /* block-heart와 block-title 사이의 간격 */
+  width: auto; /* block-heart의 너비를 고정 */
+}
+.block-heart v-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 5px;
+  font-size: 24px; /* 아이콘 크기 조정 */
+}
+.heart-count {
+  margin-top: 2px; /* 하트 아이콘과 카운트 사이의 간격 */
+  font-size: 12px;
+  color: #444;
+  font-weight: bold;
+  text-align: center;
+  left: 2;
 }
 
 .create-button {
@@ -829,14 +869,8 @@ const toggleMenu = () => {
   width: 80%;
 }
 
-.enter-button {
-  position: absolute;
-  /* 버튼을 절대 위치로 설정 */
-  top: 1px;
-  /* 상단에서 10px 떨어진 위치 */
-  right: 10px;
-  /* 오른쪽에서 10px 떨어진 위치 */
-  color: white;
+.edit-block {
+  color: #444;
   /* 버튼 텍스트 색상 */
   padding: 5px 5px;
   /* 버튼 패딩 */

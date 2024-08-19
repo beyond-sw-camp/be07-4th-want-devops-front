@@ -367,10 +367,11 @@ export default {
 .moreBtn {
   cursor: pointer;
 }
-.menu-item {
+.modalContainer .menu-item {
   display: flex;
   align-items: center;
   gap: 3px;
+  padding: 0;
 }
 .menu-item:hover span{
   color: red;
