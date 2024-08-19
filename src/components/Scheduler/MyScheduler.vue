@@ -207,10 +207,17 @@
                 <span class="heart-count">{{ task.heartCount }}&nbsp;&nbsp;</span>
               </div>
   
-              <div class="block-title">
-                {{ task.title }}
-              </div>
 
+              <div class="block-info">
+                <div class="block-title">
+                  {{ task.title }}
+                </div>
+
+                <div class="block-location">
+                  {{ task.placeName }}
+                </div>
+              </div>
+  
               <span class="material-symbols-outlined edit-block" @click="() => goToBlockBoard(task.id)">
                 edit_square
               </span>
@@ -829,10 +836,15 @@ const toggleMenu = () => {
 .category-buttons .v-btn {
   margin: 0 5px;
 }
+.block-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .block-content {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 .block-title {
   font-weight: bold;
@@ -841,6 +853,9 @@ const toggleMenu = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.block-location {
+  font-size: 13px;
 }
 .block-heart {
   display: flex;
@@ -867,21 +882,16 @@ const toggleMenu = () => {
 
 .create-button {
   margin-top: 10px;
-
   width: 80%;
 }
 
 .edit-block {
   color: #444;
-  /* 버튼 텍스트 색상 */
   padding: 5px 5px;
-  /* 버튼 패딩 */
   border: none;
-  /* 버튼 테두리 제거 */
   border-radius: 3px;
-  /* 버튼 모서리 둥글게 */
   cursor: pointer;
-  /* 커서 포인터 설정 */
+  margin-left: auto;
 }
 
 .invite-btn,
