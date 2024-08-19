@@ -177,6 +177,44 @@ export default {
                 console.error('블록 정보를 가져오는 중 오류 발생:', error);
             }
         };
+      } catch (error) {
+        console.error('블록 정보를 가져오는 중 오류 발생:', error);
+      }
+    };
+
+    const updateBlock = async () => {
+      if (valid.value) {
+        try {
+          const categoryInEnglish = reverseCategoryMap[localBlock.value.category] || localBlock.value.category;
+
+          await axios.patch(`http://localhost:8088/api/v1/block/${selectedBlock.value}/update`, {
+            ...localBlock.value,
+            category: categoryInEnglish
+          });
+          alert('블록이 성공적으로 업데이트되었습니다.');
+          router.push(`/block/${localBlock.value.blockId}/board`);
+        } catch (error) {
+          console.error('블록 업데이트 중 오류 발생:', error);
+          alert('블록 업데이트 중 오류가 발생했습니다.');
+        }
+      }
+    };
+    const cancel = () => {
+      router.push(`/block/${localBlock.value.blockId}/board`);
+    };
+
+    const deleteBlock = async () => {
+      if (confirm('정말로 이 블록을 삭제하시겠습니까?')) {
+        try {
+          await axios.delete(`http://localhost:8088/api/v1/block/${selectedBlock.value}/delete`);
+          alert('블록이 성공적으로 삭제되었습니다.');
+          router.push(`/project/${localBlock.value.projectId}/board`);
+        } catch (error) {
+          console.error('블록 삭제 중 오류 발생:', error);
+          alert('블록 삭제 중 오류가 발생했습니다.');
+        }
+      }
+    }
 
         const updateBlock = async () => {
             if (valid.value) {

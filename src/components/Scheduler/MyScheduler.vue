@@ -19,7 +19,7 @@
             <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
             <button @click="showMapListModal = true">Show Google List Map</button>
             <CustomModal v-model:modelValue="showMapListModal">
-              <GoogleMapList :projectId="projectId"/>
+              <GoogleMapList :projectId="projectId" />
             </CustomModal>
 
           </div>
@@ -27,24 +27,16 @@
           <v-dialog v-model="dialog" max-width="500">
             <v-card class="elevation-3" style="border-radius: 16px">
               <!-- 헤더 부분 -->
-              <v-card-title
-                class="text-h5"
-                style="
+              <v-card-title class="text-h5" style="
                   background-color: #37474f;
                   color: white;
                   border-top-left-radius: 16px;
                   border-top-right-radius: 16px;
-                "
-              >
+                ">
                 <v-row align="center">
                   <v-col cols="10"> 팀 탈퇴 </v-col>
                   <v-col cols="2" class="text-right">
-                    <v-btn
-                      icon
-                      @click="closeDialog"
-                      class="white--text"
-                      style="padding: 0"
-                    >
+                    <v-btn icon @click="closeDialog" class="white--text" style="padding: 0">
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-col>
@@ -53,10 +45,7 @@
 
               <v-card-text style="padding: 24px">
                 <!-- 경고 메시지 부분 -->
-                <v-row
-                  class="align-center"
-                  style="background-color: #ffebee; padding: 16px; border-radius: 8px"
-                >
+                <v-row class="align-center" style="background-color: #ffebee; padding: 16px; border-radius: 8px">
                   <v-icon color="red" size="36">mdi-alert-circle-outline</v-icon>
                   <p class="text-h6 ml-2" style="margin-top: 15px; color: #616161">
                     정말 팀을 <strong style="color: #d32f2f">탈퇴</strong> 하시겠습니까?
@@ -68,9 +57,7 @@
                 <!-- 주의사항 문구 부분 -->
                 <v-row>
                   <v-col>
-                    <div
-                      style="background-color: #f5f5f5; padding: 16px; border-radius: 8px"
-                    >
+                    <div style="background-color: #f5f5f5; padding: 16px; border-radius: 8px">
                       <v-row align="center">
                         <v-col cols="1" class="text-center">
                           <v-icon color=" #d32f2f">mdi-alert-outline</v-icon>
@@ -106,49 +93,30 @@
 
               <!-- 동의 버튼 부분 -->
               <v-card-actions class="justify-center" style="padding-bottom: 24px">
-                <v-btn
-                  @click="confirmDeletion"
-                  style="
+                <v-btn @click="confirmDeletion" style="
                     background-color: #d32f2f;
                     color: white;
                     font-size: 18px;
                     height: 56px;
                     width: 160px;
                     border-radius: 28px;
-                  "
-                >
+                  ">
                   동의
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
 
-          <v-avatar
-            v-for="member in projectDetail.projectMembers"
-            :key="member.userId"
-            class="ma-2"
-            size="large"
-          >
+          <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
             <img :src="member.userProfile" alt="User profile" />
           </v-avatar>
 
-          <v-btn
-            class="ml-3 invite-btn"
-            color="primary"
-            @click="showInviteModal = true"
-            elevation="5"
-          >
+          <v-btn class="ml-3 invite-btn" color="primary" @click="showInviteModal = true" elevation="5">
             <v-icon left size="28">mdi-account-plus</v-icon>
             초대
           </v-btn>
 
-          <v-btn
-            class="ml-3 delete-btn"
-            color="error"
-            @click="openModal"
-            elevation="5"
-            style="margin-top: -20px"
-          >
+          <v-btn class="ml-3 delete-btn" color="error" @click="openModal" elevation="5" style="margin-top: -20px">
             <v-icon left size="28">mdi-account-remove</v-icon>
             탈퇴
           </v-btn>
@@ -159,17 +127,11 @@
               <v-card-title class="headline">사용자 초대</v-card-title>
               <v-card-text>
                 초대할 사용자의 이메일을 입력해주세요
-                <v-text-field
-                  v-model="inviteEmail"
-                  label="이메일"
-                  required
-                ></v-text-field>
+                <v-text-field v-model="inviteEmail" label="이메일" required></v-text-field>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="showInviteModal = false"
-                  >취소</v-btn
-                >
+                <v-btn color="blue darken-1" text @click="showInviteModal = false">취소</v-btn>
                 <v-btn color="blue darken-1" text @click="inviteMembers">초대</v-btn>
               </v-card-actions>
             </v-card>
@@ -180,25 +142,12 @@
       <!-- Scheduler and Block List -->
       <v-row class="scheduler-row">
         <v-col cols="8">
-          <DxScheduler
-            time-zone="Asia/Seoul"
-            id="scheduler"
-            :data-source="appointments"
-            :current-date="currentDate"
-            :views="views"
-            :height="600"
-            :start-day-hour="1"
-            :end-day-hour="23"
-            :editing="true"
-            :on-appointment-updated="onAppointmentUpdated"
-            :show-all-day-panel="false"
-            @appointment-form-opening="onAppointmentFormOpening"
-          >
-            <DxAppointmentDragging
-              :group="draggingGroupName"
-              :on-remove="onAppointmentRemove"
-              :on-add="onAppointmentAdd"
-            />
+          <DxScheduler time-zone="Asia/Seoul" id="scheduler" :data-source="appointments" :current-date="currentDate"
+            :views="views" :height="600" :start-day-hour="1" :end-day-hour="23" :editing="true"
+            :on-appointment-updated="onAppointmentUpdated" :show-all-day-panel="false"
+            @appointment-form-opening="onAppointmentFormOpening">
+            <DxAppointmentDragging :group="draggingGroupName" :on-remove="onAppointmentRemove"
+              :on-add="onAppointmentAdd" />
             <DxEditing :allow-updating="allowUpdating" />
             <DxScrolling mode="virtual" />
           </DxScheduler>
@@ -207,12 +156,9 @@
           <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
           <div class="category-buttons-wrapper">
             <div class="category-buttons">
-              <v-btn
-                v-for="(color, category) in categoryColors"
-                :key="category"
+              <v-btn v-for="(color, category) in categoryColors" :key="category"
                 :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
-                @click="filterByCategory(category)"
-              >
+                @click="filterByCategory(category)">
                 #{{ categoryMap[category] }}
               </v-btn>
             </div>
@@ -267,9 +213,7 @@
           </DxScrollView>
 
           <!-- Block 생성 버튼 -->
-          <v-btn @click="createTemporaryBlock" color="primary" class="create-button"
-            >블럭 생성</v-btn
-          >
+          <v-btn @click="createBlock" color="primary" class="create-button">블럭 생성</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -628,17 +572,25 @@ function toggleLike(block) {
     });
 }
 
-function createTemporaryBlock() {
-  const newBlock = {
-    id: `temp-${Date.now()}`,
-    title: "새 블럭",
-    projectId: projectId,
-    category: "",
-    heartCount: 0,
-    liked: false,
-  };
-  tasks.value.push(newBlock);
+async function createBlock() {
+  try {
+    // 요청 본문 데이터
+    const requestBody = {
+      projectId: projectId,
+      category: "ETC",
+    };
+
+    const response = await axios.post('http://localhost:8088/api/v1/block/create', requestBody);
+
+    // 성공 시 처리
+    tasks.value.push(response.data);
+    fetchTasks()
+  } catch (error) {
+    
+    console.error('블럭 생성 중 에러 발생:', error);
+  }
 }
+
 
 function onAppointmentFormOpening(e) {
   const blockId = e.appointmentData.id;
@@ -758,16 +710,20 @@ onBeforeUnmount(() => {
 
 .block-list {
   padding: 20px;
-  background-color: white; /* 회색 배경을 흰색으로 변경 */
+  background-color: white;
+  /* 회색 배경을 흰색으로 변경 */
   overflow-y: auto;
 }
 
 .item {
-  position: relative; /* 부모 요소를 상대 위치로 설정 */
+  position: relative;
+  /* 부모 요소를 상대 위치로 설정 */
   width: 100%;
   height: 80px;
-  color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
-  background-color: #f5f5f5; /* 카드 배경을 밝은 회색으로 변경 */
+  color: #333;
+  /* 텍스트 색상을 어두운 회색으로 변경 */
+  background-color: #f5f5f5;
+  /* 카드 배경을 밝은 회색으로 변경 */
   box-sizing: border-box;
   padding: 10px;
   margin-bottom: 10px;
@@ -780,7 +736,7 @@ onBeforeUnmount(() => {
   opacity: 0.5;
 }
 
-.dx-draggable-dragging > * {
+.dx-draggable-dragging>* {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -840,12 +796,14 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
 }
+
 .invite-btn:hover {
   background: linear-gradient(45deg, #1e88e5, #2979ff);
 }
 
 .delete-btn {
-  background: linear-gradient(45deg, #e57373, #ef5350); /* 기본 빨간색 배경 */
+  background: linear-gradient(45deg, #e57373, #ef5350);
+  /* 기본 빨간색 배경 */
 }
 
 .delete-btn:hover {
