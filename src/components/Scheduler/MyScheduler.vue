@@ -554,19 +554,21 @@ function toggleLike(block) {
 
 async function createBlock() {
   try {
+    // 선택된 카테고리 값을 사용하거나, 없으면 기본값 "ETC" 사용
+    const categoryToUse = selectedCategory.value || 'ETC';
+
     // 요청 본문 데이터
     const requestBody = {
       projectId: projectId,
-      category: "ETC",
+      category: categoryToUse,
     };
 
     const response = await axios.post('http://localhost:8088/api/v1/block/create', requestBody);
 
     // 성공 시 처리
     tasks.value.push(response.data);
-    fetchTasks()
+    fetchTasks();
   } catch (error) {
-
     console.error('블럭 생성 중 에러 발생:', error);
   }
 }
