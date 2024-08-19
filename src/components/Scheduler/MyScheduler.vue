@@ -218,8 +218,11 @@
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              style="height: 5px"
+              data="tasks.length > 0 ? 'dropArea' : 'emptyArea'"
             >
+              <div v-if="tasks.length === 0" class="empty-list">
+                Drop here to add to the list
+              </div>
               <DxDraggable
                 v-for="task in sortedFilteredDataSource"
                 :style="getStyle(task.category, task.heartCount)"
@@ -827,5 +830,22 @@ onMounted(() => {
   color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
   white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
   font-weight: bold;
+}
+
+.empty-list {
+  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
+  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
+  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
+  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
+  user-select: none; /* 텍스트가 선택되지 않도록 */
+  pointer-events: none; /* 클릭 이벤트 무시 */
+  -webkit-user-drag: none; /* 드래그 방지 */
 }
 </style>
