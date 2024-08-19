@@ -434,6 +434,8 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value = [...appointments.value];
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
+
+      fetchTasks();
     } catch (error) {
       console.error("Failed to Remove block:", error);
     }
