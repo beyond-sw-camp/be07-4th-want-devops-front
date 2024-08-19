@@ -8,7 +8,7 @@
     <br><br><br>
     <button @click="showMapListModal = true">Show Google List Map</button>
     <CustomModal v-model:modelValue="showMapListModal">
-      <GoogleMapList />
+      <GoogleMapList  project-id="3"/>
     </CustomModal>
   </div>
 </template>

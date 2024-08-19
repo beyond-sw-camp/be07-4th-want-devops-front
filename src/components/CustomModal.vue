@@ -42,19 +42,19 @@ export default {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  width: 80%;
-  max-width: 800px;
+  max-width: 1000px;
+  width: 700px !important; /* 너비를 700px로 설정 */
   position: relative;
 }
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: red;
-  color: white;
+  top: 20px;
+  right: 20px;
+  color: black;
   border: none;
   border-radius: 50%;
   cursor: pointer;
+  z-index: 1000; /* Ensure the button is on top of other content */
 }
 </style>

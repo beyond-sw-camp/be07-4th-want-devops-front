@@ -165,14 +165,41 @@
           </div>
 
           <DxScrollView id="scroll">
-            <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 5px">
-              <DxDraggable v-for="task in sortedFilteredDataSource" :style="getStyle(task.category, task.heartCount)"
-                :key="task.blockId" :clone="true" :group="draggingGroupName" :data="task"
-                :on-drag-start="onItemDragStart" :on-drag-end="onItemDragEnd" class="item">
-                <v-btn icon="mdi-dots-horizontal" variant="text" class="enter-button"
-                  @click="() => goToBlockBoard(task.id)"></v-btn>
+            <DxDraggable
+              id="list"
+              :group="draggingGroupName"
+              :on-drag-start="onListDragStart"
+              data="tasks.length > 0 ? 'dropArea' : 'emptyArea'"
+            >
+              <div v-if="tasks.length === 0" class="empty-list">
+                Drop here to add to the list
+              </div>
+              <DxDraggable
+                v-for="task in sortedFilteredDataSource"
+                :style="getStyle(task.category, task.heartCount)"
+                :key="task.blockId"
+                :clone="true"
+                :group="draggingGroupName"
+                :data="task"
+                :on-drag-start="onItemDragStart"
+                :on-drag-end="onItemDragEnd"
+                class="item"
+              >
+                <v-btn
+                  icon="mdi-dots-horizontal"
+                  variant="text"
+                  class="enter-button"
+                  color="black"
+                  @click="() => goToBlockBoard(task.id)"
+                ></v-btn>
                 <div class="block-title">
                   {{ task.title }}
+                </div>
+                <div class="block-date">
+                  {{ formatDate(task.startTime) }} ~ {{ formatDate(task.endTime) }}
+                </div>
+                <div class="place-name">
+                  {{ task.placeName }}
                 </div>
                 <div class="block-heart">
                   <v-icon @click.stop="toggleLike(task)">
@@ -225,7 +252,6 @@ const inviteEmail = ref("");
 const selectedCategory = ref(null);
 const maxHeartCount = ref(0);
 const showMapListModal = ref(false);
-
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
   SPOT: "명소",
@@ -301,6 +327,7 @@ async function fetchTasks() {
       id: block.blockId,
       title: block.title,
       content: block.content,
+      placeName: block.placeName,
       startTime: block.startTime,
       endTime: block.endTime,
       heartCount: block.heartCount,
@@ -359,6 +386,8 @@ async function onAppointmentRemove({ itemData }) {
       appointments.value = [...appointments.value];
       appointments.value.splice(index, 1);
       tasks.value = [...tasks.value, itemData];
+
+      fetchTasks();
     } catch (error) {
       console.error("Failed to Remove block:", error);
     }
@@ -578,6 +607,16 @@ function goToBlockBoard(blockId) {
   router.push({ name: "BlockBoard", params: { blockId: blockId } });
 }
 
+function formatDate(dateTime) {
+  const dateObj = new Date(dateTime);
+  return dateObj.toLocaleString("ko-KR", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 // SSE 연결 설정
 let eventSource;
 
@@ -616,6 +655,7 @@ function connectSSE() {
     eventSource.close();
     console.error("SSE connection error:", error);
     // 필요에 따라 재연결 로직을 추가할 수 있음
+    connectSSE(); // Reconnect
   };
 }
 
@@ -631,8 +671,15 @@ function handleBeforeUnload() {
   }
 }
 
+function loadStylesheet() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
+  document.head.appendChild(link);
+}
 onMounted(() => {
   connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+  loadStylesheet();
 });
 onBeforeUnmount(() => {
   if (eventSource) {
@@ -726,22 +773,14 @@ onBeforeUnmount(() => {
 }
 
 .enter-button {
-  position: absolute;
-  /* 버튼을 절대 위치로 설정 */
-  top: 1px;
-  /* 상단에서 10px 떨어진 위치 */
-  right: 10px;
-  /* 오른쪽에서 10px 떨어진 위치 */
-  color: white;
-  /* 버튼 텍스트 색상 */
-  padding: 5px 5px;
-  /* 버튼 패딩 */
-  border: none;
-  /* 버튼 테두리 제거 */
-  border-radius: 3px;
-  /* 버튼 모서리 둥글게 */
-  cursor: pointer;
-  /* 커서 포인터 설정 */
+  position: absolute; /* 버튼을 절대 위치로 설정 */
+  top: -5px; /* 상단에서 10px 떨어진 위치 */
+  right: 10px; /* 오른쪽에서 10px 떨어진 위치 */
+  color: white; /* 버튼 텍스트 색상 */
+  padding: 5px 5px; /* 버튼 패딩 */
+  border: none; /* 버튼 테두리 제거 */
+  border-radius: 3px; /* 버튼 모서리 둥글게 */
+  cursor: pointer; /* 커서 포인터 설정 */
 }
 
 .invite-btn,
@@ -773,5 +812,42 @@ onBeforeUnmount(() => {
 
 .v-icon {
   margin-right: 8px;
+}
+
+.block-date {
+  position: absolute;
+  bottom: 5px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
+}
+
+.place-name {
+  position: absolute;
+  bottom: 27px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
+}
+
+.empty-list {
+  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
+  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
+  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
+  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
+  user-select: none; /* 텍스트가 선택되지 않도록 */
+  pointer-events: none; /* 클릭 이벤트 무시 */
+  -webkit-user-drag: none; /* 드래그 방지 */
 }
 </style>
