@@ -1,5 +1,4 @@
 <template>
-
 <div class="container">
     <div class="projectBoard">
         <div class="blockHeader">

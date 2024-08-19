@@ -1,8 +1,7 @@
 <template>
-  <v-app>
-    <v-container>
+
       <!-- Project Detail -->
-      <v-row v-if="projectDetail" class="header-row">
+      <div v-if="projectDetail" class="header-row">
         <!-- 프로젝트 제목과 위치 -->
         <v-col cols="12" class="d-flex align-center">
           <div class="mr-3">
@@ -21,7 +20,6 @@
             <CustomModal v-model:modelValue="showMapListModal">
               <GoogleMapList :projectId="projectId"/>
             </CustomModal>
-
           </div>
 
           <v-dialog v-model="dialog" max-width="500">
@@ -100,7 +98,7 @@
                 <v-divider class="my-4"></v-divider>
 
                 <p class="text-center" style="color: #757575">
-                  <strong>주의사항을 확인 하셨으면 동의를 눌러주세요.</strong>
+                  <strong>주의사항을 확인하셨으면 동의를 눌러주세요.</strong>
                 </p>
               </v-card-text>
 
@@ -134,7 +132,6 @@
 
           <v-btn
             class="ml-3 invite-btn"
-            color="primary"
             @click="showInviteModal = true"
             elevation="5"
           >
@@ -147,7 +144,6 @@
             color="error"
             @click="openModal"
             elevation="5"
-            style="margin-top: -20px"
           >
             <v-icon left size="28">mdi-account-remove</v-icon>
             탈퇴
@@ -175,7 +171,7 @@
             </v-card>
           </v-dialog>
         </v-col>
-      </v-row>
+      </div>
 
       <!-- Scheduler and Block List -->
       <v-row class="scheduler-row">
@@ -203,27 +199,36 @@
             <DxScrolling mode="virtual" />
           </DxScheduler>
         </v-col>
-        <v-col cols="4" class="block-list" style="height: 600px">
-          <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-          <div class="category-buttons-wrapper">
-            <div class="category-buttons">
-              <v-btn
-                v-for="(color, category) in categoryColors"
-                :key="category"
-                :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
-                @click="filterByCategory(category)"
-              >
-                #{{ categoryMap[category] }}
-              </v-btn>
-            </div>
-          </div>
+      
 
-          <DxScrollView id="scroll">
+      <div class="projectBlockList">
+
+        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+        <div class="category-buttons-wrapper">
+          <div class="category-buttons">
+            <v-btn
+              v-for="(color, category) in categoryColors"
+              :key="category"
+              :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
+              @click="filterByCategory(category)"
+            >
+              #{{ categoryMap[category] }}
+            </v-btn>
+          </div> 
+        </div>
+        <hr>
+         <!-- Block 생성 버튼 -->
+         <v-btn @click="createTemporaryBlock" color="#666" class="create-button">블럭 생성</v-btn>
+
+        <div class="block-list" style="height: 80%">
+          
+
+          <DxScrollView id="scroll"  >
             <DxDraggable
               id="list"
               :group="draggingGroupName"
               :on-drag-start="onListDragStart"
-              style="height: 5px"
+              style="height: 80px"
             >
               <DxDraggable
                 v-for="task in sortedFilteredDataSource"
@@ -256,14 +261,12 @@
             </DxDraggable>
           </DxScrollView>
 
-          <!-- Block 생성 버튼 -->
-          <v-btn @click="createTemporaryBlock" color="primary" class="create-button"
-            >블럭 생성</v-btn
-          >
-        </v-col>
+         
+        </div>
+      </div>
+        
       </v-row>
-    </v-container>
-  </v-app>
+
 </template>
 
 <script setup>
@@ -710,6 +713,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+
+
 .project-title {
   font-size: 40px;
 }
@@ -727,14 +732,29 @@ onBeforeUnmount(() => {
 }
 
 .block-list {
-  padding: 20px;
+  height: 50vh;
   background-color: white; /* 회색 배경을 흰색으로 변경 */
   overflow-y: auto;
 }
 
+.projectBlockList {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: center; 
+  width: 450px;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: white;
+  padding: 100px 30px 0 30px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
+  border-radius: 8px;
+}
+
 .item {
   position: relative; /* 부모 요소를 상대 위치로 설정 */
-  width: 100%;
+  width: 320px;
   height: 80px;
   color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
   background-color: #f5f5f5; /* 카드 배경을 밝은 회색으로 변경 */
@@ -755,12 +775,14 @@ onBeforeUnmount(() => {
 }
 
 .category-buttons-wrapper {
-  margin-bottom: 20px;
+  display: flex;
+    justify-content: center; /* 수평 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
 }
 
 .category-buttons {
-  display: inline-flex;
-  justify-content: center;
+  display: flex; /* 버튼들을 수평으로 배치 */
+  gap: 5px; /* 버튼 간의 간격 */
 }
 
 .category-buttons .v-btn {
@@ -783,7 +805,7 @@ onBeforeUnmount(() => {
 
 .create-button {
   margin-top: 10px;
-  width: 100%;
+  width: 80%;
 }
 
 .enter-button {
