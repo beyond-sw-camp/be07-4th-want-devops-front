@@ -635,7 +635,7 @@ function connectSSE() {
     eventSource.close();
     console.error("SSE connection error:", error);
     // 필요에 따라 재연결 로직을 추가할 수 있음
-    connectSSE(); // Reconnect
+    // connectSSE(); // Reconnect
   };
 }
 

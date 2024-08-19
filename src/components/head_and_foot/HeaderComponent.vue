@@ -69,7 +69,7 @@ export default {
       sse.onerror = (error) => {
         console.log('SSE connection error:', error);
         sse.close(); // Close the connection
-        connectSSE(); // Reconnect
+        // connectSSE(); // Reconnect
       };
     };
 
