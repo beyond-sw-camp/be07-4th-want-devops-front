@@ -1,8 +1,7 @@
 <template>
-  <v-card class="mx-auto" max-width="425">
     <div class="comment-container" ref="commentList">
       <div v-if="comments.length === 0" class="no-comments">
-        댓글 없음
+        댓글이 없습니다
       </div>
 
       <div v-else>
@@ -46,15 +45,19 @@
     </div>
 
     <!-- 댓글 작성 -->
-    <v-form ref="commentForm" v-model="valid" @submit.prevent="submitComment">
-      <v-textarea
-          v-model="newComment"
-          label="댓글 작성"
-          rows="3"
-          required
-          auto-grow
-      ></v-textarea>
-      <v-btn type="submit" color="primary" class="mt-2">댓글 달기</v-btn>
+     
+    <v-form ref="commentForm" v-model="valid" @submit.prevent="submitComment" style="display: flex; margin: 20px 0; gap: 10px">
+     
+      <div class="commentForm">
+        <input
+        v-model="newComment"
+        class="form-control"
+        placeholder="댓글"
+        type="text"
+        style="width: 320px; display: inline-block;"
+        />
+      </div>
+      <v-btn type="submit" color="primary" style="display: inline-block; width: 20px">게시</v-btn>
     </v-form>
 
     <!-- 댓글 수정 모달 -->
@@ -76,7 +79,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-card>
+
 </template>
 
 <script>
@@ -257,15 +260,15 @@ export default {
 
 <style scoped>
   .comment-container {
-    max-height: 300px;
-  overflow-y: auto;
+    max-height: 65vh;
+    overflow-y: auto;
 }
 
   .comment-item {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid #ccc;
-  padding: 10px;
+  padding: 10px 10px 15px;
   position: relative;
 }
 
