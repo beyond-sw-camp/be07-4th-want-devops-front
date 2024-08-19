@@ -138,6 +138,8 @@ export default {
             heartCount: 0,
             startTime: null,
             endTime: null,
+            latitude: null,
+            longitude: null,
         });
         const blockPhotos = ref([]);
         const activeIndex = ref(0);
@@ -177,7 +179,7 @@ export default {
                 console.error('블록 정보를 가져오는 중 오류 발생:', error);
             }
         };
-      
+
         const updateBlock = async () => {
             if (valid.value) {
                 try {
@@ -185,11 +187,14 @@ export default {
 
                     await axios.patch(`http://localhost:8088/api/v1/block/${selectedBlock.value}/update`, {
                         ...localBlock.value,
-                        category: categoryInEnglish
+                        category: categoryInEnglish,
+                        latitude: localBlock.value.latitude,
+                        longitude: localBlock.value.longitude,
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
                     });
-                    
-                    await updatePhoto();
-
                     alert('블록이 성공적으로 업데이트되었습니다.');
                     router.push(`/block/${localBlock.value.blockId}/board`);
                 } catch (error) {
@@ -198,6 +203,7 @@ export default {
                 }
             }
         };
+
         const cancel = () => {
             router.push(`/block/${localBlock.value.blockId}/board`);
         };
@@ -216,7 +222,10 @@ export default {
         }
 
         const handlePlaceSelected = (place) => {
+            console.log(place)
             localBlock.value.placeName = place.name;
+            localBlock.value.latitude = place.lat;
+            localBlock.value.longitude = place.lng;
         };
 
         // 사진 관련 로직

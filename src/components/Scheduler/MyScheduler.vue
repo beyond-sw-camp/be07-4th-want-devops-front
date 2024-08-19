@@ -8,6 +8,7 @@
           <div class="left-section">
             <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
 
+
             <div class="projectLocation" style="display: flex;">
               <div class="map-btn" elevation="0" variant="text" @click="showMapListModal = true" style="padding: 0; cursor: pointer">
                 <img src="@/assets/img/googleMap.png" alt="Google Map" style="height: 25px; margin:  0 5px 0 15px">
@@ -154,6 +155,7 @@
                   width: 160px;
                   border-radius: 28px;">
                 동의
+
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -215,11 +217,13 @@
             </div>
             
 
+
           </DxDraggable>
         </DxDraggable>
       </DxScrollView>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -235,7 +239,7 @@ import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
 import CustomModal from "@/components/CustomModal.vue";
 import GoogleMapList from "@/components/GoogleMapList.vue";
-import {EventSourcePolyfill} from "event-source-polyfill";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 const store = useStore();
 const route = useRoute();
@@ -279,7 +283,7 @@ function getStyle(category, heartCount) {
   const minFactor = 0.9;
   const maxFactor = 1.3;
   const lightnessFactor =
-      maxFactor - (heartCount / maxHeartCount.value) * (maxFactor - minFactor);
+    maxFactor - (heartCount / maxHeartCount.value) * (maxFactor - minFactor);
   const [r, g, b] = baseColor.map((c) => Math.round(c * lightnessFactor));
   return {
     backgroundColor: `rgb(${r}, ${g}, ${b})`,
@@ -301,18 +305,18 @@ onMounted(async () => {
       const startTravel = new Date(projectDetail.value.startTravel);
       const endTravel = new Date(projectDetail.value.endTravel);
       const intervalCount = Math.ceil(
-          (endTravel - startTravel + 1) / (1000 * 60 * 60 * 24)
+        (endTravel - startTravel + 1) / (1000 * 60 * 60 * 24)
       );
 
       views.value = [
-        {type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1},
+        { type: "day", intervalCount: intervalCount > 0 ? intervalCount : 1 },
       ];
       currentDate.value = startTravel;
     }
   } catch (error) {
     console.error("Error initializing data:", error);
     if (error.message === "Access Denied") {
-      router.push({name: "AccessDenied"});
+      router.push({ name: "AccessDenied" });
     }
   }
   fetchTasks();
@@ -323,7 +327,7 @@ onMounted(async () => {
 async function fetchTasks() {
   try {
     const response = await axios.get(
-        `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
+      `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
     );
     tasks.value = response.data.result.map((block) => ({
       id: block.blockId,
@@ -346,7 +350,7 @@ async function fetchTasks() {
 async function fetchAppointments() {
   try {
     const response = await axios.get(
-        `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
+      `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
     );
     appointments.value = response.data.result.content.map((block) => ({
       id: block.blockId,
@@ -361,7 +365,7 @@ async function fetchAppointments() {
   }
 }
 
-async function onAppointmentRemove({itemData}) {
+async function onAppointmentRemove({ itemData }) {
   console.log("Removing appointment:", itemData);
 
   const index = appointments.value.indexOf(itemData);
@@ -374,13 +378,13 @@ async function onAppointmentRemove({itemData}) {
 
     try {
       const response = await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
-          {
-            blockId: blockId,
-            text: blockTitle,
-            startTime: originalStartTime,
-            endTime: originalEndTime,
-          }
+        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/not/active`,
+        {
+          blockId: blockId,
+          text: blockTitle,
+          startTime: originalStartTime,
+          endTime: originalEndTime,
+        }
       );
 
       console.log("API Response:", response);
@@ -411,13 +415,13 @@ async function onAppointmentAdd(e) {
       const title = e.itemData.title;
 
       const response = await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
-          {
-            blockId: blockId,
-            title: title,
-            startTime: originalStartTime.toISOString(),
-            endTime: originalEndTime.toISOString(),
-          }
+        `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/addDate`,
+        {
+          blockId: blockId,
+          title: title,
+          startTime: originalStartTime.toISOString(),
+          endTime: originalEndTime.toISOString(),
+        }
       );
 
       console.log(response);
@@ -504,8 +508,8 @@ async function inviteMembers() {
     showInviteModal.value = false;
   } catch (error) {
     if (
-        error.response &&
-        error.response.data.status_message === "Member already exists."
+      error.response &&
+      error.response.data.status_message === "Member already exists."
     ) {
       alert("이 사용자는 이미 프로젝트에 속해 있습니다.");
     } else {
@@ -522,7 +526,7 @@ const sortedFilteredDataSource = computed(() => {
   // 필터링
   if (selectedCategory.value) {
     filteredTasks = filteredTasks.filter(
-        (task) => task.category === selectedCategory.value
+      (task) => task.category === selectedCategory.value
     );
   }
 
@@ -536,11 +540,6 @@ async function filterByCategory(category) {
     selectedCategory.value = null;
   } else {
     selectedCategory.value = category;
-  }
-
-  // 데이터 필터링
-  if (!tasks.value.length) {
-    await fetchTasks(); // 태스크가 없는 경우에만 데이터 가져오기
   }
 
   // 클라이언트 측에서 필터링
@@ -558,41 +557,43 @@ function toggleLike(block) {
   block.heartCount += block.liked ? 1 : -1;
 
   axios
-      .post(
-          `http://localhost:8088/api/v1/block/${block.id}/heart`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-      )
-      .then((response) => {
-        console.log("좋아요 업데이트 성공:", response);
-      })
-      .catch((error) => {
-        console.error("좋아요 업데이트 중 오류 발생:", error);
-        // API 호출 실패 시 로컬 상태를 원래대로 복구
-        block.liked = !block.liked;
-        block.heartCount += block.liked ? 1 : -1;
-      });
+    .post(
+      `http://localhost:8088/api/v1/block/${block.id}/heart`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
+    .then((response) => {
+      console.log("좋아요 업데이트 성공:", response);
+    })
+    .catch((error) => {
+      console.error("좋아요 업데이트 중 오류 발생:", error);
+      // API 호출 실패 시 로컬 상태를 원래대로 복구
+      block.liked = !block.liked;
+      block.heartCount += block.liked ? 1 : -1;
+    });
 }
 
 async function createBlock() {
   try {
+    // 선택된 카테고리 값을 사용하거나, 없으면 기본값 "ETC" 사용
+    const categoryToUse = selectedCategory.value || 'ETC';
+
     // 요청 본문 데이터
     const requestBody = {
       projectId: projectId,
-      category: "ETC",
+      category: categoryToUse,
     };
 
     const response = await axios.post('http://localhost:8088/api/v1/block/create', requestBody);
 
     // 성공 시 처리
     tasks.value.push(response.data);
-    fetchTasks()
+    fetchTasks();
   } catch (error) {
-    
     console.error('블럭 생성 중 에러 발생:', error);
   }
 }
@@ -602,7 +603,7 @@ function onAppointmentFormOpening(e) {
   const blockId = e.appointmentData.id;
 
   // 해당 일정의 상세 페이지로 라우팅
-  router.push({name: "BlockBoard", params: {blockId: blockId}});
+  router.push({ name: "BlockBoard", params: { blockId: blockId } });
 
   // 폼 열림을 취소합니다.
   e.cancel = true;
@@ -610,7 +611,7 @@ function onAppointmentFormOpening(e) {
 
 function goToBlockBoard(blockId) {
   console.log("Navigating to block with ID:", blockId); // blockId 출력
-  router.push({name: "BlockBoard", params: {blockId: blockId}});
+  router.push({ name: "BlockBoard", params: { blockId: blockId } });
 }
 
 
@@ -619,12 +620,12 @@ let eventSource;
 
 function connectSSE() {
   const eventSource = new EventSourcePolyfill(
-      `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+    `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
   );
 
   eventSource.onopen = function () {
@@ -866,6 +867,7 @@ const toggleMenu = () => {
 
 .create-button {
   margin-top: 10px;
+
   width: 80%;
 }
 
@@ -915,38 +917,56 @@ const toggleMenu = () => {
 
 .block-date {
   position: absolute;
-  bottom: 5px; /* 하단에서 5px 위로 이동 */
-  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
-  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
-  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
-  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  bottom: 5px;
+  /* 하단에서 5px 위로 이동 */
+  right: 10px;
+  /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px;
+  /* 날짜 텍스트 크기를 작게 설정 */
+  color: black;
+  /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap;
+  /* 텍스트가 줄바꿈되지 않도록 설정 */
   font-weight: bold;
 }
 
 .place-name {
   position: absolute;
-  bottom: 27px; /* 하단에서 5px 위로 이동 */
-  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
-  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
-  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
-  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  bottom: 27px;
+  /* 하단에서 5px 위로 이동 */
+  right: 10px;
+  /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px;
+  /* 날짜 텍스트 크기를 작게 설정 */
+  color: black;
+  /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap;
+  /* 텍스트가 줄바꿈되지 않도록 설정 */
   font-weight: bold;
 }
 
 .empty-list {
-  min-height: 100px; /* 높이를 늘려 더 큰 드롭 영역 확보 */
-  background-color: #f5f5f5; /* 배경색을 추가하여 눈에 잘 띄게 */
-  border: 2px dashed #ccc; /* 시각적인 구분을 위해 테두리 추가 */
+  min-height: 100px;
+  /* 높이를 늘려 더 큰 드롭 영역 확보 */
+  background-color: #f5f5f5;
+  /* 배경색을 추가하여 눈에 잘 띄게 */
+  border: 2px dashed #ccc;
+  /* 시각적인 구분을 위해 테두리 추가 */
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   font-size: 16px;
   color: #666;
-  position: relative; /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
-  cursor: default; /* 기본 커서로 설정하여 드래그되지 않도록 */
-  user-select: none; /* 텍스트가 선택되지 않도록 */
-  pointer-events: none; /* 클릭 이벤트 무시 */
-  -webkit-user-drag: none; /* 드래그 방지 */
+  position: relative;
+  /* 정적 위치를 유지하여 클릭해도 움직이지 않도록 */
+  cursor: default;
+  /* 기본 커서로 설정하여 드래그되지 않도록 */
+  user-select: none;
+  /* 텍스트가 선택되지 않도록 */
+  pointer-events: none;
+  /* 클릭 이벤트 무시 */
+  -webkit-user-drag: none;
+  /* 드래그 방지 */
 }
 </style>

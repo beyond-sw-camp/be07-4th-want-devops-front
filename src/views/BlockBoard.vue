@@ -3,6 +3,12 @@
     <div class="container">
         <div class="projectBoard">
             <div class="blockHeader">
+                <v-btn class="back-button" @click="goback" variant="text">
+                    <v-icon size="xx-large">mdi-keyboard-backspace</v-icon>
+                </v-btn>
+                <div class="blockTitle" style="font-size: 32px;">
+                    {{ localBlock.title }}
+                </div>
                 <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
                     <v-btn v-for="item in filteredCategories" :key="item.category"
                         style="font-size: 17px; font-weight: 700"
@@ -10,20 +16,21 @@
                         #{{ item.label }}
                     </v-btn>
                 </div>
-                <div class="blockTitle" style="font-size: 32px;">
-                    {{ localBlock.title }}
-                </div>
                 <span @click="showMapModal = true" style="cursor: pointer;">
                     <v-card-subtitle>
                         <template v-if="localBlock.placeName">
                             📍 {{ localBlock.placeName }}
                         </template>
                         <template v-else>
-                            🗺️ 지도에서 장소 지정하기
+                            🗺️ 지정된 장소가 없습니다.
                         </template>
                     </v-card-subtitle>
                     <CustomModal v-model:modelValue="showMapModal">
-                        <GoogleMap @place-selected="handlePlaceSelected" />
+                        <ShowMap
+                            :latitude="localBlock.latitude"
+                            :longitude="localBlock.longitude"
+                            :placeName="localBlock.placeName"
+                        />
                     </CustomModal>
                 </span>
                 <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined"
@@ -96,7 +103,7 @@
 
 <script>
 import axios from 'axios';
-import GoogleMap from "@/components/GoogleMap.vue";
+import ShowMap from "@/components/ShowMap.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import CommentSection from "@/components/CommentSection.vue";
 import { ref, onMounted } from 'vue';
@@ -134,7 +141,7 @@ export default {
             return filtered;
         }
     },
-    components: { CustomModal, GoogleMap, CommentSection },
+    components: { CustomModal, ShowMap, CommentSection },
     setup() {
         const route = useRoute();
         const router = useRouter();
@@ -171,6 +178,10 @@ export default {
             "기타": "ETC"
         };
 
+        const goback = () => {
+            router.push(`/project/${localBlock.value.projectId}/detail`);
+        }
+
         const fetchBlock = async () => {
             try {
                 const blockId = route.params.blockId;
@@ -182,6 +193,8 @@ export default {
                     ...blockData,
                     category: categoryMap[blockData.category] || blockData.category,
                     isHearted: blockData.isHearted,
+                  latitude: blockData.latitude,
+                  longitude: blockData.longitude,
                 };
                 console.log(localBlock.value)
 
@@ -285,8 +298,7 @@ export default {
             blockPhotos,
             nextSlide,
             prevSlide,
-
-
+            goback
         };
     },
     methods: {

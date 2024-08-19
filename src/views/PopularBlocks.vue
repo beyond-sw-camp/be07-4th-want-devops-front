@@ -6,6 +6,14 @@
 
         <div class="block-list">
             <v-row justify="center">
+                <!-- 좌측 이미지 영역 -->
+                <v-col cols="12" md="4">
+                    <v-card>
+                        <v-img :src="getCityImageUrl($route.params.stateId)" height="300px"></v-img>
+                    </v-card>
+                </v-col>
+
+                <!-- 우측 블록 리스트 영역 -->
                 <v-col cols="12" md="8">
                     <v-card>
                         <v-card-title>
@@ -21,8 +29,7 @@
                                         <v-list-item-title>{{ block.title }}</v-list-item-title>
                                         <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>장소: {{ block.placeName }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude
-                                            }}</v-list-item-subtitle>
+                                        <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
                                     </v-list-item-content>
                                     <v-list-item-action class="block-item-action">
@@ -71,6 +78,14 @@
 
 <script>
 import axios from 'axios';
+import seoulImage from '@/assets/img/seoul.jpg';
+import parisImage from '@/assets/img/paris.jpg';
+import newYorkImage from '@/assets/img/newyork.jpg';
+import busanImage from '@/assets/img/busan.jpg';
+import gyeongjuImage from '@/assets/img/gyeongju.jpg';
+import jejuImage from '@/assets/img/jeju.jpg';
+import fukuokaImage from '@/assets/img/fukuoka.jpg';
+import osakaImage from '@/assets/img/osaka.jpg';
 
 export default {
     data() {
@@ -147,9 +162,34 @@ export default {
             } else {
                 alert('프로젝트를 선택하세요.');
             }
+        },
+        getCityImageUrl(cityId) {
+            const cityIdToNameMap = {
+                1: 'seoul',
+                2: 'osaka',
+                3: 'newyork',
+                4: 'fukuoka',
+                5: 'jeju',
+                6: 'gyeongju',
+                7: 'busan',
+                8: 'paris',
+        // 필요한 도시 ID-이름 매핑 추가
+    };
+            const cityImages = {
+                seoul: seoulImage,
+                paris: parisImage,
+                newyork: newYorkImage,
+                busan: busanImage,
+                fukuoka: fukuokaImage,
+                jeju: jejuImage,
+                osaka: osakaImage,
+                gyeongju: gyeongjuImage,
+
+                // 필요한 도시 이미지 추가
+            };
+            const cityName = cityIdToNameMap[cityId];
+            return cityImages[cityName] || require('@/assets/img/airplane.jpg');
         }
-
-
     }
 };
 </script>
@@ -162,7 +202,7 @@ export default {
 
 .block-list {
     margin: 20px auto;
-    max-width: 800px;
+    max-width: 1200px;
 }
 
 .v-card {

@@ -6,32 +6,16 @@
 
         <div class="destination-list">
             <v-row justify="center">
-                <v-col cols="12" md="8">
-                    <v-card>
-                        <v-card-title>
-                            <h2>인기 여행 도시</h2>
-                        </v-card-title>
-                        <v-card-subtitle>
-                            <p>전 세계에서 인기 있는 도시를 확인하세요.</p>
+                <v-col cols="12" md="3" class="pa-2" v-for="destination in sortedDestinations" :key="destination.id">
+                    <v-card class="mx-auto my-4" @click="goToTasks(destination)">
+                        <div class="image-container">
+                            <div :class="getCityImageClass(destination.city)" class="city-image"></div>
+                        </div>
+                        <v-card-title>{{ destination.city }}</v-card-title>
+                        <v-card-subtitle>{{ destination.country }}</v-card-subtitle>
+                        <v-card-subtitle v-if="destination.projectCount !== undefined">
+                            프로젝트 수: {{ destination.projectCount }}
                         </v-card-subtitle>
-                        <v-list>
-                            <v-list-item-group v-if="sortedDestinations.length">
-                                <v-list-item v-for="destination in sortedDestinations" :key="destination.id"
-                                    @click="goToTasks(destination)">
-                                    <v-list-item-content>
-                                        <v-list-item-title>{{ destination.city }}</v-list-item-title>
-                                        <v-list-item-subtitle>{{ destination.country }}</v-list-item-subtitle>
-                                        <v-list-item-subtitle v-if="destination.projectCount !== undefined">프로젝트 수: {{
-                                            destination.projectCount }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                            </v-list-item-group>
-                            <v-list-item v-else>
-                                <v-list-item-content>
-                                    <v-list-item-title>데이터를 불러오는 중입니다...</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                        </v-list>
                     </v-card>
                 </v-col>
             </v-row>
@@ -56,7 +40,7 @@ export default {
                 id: city.id,
                 city: city.city,
                 country: city.country,
-                projectCount: city.projectCount
+                projectCount: city.projectCount,
             }));
         } catch (e) {
             console.error(e);
@@ -73,10 +57,25 @@ export default {
         goToTasks(destination) {
             this.$router.push({ name: 'PopularBlocks', params: { stateId: destination.id } });
         },
+        getCityImageClass(cityName) {
+            // 도시 이름에 따라 이미지 클래스를 반환
+            const cityImages = {
+                seoul: 'seoul-image',
+                paris: 'paris-image',
+                newyork: 'newyork-image',
+                osaka: 'osaka-image',
+                fukuoka: 'fukuoka-image',
+                jeju: 'jeju-image',
+                gyeongju: 'gyeongju-image',
+                busan: 'busan-image',
+
+                // 다른 도시들도 필요에 따라 추가
+            };
+            return cityImages[cityName.toLowerCase()] || 'default-image';
+        }
     },
 };
 </script>
-
 
 <style>
 .header {
@@ -91,17 +90,63 @@ export default {
 
 .v-card {
     border-radius: 10px;
+    cursor: pointer;
 }
 
-.v-list-item-content {
-    font-size: 18px;
+.image-container {
+    height: 200px;
+    overflow: hidden;
 }
 
-.v-list-item-title {
+.city-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+/* 도시별 이미지 클래스 */
+.seoul-image {
+    background-image: url('@/assets/img/seoul.jpg');
+}
+
+.osaka-image {
+    background-image: url('@/assets/img/osaka.jpg');
+}
+
+.newyork-image {
+    background-image: url('@/assets/img/newyork.jpg');
+}
+
+.jeju-image {
+    background-image: url('@/assets/img/jeju.jpg');
+}
+
+.gyeongju-image {
+    background-image: url('@/assets/img/gyeongju.jpg');
+}
+
+.busan-image {
+    background-image: url('@/assets/img/busan.jpg');
+}
+
+.fukuoka-image {
+    background-image: url('@/assets/img/fukuoka.jpg');
+}
+
+.paris-image {
+    background-image: url('@/assets/img/paris.jpg');
+}
+
+.v-card-title {
     font-weight: bold;
+    font-size: 20px;
+    text-align: center;
 }
 
-.v-list-item-subtitle {
+.v-card-subtitle {
     color: #555;
+    text-align: center;
+    font-size: 16px;
 }
 </style>
