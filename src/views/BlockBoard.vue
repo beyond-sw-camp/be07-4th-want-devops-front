@@ -3,15 +3,18 @@
     <div class="container">
         <div class="projectBoard">
             <div class="blockHeader">
+                <v-btn class="back-button" @click="goback" variant="text">
+                    <v-icon size="xx-large">mdi-keyboard-backspace</v-icon>
+                </v-btn>
+                <div class="blockTitle" style="font-size: 32px;">
+                    {{ localBlock.title }}
+                </div>
                 <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
                     <v-btn v-for="item in filteredCategories" :key="item.category"
                         style="font-size: 17px; font-weight: 700"
                         :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
                         #{{ item.label }}
                     </v-btn>
-                </div>
-                <div class="blockTitle" style="font-size: 32px;">
-                    {{ localBlock.title }}
                 </div>
                 <span @click="showMapModal = true" style="cursor: pointer;">
                     <v-card-subtitle>
@@ -171,6 +174,10 @@ export default {
             "기타": "ETC"
         };
 
+        const goback = () => {
+            router.go(-1);
+        }
+
         const fetchBlock = async () => {
             try {
                 const blockId = route.params.blockId;
@@ -285,8 +292,7 @@ export default {
             blockPhotos,
             nextSlide,
             prevSlide,
-
-
+            goback
         };
     },
     methods: {
