@@ -7,48 +7,52 @@
         <div class="projectHeader">
           <div class="left-section">
             <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
+
+            <div class="projectLocation" style="display: flex;">
+              <div class="map-btn" elevation="0" variant="text" @click="showMapListModal = true" style="padding: 0; cursor: pointer">
+                <img src="@/assets/img/googleMap.png" alt="Google Map" style="height: 25px; margin:  0 5px 0 15px">
+              </div>
+              <CustomModal v-model:modelValue="showMapListModal">
+                <GoogleMapList :projectId="projectId"/>
+              </CustomModal>
+              <div class="project-location" v-if="projectDetail.projectStates.length">
+                {{ projectDetail.projectStates[0].city }},
+                {{ projectDetail.projectStates[0].country }}
+              </div>
+              <div class="project-location" v-else>&lt;여행지: 미정&gt;</div>
+            </div>
+
+           
+
           </div>
 
-
-          <div class="d-flex align-center mr-3" >
-            <v-btn class="map-btn" elevation="0" variant="text" @click="showMapListModal = true">
-              <img src="@/assets/img/googleMap.png" alt="Google Map" style="height: 40px;">
-            </v-btn>
-            <CustomModal v-model:modelValue="showMapListModal">
-              <GoogleMapList :projectId="projectId"/>
-            </CustomModal>
-            <h4 class="project-location" v-if="projectDetail.projectStates.length">
-              &lt;{{ projectDetail.projectStates[0].city }},
-              {{ projectDetail.projectStates[0].country }}&gt;
-            </h4>
-            <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
-            <!--            <button @click="showMapListModal = true">Show Google List Map</button>-->
-          </div>
-
-          <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
-            <img :src="member.userProfile" alt="User profile" />
-          </v-avatar>
-
-          <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined" style="margin-left: 5px; cursor: pointer;">
-          more_vert
-          </span>
-        </div>
-
-
-        
-        <!-- More 메뉴 모달 -->
-        <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
-          <div class="menu-item" @click="showInviteModal">
-            <v-icon>mdi-account-plus</v-icon> 초대하기
-          </div>
-          <div class="menu-item" @click="openModal">
-            <v-icon>mdi-account-remove</v-icon> 탈퇴하기
+          <div class="right-section">
+            <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
+              <img :src="member.userProfile" alt="User profile" />
+            </v-avatar>
+            <span 
+              @click.stop="toggleMenu" 
+              ref="moreVertButton" 
+              class="material-symbols-outlined" 
+              style="margin: auto; cursor: pointer;"
+            >
+              more_vert
+            </span>
+             <!-- More 메뉴 모달 -->
+            <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+              <div class="menu-item" @click="showInviteModal=true">
+                <v-icon>mdi-account-plus</v-icon> 초대하기
+              </div>
+              <div class="menu-item" @click="openModal">
+                <v-icon>mdi-account-remove</v-icon> 탈퇴하기
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Invite Modal -->
         <v-dialog v-model="showInviteModal" persistent max-width="400px">
-          <v-card>
+          <v-card class="elevation-3" style="border-radius: 16px">
             <v-card-title class="headline">사용자 초대</v-card-title>
             <v-card-text>
               초대할 사용자의 이메일을 입력해주세요
@@ -161,8 +165,7 @@
   </div>
 
 
-
-  <div class="projectBlockList" style="z-index: 999">
+  <div class="projectBlockList">
 
     <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
     <div class="category-buttons-wrapper">
@@ -175,7 +178,7 @@
     </div>
     <hr>
     <!-- Block 생성 버튼 -->
-    <v-btn @click="createTemporaryBlock" color="#666" class="create-button">블럭 생성</v-btn>
+    <v-btn @click="createBlock" color="#666" class="create-button">블럭 생성</v-btn>
 
     <div class="block-list" style="height: 80%">
 
@@ -202,16 +205,10 @@
       </DxScrollView>
     </div>
   </div>
-
-
-
 </template>
 
 <script setup>
-
-
-
-import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -597,15 +594,6 @@ function goToBlockBoard(blockId) {
   router.push({name: "BlockBoard", params: {blockId: blockId}});
 }
 
-function formatDate(dateTime) {
-  const dateObj = new Date(dateTime);
-  return dateObj.toLocaleString("ko-KR", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 // SSE 연결 설정
 let eventSource;
@@ -645,7 +633,7 @@ function connectSSE() {
     eventSource.close();
     console.error("SSE connection error:", error);
     // 필요에 따라 재연결 로직을 추가할 수 있음
-    connectSSE(); // Reconnect
+    // connectSSE(); // Reconnect
   };
 }
 
@@ -681,36 +669,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 
-// Reactive state
 const menuOpen = ref(false);
-const menuPosition = ref({ top: '0px', left: '0px' });
-
-// Refs for DOM elements
-const moreVertButton = ref(null);
-const modalMenu = ref(null);
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;
-  if (menuOpen.value) {
-    setMenuPosition();
-  }
 };
 
-const setMenuPosition = () => {
-    const buttonRect = moreVertButton.value.getBoundingClientRect();
-    menuPosition.value = {
-      top: `${buttonRect.bottom + window.scrollY}px`,
-      left: `${buttonRect.left + window.scrollX}px`
-    };
-};
-
-
-// Watch for menuOpen changes to set position accordingly
-watch(menuOpen, (newValue) => {
-  if (newValue) {
-    setMenuPosition();
-  }
-});
 </script>
 
 <style scoped>
@@ -725,32 +689,49 @@ watch(menuOpen, (newValue) => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 58vw;
 }
-
 .left-section {
   display: flex;
   align-items: center;
   /* 왼쪽 요소들이 서로 붙어서 정렬되도록 설정 */
 }
-
+.right-section {
+  display: flex;
+  align-items: center;
+}
 .project-title {
   font-size: 40px;
+  margin: 0;
 }
-
 .project-location {
-  font-size: 20px;
+  display: flex;
+  align-items: center; 
 }
-
 .scheduler-row {
   margin-top: 30px;
 }
-
+.avatar-container {
+  display: flex;
+  align-items: center;
+}
 .more-vert {
-  margin-left: auto;
   cursor: pointer;
 }
 
 .modal-menu {
   position: absolute;
+  top: 100%; /* 부모 요소의 아래쪽에 위치 */
+  left: 0;  /* 부모 요소와 왼쪽 정렬 */
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.menu-item {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+.menu-item:hover {
+  background-color: #f5f5f5;
 }
 
 #scheduler {
