@@ -12,7 +12,16 @@
 
     <!-- 로그인이 되어있을 때만 보여지는 버튼과 프로필 이미지 -->
     <template v-if="isLogin">
-      <v-btn to="/myPage">나의 일정</v-btn>
+      <v-btn @click="handleMyPageClick">
+        나의 일정
+        <v-badge
+            v-if="hasInvite"
+            color="red"
+            dot
+            offset-x="-15"
+            offset-y="-13"
+        ></v-badge>
+      </v-btn>
       <v-btn @click="doLogout">로그아웃</v-btn>
       <v-avatar class="ml-2">
         <v-img :src="profileUrl"></v-img>
@@ -22,12 +31,15 @@
 </template>
 
 <script>
+import {EventSourcePolyfill} from "event-source-polyfill";
+
 export default {
   name: 'HeaderComponent',
   data() {
     return {
       isLogin: false,
-      profileUrl: null
+      profileUrl: null,
+      hasInvite: false // New state to track if there's an invite
     }
   },
   created() {
@@ -37,6 +49,31 @@ export default {
       this.userRole = localStorage.getItem('role');
       this.profileUrl = localStorage.getItem('profileUrl');
     }
+
+    const connectSSE = () => {
+      let sse = new EventSourcePolyfill(`${process.env.VUE_APP_API_BASE_URL}/api/subscribe`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      sse.addEventListener('subscribed', (event) => {
+        console.log(event);
+      });
+
+      sse.addEventListener('invite', (event) => {
+        this.hasInvite = true; // Set hasInvite to true when an invite is received
+        console.log(event.data);
+      });
+
+      sse.onerror = (error) => {
+        console.log('SSE connection error:', error);
+        sse.close(); // Close the connection
+        connectSSE(); // Reconnect
+      };
+    };
+
+    connectSSE(); // Initial connection
   },
 
   methods: {
@@ -53,6 +90,11 @@ export default {
     doLogout() {
       localStorage.clear();
       window.location.reload();
+    },
+    handleMyPageClick() {
+      // '나의 일정' 버튼 클릭 시
+      this.hasInvite = false;
+      this.$router.push('/myPage');  // '/myPage'로 이동
     }
   }
 };
