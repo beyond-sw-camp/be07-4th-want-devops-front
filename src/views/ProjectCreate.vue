@@ -236,6 +236,7 @@ export default {
   width: 500px;
   bottom: 120px;
   border-radius: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 .selectStep li {
   margin: 20px;
