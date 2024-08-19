@@ -22,7 +22,7 @@
                             📍 {{ localBlock.placeName }}
                         </template>
                         <template v-else>
-                            🗺️ 지도에서 장소 지정하기
+                            🗺️ 지정된 장소가 없습니다.
                         </template>
                     </v-card-subtitle>
                     <CustomModal v-model:modelValue="showMapModal">
