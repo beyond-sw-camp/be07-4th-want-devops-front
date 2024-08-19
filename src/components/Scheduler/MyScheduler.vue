@@ -1,16 +1,15 @@
 <template>
-
+  <div class="container">
+    <div class="projectScheduler">
       <!-- Project Detail -->
       <div v-if="projectDetail" class="header-row">
-        <!-- 프로젝트 제목과 위치 -->
-        <v-col cols="12" class="d-flex align-center">
-          <div class="mr-3">
+
+        <div class="projectHeader">
+          <div class="left-section">
             <h2 class="project-title">{{ projectDetail.projectTitle || "Trip" }}</h2>
-          </div>
-          <v-btn class="map-btn" elevation="0" variant="text">
-            <v-icon left size="30" color="#4285F4">mdi-google-maps</v-icon>
-          </v-btn>
-          <div class="mr-3">
+            <v-btn class="map-btn" elevation="0" variant="text">
+              <v-icon left size="30" color="#4285F4">mdi-google-maps</v-icon>
+            </v-btn>
             <h4 class="project-location" v-if="projectDetail.projectStates.length">
               &lt;{{ projectDetail.projectStates[0].city }},
               {{ projectDetail.projectStates[0].country }}&gt;
@@ -18,259 +17,197 @@
             <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
             <button @click="showMapListModal = true">Show Google List Map</button>
             <CustomModal v-model:modelValue="showMapListModal">
-              <GoogleMapList :projectId="projectId"/>
+              <GoogleMapList :projectId="projectId" />
             </CustomModal>
           </div>
 
-          <v-dialog v-model="dialog" max-width="500">
-            <v-card class="elevation-3" style="border-radius: 16px">
-              <!-- 헤더 부분 -->
-              <v-card-title
-                class="text-h5"
-                style="
-                  background-color: #37474f;
-                  color: white;
-                  border-top-left-radius: 16px;
-                  border-top-right-radius: 16px;
-                "
-              >
-                <v-row align="center">
-                  <v-col cols="10"> 팀 탈퇴 </v-col>
-                  <v-col cols="2" class="text-right">
-                    <v-btn
-                      icon
-                      @click="closeDialog"
-                      class="white--text"
-                      style="padding: 0"
-                    >
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-title>
-
-              <v-card-text style="padding: 24px">
-                <!-- 경고 메시지 부분 -->
-                <v-row
-                  class="align-center"
-                  style="background-color: #ffebee; padding: 16px; border-radius: 8px"
-                >
-                  <v-icon color="red" size="36">mdi-alert-circle-outline</v-icon>
-                  <p class="text-h6 ml-2" style="margin-top: 15px; color: #616161">
-                    정말 팀을 <strong style="color: #d32f2f">탈퇴</strong> 하시겠습니까?
-                  </p>
-                </v-row>
-
-                <v-divider class="my-4"></v-divider>
-
-                <!-- 주의사항 문구 부분 -->
-                <v-row>
-                  <v-col>
-                    <div
-                      style="background-color: #f5f5f5; padding: 16px; border-radius: 8px"
-                    >
-                      <v-row align="center">
-                        <v-col cols="1" class="text-center">
-                          <v-icon color=" #d32f2f">mdi-alert-outline</v-icon>
-                        </v-col>
-                        <v-col cols="11" class="d-flex align-center">
-                          <p style="margin: 0; color: #616161">
-                            팀원일 경우 생성했던 블록은 사라지지 않고,<br />
-                            회원님의 프로필만 팀에서 사라지게 됩니다.
-                          </p>
-                        </v-col>
-                      </v-row>
-                      <v-row class="mt-2" align="center">
-                        <v-col cols="1" class="text-center">
-                          <v-icon color=" #d32f2f">mdi-alert-outline</v-icon>
-                        </v-col>
-                        <v-col cols="11" class="d-flex align-center">
-                          <p style="margin: 0; color: #616161">
-                            팀장일 경우 모든 프로젝트가 소멸되고, 타 팀원들도 프로젝트에서
-                            탈퇴됩니다.
-                          </p>
-                        </v-col>
-                      </v-row>
-                    </div>
-                  </v-col>
-                </v-row>
-
-                <v-divider class="my-4"></v-divider>
-
-                <p class="text-center" style="color: #757575">
-                  <strong>주의사항을 확인하셨으면 동의를 눌러주세요.</strong>
-                </p>
-              </v-card-text>
-
-              <!-- 동의 버튼 부분 -->
-              <v-card-actions class="justify-center" style="padding-bottom: 24px">
-                <v-btn
-                  @click="confirmDeletion"
-                  style="
-                    background-color: #d32f2f;
-                    color: white;
-                    font-size: 18px;
-                    height: 56px;
-                    width: 160px;
-                    border-radius: 28px;
-                  "
-                >
-                  동의
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <v-avatar
-            v-for="member in projectDetail.projectMembers"
-            :key="member.userId"
-            class="ma-2"
-            size="large"
-          >
+          <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
             <img :src="member.userProfile" alt="User profile" />
           </v-avatar>
 
-          <v-btn
-            class="ml-3 invite-btn"
-            @click="showInviteModal = true"
-            elevation="5"
-          >
-            <v-icon left size="28">mdi-account-plus</v-icon>
-            초대
-          </v-btn>
-
-          <v-btn
-            class="ml-3 delete-btn"
-            color="error"
-            @click="openModal"
-            elevation="5"
-          >
-            <v-icon left size="28">mdi-account-remove</v-icon>
-            탈퇴
-          </v-btn>
-
-          <!-- Invite Modal -->
-          <v-dialog v-model="showInviteModal" persistent max-width="400px">
-            <v-card>
-              <v-card-title class="headline">사용자 초대</v-card-title>
-              <v-card-text>
-                초대할 사용자의 이메일을 입력해주세요
-                <v-text-field
-                  v-model="inviteEmail"
-                  label="이메일"
-                  required
-                ></v-text-field>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="showInviteModal = false"
-                  >취소</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="inviteMembers">초대</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-col>
-      </div>
-
-      <!-- Scheduler and Block List -->
-      <v-row class="scheduler-row">
-        <v-col cols="8">
-          <DxScheduler
-            time-zone="Asia/Seoul"
-            id="scheduler"
-            :data-source="appointments"
-            :current-date="currentDate"
-            :views="views"
-            :height="600"
-            :start-day-hour="1"
-            :end-day-hour="23"
-            :editing="true"
-            :on-appointment-updated="onAppointmentUpdated"
-            :show-all-day-panel="false"
-            @appointment-form-opening="onAppointmentFormOpening"
-          >
-            <DxAppointmentDragging
-              :group="draggingGroupName"
-              :on-remove="onAppointmentRemove"
-              :on-add="onAppointmentAdd"
-            />
-            <DxEditing :allow-updating="allowUpdating" />
-            <DxScrolling mode="virtual" />
-          </DxScheduler>
-        </v-col>
-      
-
-      <div class="projectBlockList">
-
-        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-        <div class="category-buttons-wrapper">
-          <div class="category-buttons">
-            <v-btn
-              v-for="(color, category) in categoryColors"
-              :key="category"
-              :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }"
-              @click="filterByCategory(category)"
-            >
-              #{{ categoryMap[category] }}
-            </v-btn>
-          </div> 
+          <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined" style="margin-left: 5px; cursor: pointer;">
+          more_vert
+          </span>
         </div>
-        <hr>
-         <!-- Block 생성 버튼 -->
-         <v-btn @click="createTemporaryBlock" color="#666" class="create-button">블럭 생성</v-btn>
 
-        <div class="block-list" style="height: 80%">
-          
 
-          <DxScrollView id="scroll"  >
-            <DxDraggable
-              id="list"
-              :group="draggingGroupName"
-              :on-drag-start="onListDragStart"
-              style="height: 80px"
-            >
-              <DxDraggable
-                v-for="task in sortedFilteredDataSource"
-                :style="getStyle(task.category, task.heartCount)"
-                :key="task.blockId"
-                :clone="true"
-                :group="draggingGroupName"
-                :data="task"
-                :on-drag-start="onItemDragStart"
-                :on-drag-end="onItemDragEnd"
-                class="item"
-              >
-                <v-btn
-                  icon="mdi-dots-horizontal"
-                  variant="text"
-                  class="enter-button"
-                  @click="() => goToBlockBoard(task.id)"
-                ></v-btn>
-                <div class="block-title">
-                  {{ task.title }}
-                </div>
-                <div class="block-heart">
-                  <v-icon @click.stop="toggleLike(task)">
-                    <template v-if="task.liked"> mdi-heart </template>
-                    <template v-else> mdi-heart-outline </template>
-                  </v-icon>
-                  <span class="heart-count">{{ task.heartCount }}</span>
-                </div>
-              </DxDraggable>
-            </DxDraggable>
-          </DxScrollView>
-
-         
-        </div>
-      </div>
         
-      </v-row>
+        <!-- More 메뉴 모달 -->
+        <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+          <div class="menu-item" @click="showInviteModal">
+            <v-icon>mdi-account-plus</v-icon> 초대하기
+          </div>
+          <div class="menu-item" @click="openModal">
+            <v-icon>mdi-account-remove</v-icon> 탈퇴하기
+          </div>
+        </div>
+
+        <!-- Invite Modal -->
+        <v-dialog v-model="showInviteModal" persistent max-width="400px">
+          <v-card>
+            <v-card-title class="headline">사용자 초대</v-card-title>
+            <v-card-text>
+              초대할 사용자의 이메일을 입력해주세요
+              <v-text-field v-model="inviteEmail" label="이메일" required></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="showInviteModal = false">취소</v-btn>
+              <v-btn color="blue darken-1" text @click="inviteMembers">초대</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- 탈퇴 모달창 -->
+        <v-dialog v-model="dialog" max-width="500">
+          <v-card class="elevation-3" style="border-radius: 16px">
+            <!-- 헤더 부분 -->
+            <v-card-title class="text-h5" style="
+                background-color: #37474f;
+                color: white;
+                border-top-left-radius: 16px;
+                border-top-right-radius: 16px;
+              ">
+              <v-row align="center">
+                <v-col cols="10"> 팀 탈퇴 </v-col>
+                <v-col cols="2" class="text-right">
+                  <v-btn icon @click="closeDialog" class="white--text" style="padding: 0">
+                    <v-icon>mdi-close</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-title>
+
+            <v-card-text style="padding: 24px">
+              <!-- 경고 메시지 부분 -->
+              <v-row class="align-center" style="background-color: #ffebee; padding: 16px; border-radius: 8px">
+                <v-icon color="red" size="36">mdi-alert-circle-outline</v-icon>
+                <p class="text-h6 ml-2" style="margin-top: 15px; color: #616161">
+                  정말 팀을 <strong style="color: #d32f2f">탈퇴</strong> 하시겠습니까?
+                </p>
+              </v-row>
+
+              <v-divider class="my-4"></v-divider>
+
+              <!-- 주의사항 문구 부분 -->
+              <v-row>
+                <v-col>
+                  <div style="background-color: #f5f5f5; padding: 16px; border-radius: 8px">
+                    <v-row align="center">
+                      <v-col cols="1" class="text-center">
+                        <v-icon color=" #d32f2f">mdi-alert-outline</v-icon>
+                      </v-col>
+                      <v-col cols="11" class="d-flex align-center">
+                        <p style="margin: 0; color: #616161">
+                          팀원일 경우 생성했던 블록은 사라지지 않고,<br />
+                          회원님의 프로필만 팀에서 사라지게 됩니다.
+                        </p>
+                      </v-col>
+                    </v-row>
+                    <v-row class="mt-2" align="center">
+                      <v-col cols="1" class="text-center">
+                        <v-icon color=" #d32f2f">mdi-alert-outline</v-icon>
+                      </v-col>
+                      <v-col cols="11" class="d-flex align-center">
+                        <p style="margin: 0; color: #616161">
+                          팀장일 경우 모든 프로젝트가 소멸되고, 타 팀원들도 프로젝트에서
+                          탈퇴됩니다.
+                        </p>
+                      </v-col>
+                    </v-row>
+                  </div>
+                </v-col>
+              </v-row>
+
+              <v-divider class="my-4"></v-divider>
+
+              <p class="text-center" style="color: #757575">
+                <strong>주의사항을 확인하셨으면 동의를 눌러주세요.</strong>
+              </p>
+            </v-card-text>
+
+            <!-- 동의 버튼 부분 -->
+            <v-card-actions class="justify-center" style="padding-bottom: 24px">
+              <v-btn @click="confirmDeletion" style="
+                  background-color: #d32f2f;
+                  color: white;
+                  font-size: 18px;
+                  height: 56px;
+                  width: 160px;
+                  border-radius: 28px;
+                ">
+                동의
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </div>
+
+    <!-- Scheduler and Block List -->
+
+    <DxScheduler time-zone="Asia/Seoul" id="scheduler" :data-source="appointments" :current-date="currentDate"
+      :views="views" :height="750" :start-day-hour="1" :end-day-hour="23" :editing="true"
+      :on-appointment-updated="onAppointmentUpdated" :show-all-day-panel="false"
+      @appointment-form-opening="onAppointmentFormOpening">
+      <DxAppointmentDragging :group="draggingGroupName" :on-remove="onAppointmentRemove" :on-add="onAppointmentAdd" />
+      <DxEditing :allow-updating="allowUpdating" />
+      <DxScrolling mode="virtual" />
+    </DxScheduler>
+  </div>
+
+
+
+  <div class="projectBlockList" style="z-index: 999">
+
+    <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+    <div class="category-buttons-wrapper">
+      <div class="category-buttons">
+        <v-btn v-for="(color, category) in categoryColors" :key="category"
+          :style="{ backgroundColor: `rgb(${color.join(',')})`, color: '#fff' }" @click="filterByCategory(category)">
+          #{{ categoryMap[category] }}
+        </v-btn>
+      </div>
+    </div>
+    <hr>
+    <!-- Block 생성 버튼 -->
+    <v-btn @click="createTemporaryBlock" color="#666" class="create-button">블럭 생성</v-btn>
+
+    <div class="block-list" style="height: 80%">
+
+
+      <DxScrollView id="scroll">
+        <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 80px">
+          <DxDraggable v-for="task in sortedFilteredDataSource" :style="getStyle(task.category, task.heartCount)"
+            :key="task.blockId" :clone="true" :group="draggingGroupName" :data="task" :on-drag-start="onItemDragStart"
+            :on-drag-end="onItemDragEnd" class="item">
+            <v-btn icon="mdi-dots-horizontal" variant="text" class="enter-button"
+              @click="() => goToBlockBoard(task.id)"></v-btn>
+            <div class="block-title">
+              {{ task.title }}
+            </div>
+            <div class="block-heart">
+              <v-icon @click.stop="toggleLike(task)">
+                <template v-if="task.liked"> mdi-heart </template>
+                <template v-else> mdi-heart-outline </template>
+              </v-icon>
+              <span class="heart-count">{{ task.heartCount }}</span>
+            </div>
+          </DxDraggable>
+        </DxDraggable>
+      </DxScrollView>
+    </div>
+  </div>
+
+
 
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+
+
+
+import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -710,10 +647,57 @@ onBeforeUnmount(() => {
 
   window.removeEventListener('beforeunload', handleBeforeUnload);
 });
+
+// Reactive state
+const menuOpen = ref(false);
+const menuPosition = ref({ top: '0px', left: '0px' });
+
+// Refs for DOM elements
+const moreVertButton = ref(null);
+const modalMenu = ref(null);
+
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+  if (menuOpen.value) {
+    setMenuPosition();
+  }
+};
+
+const setMenuPosition = () => {
+    const buttonRect = moreVertButton.value.getBoundingClientRect();
+    menuPosition.value = {
+      top: `${buttonRect.bottom + window.scrollY}px`,
+      left: `${buttonRect.left + window.scrollX}px`
+    };
+};
+
+
+// Watch for menuOpen changes to set position accordingly
+watch(menuOpen, (newValue) => {
+  if (newValue) {
+    setMenuPosition();
+  }
+});
 </script>
 
 <style scoped>
+.projectHeader {
+  display: flex;
+  justify-content: space-between;
+  /* 제목과 버튼들을 양쪽 끝으로 정렬 */
+  align-items: center;
+  /* 수직 중앙 정렬 */
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 58vw;
+}
 
+.left-section {
+  display: flex;
+  align-items: center;
+  /* 왼쪽 요소들이 서로 붙어서 정렬되도록 설정 */
+}
 
 .project-title {
   font-size: 40px;
@@ -727,20 +711,36 @@ onBeforeUnmount(() => {
   margin-top: 30px;
 }
 
+.more-vert {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.modal-menu {
+  position: absolute;
+}
+
 #scheduler {
-  width: 800px;
+  width: 58vw;
+}
+
+.projectScheduler {
+  flex: 1;
+  margin: 20px 0;
 }
 
 .block-list {
   height: 50vh;
-  background-color: white; /* 회색 배경을 흰색으로 변경 */
+  background-color: white;
+  /* 회색 배경을 흰색으로 변경 */
   overflow-y: auto;
 }
 
 .projectBlockList {
   display: flex;
-  flex-direction: column; /* 세로 방향으로 정렬 */
-  align-items: center; 
+  flex-direction: column;
+  /* 세로 방향으로 정렬 */
+  align-items: center;
   width: 450px;
   height: 100vh;
   position: absolute;
@@ -748,16 +748,19 @@ onBeforeUnmount(() => {
   right: 0;
   background-color: white;
   padding: 100px 30px 0 30px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
 .item {
-  position: relative; /* 부모 요소를 상대 위치로 설정 */
+  position: relative;
+  /* 부모 요소를 상대 위치로 설정 */
   width: 320px;
   height: 80px;
-  color: #333; /* 텍스트 색상을 어두운 회색으로 변경 */
-  background-color: #f5f5f5; /* 카드 배경을 밝은 회색으로 변경 */
+  color: #333;
+  /* 텍스트 색상을 어두운 회색으로 변경 */
+  background-color: #f5f5f5;
+  /* 카드 배경을 밝은 회색으로 변경 */
   box-sizing: border-box;
   padding: 10px;
   margin-bottom: 10px;
@@ -770,19 +773,23 @@ onBeforeUnmount(() => {
   opacity: 0.5;
 }
 
-.dx-draggable-dragging > * {
+.dx-draggable-dragging>* {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
 .category-buttons-wrapper {
   display: flex;
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center;
+  /* 수평 중앙 정렬 */
+  align-items: center;
+  /* 수직 중앙 정렬 */
 }
 
 .category-buttons {
-  display: flex; /* 버튼들을 수평으로 배치 */
-  gap: 5px; /* 버튼 간의 간격 */
+  display: flex;
+  /* 버튼들을 수평으로 배치 */
+  gap: 5px;
+  /* 버튼 간의 간격 */
 }
 
 .category-buttons .v-btn {
@@ -809,14 +816,22 @@ onBeforeUnmount(() => {
 }
 
 .enter-button {
-  position: absolute; /* 버튼을 절대 위치로 설정 */
-  top: 1px; /* 상단에서 10px 떨어진 위치 */
-  right: 10px; /* 오른쪽에서 10px 떨어진 위치 */
-  color: white; /* 버튼 텍스트 색상 */
-  padding: 5px 5px; /* 버튼 패딩 */
-  border: none; /* 버튼 테두리 제거 */
-  border-radius: 3px; /* 버튼 모서리 둥글게 */
-  cursor: pointer; /* 커서 포인터 설정 */
+  position: absolute;
+  /* 버튼을 절대 위치로 설정 */
+  top: 1px;
+  /* 상단에서 10px 떨어진 위치 */
+  right: 10px;
+  /* 오른쪽에서 10px 떨어진 위치 */
+  color: white;
+  /* 버튼 텍스트 색상 */
+  padding: 5px 5px;
+  /* 버튼 패딩 */
+  border: none;
+  /* 버튼 테두리 제거 */
+  border-radius: 3px;
+  /* 버튼 모서리 둥글게 */
+  cursor: pointer;
+  /* 커서 포인터 설정 */
 }
 
 .invite-btn,
@@ -832,12 +847,14 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
 }
+
 .invite-btn:hover {
   background: linear-gradient(45deg, #1e88e5, #2979ff);
 }
 
 .delete-btn {
-  background: linear-gradient(45deg, #e57373, #ef5350); /* 기본 빨간색 배경 */
+  background: linear-gradient(45deg, #e57373, #ef5350);
+  /* 기본 빨간색 배경 */
 }
 
 .delete-btn:hover {
