@@ -692,8 +692,15 @@ function displayNotification(message) {
   // 이곳에서 UI에 알림을 표시하는 로직을 추가할 수 있음
 }
 
+function loadStylesheet() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://cdn3.devexpress.com/jslib/24.1.4/css/dx.fluent.saas.light.css";
+  document.head.appendChild(link);
+}
 onMounted(() => {
   connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+  loadStylesheet();
 });
 </script>
 
