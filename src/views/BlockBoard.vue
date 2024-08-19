@@ -1,80 +1,74 @@
 <template>
 
-<div class="container">
-    <div class="projectBoard">
-        <div class="blockHeader">
-            <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
-                <v-btn v-for="item in filteredCategories" :key="item.category" style="font-size: 17px; font-weight: 700"
-                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
-                    #{{ item.label }}
-                </v-btn>
-            </div>
-            <div class="blockTitle" style="font-size: 32px;">
-                {{ localBlock.title }}
-            </div>
-            <span @click="showMapModal = true" style="cursor: pointer;">
-                <v-card-subtitle>
-                    <template v-if="localBlock.placeName">
-                        📍 {{ localBlock.placeName }}
-                    </template>
-                    <template v-else>
-                        🗺️ 지도에서 장소 지정하기
-                    </template>
-                </v-card-subtitle>
-                <CustomModal v-model:modelValue="showMapModal">
-                    <GoogleMap @place-selected="handlePlaceSelected" />
-                </CustomModal>
-            </span>
-            <span 
-            @click.stop="toggleMenu" 
-            ref="moreVertButton"
-            class="material-symbols-outlined" 
-            style="margin-left: 5px; cursor: pointer;">
-            more_vert
-            </span>
+    <div class="container">
+        <div class="projectBoard">
+            <div class="blockHeader">
+                <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
+                    <v-btn v-for="item in filteredCategories" :key="item.category"
+                        style="font-size: 17px; font-weight: 700"
+                        :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
+                        #{{ item.label }}
+                    </v-btn>
+                </div>
+                <div class="blockTitle" style="font-size: 32px;">
+                    {{ localBlock.title }}
+                </div>
+                <span @click="showMapModal = true" style="cursor: pointer;">
+                    <v-card-subtitle>
+                        <template v-if="localBlock.placeName">
+                            📍 {{ localBlock.placeName }}
+                        </template>
+                        <template v-else>
+                            🗺️ 지도에서 장소 지정하기
+                        </template>
+                    </v-card-subtitle>
+                    <CustomModal v-model:modelValue="showMapModal">
+                        <GoogleMap @place-selected="handlePlaceSelected" />
+                    </CustomModal>
+                </span>
+                <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined"
+                    style="margin-left: 5px; cursor: pointer;">
+                    more_vert
+                </span>
 
-            <!-- 모달 -->
-            <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
-            <div class="menu-item" @click="editBlock">
-                <v-icon>mdi-pencil</v-icon> 수정하기
-            </div>
-            <div class="menu-item" @click="deleteBlock">
-                <v-icon>mdi-delete</v-icon> 삭제하기
-            </div>
-            </div>
-        </div>
-        <hr>
-        <div class="slider-container">
-            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                <v-icon>mdi-chevron-left</v-icon>
-            </button>
-            <div class="slider">
-                <div
-                    class="slider-item"
-                    v-for="(photo, index) in blockPhotos"
-                    :key="photo.photoId"
-                    :class="{ active: index === activeIndex }"
-                >
-                    <div class="photo-container">
-                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                <!-- 모달 -->
+                <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+                    <div class="menu-item" @click="editBlock">
+                        <v-icon>mdi-pencil</v-icon> 수정하기
+                    </div>
+                    <div class="menu-item" @click="deleteBlock">
+                        <v-icon>mdi-delete</v-icon> 삭제하기
                     </div>
                 </div>
-                
             </div>
-            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                <v-icon>mdi-chevron-right</v-icon>
-            </button>
-        </div>
-        <hr>
-        <div class="blockContent" style="margin: 0 20px;">
-            {{ localBlock.content }}
-        </div>
-            
-    </div>
+            <hr>
+            <div class="slider-container">
+                <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                    <v-icon>mdi-chevron-left</v-icon>
+                </button>
+                <div class="slider">
+                    <div class="slider-item" v-for="(photo, index) in blockPhotos" :key="photo.photoId"
+                        :class="{ active: index === activeIndex }">
+                        <div class="photo-container">
+                            <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                        </div>
+                    </div>
 
-    <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
-    <div class="projectComment" style="display: inline-block; background-color: #F6F6F6">
-        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+                </div>
+                <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                    <v-icon>mdi-chevron-right</v-icon>
+                </button>
+            </div>
+            <hr>
+            <div class="blockContent" style="margin: 0 20px;">
+                {{ localBlock.content }}
+            </div>
+
+        </div>
+
+        <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
+        <div class="projectComment" style="display: inline-block; background-color: #F6F6F6">
+            <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
             <div class="block-heart" style="margin: 60px 10px 30px;">
                 <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
                 <v-icon @click.stop="toggleLike(localBlock)">
@@ -86,13 +80,16 @@
                         mdi-heart-outline
                     </template>
                 </v-icon>
-                <span class="heart-count" style="font-size: 17px; font-weight: 700;"> 좋아요 {{ localBlock.heartCount }}개</span>
+                <span class="heart-count" style="font-size: 17px; font-weight: 700;">
+                    좋아요 {{ localBlock.heartCount }}개
+                </span>
             </div>
+
             <hr>
-        <CommentSection :blockId="blockId" />
+            <CommentSection :blockId="blockId" />
+        </div>
     </div>
-</div>
-        
+
 
 </template>
 
@@ -179,15 +176,21 @@ export default {
                 const blockId = route.params.blockId;
                 const response = await axios.get(`http://localhost:8088/api/v1/block/${blockId}/detail`);
                 const blockData = response.data.result;
-                console.log(blockData);
+
+                // 서버에서 받은 데이터로 localBlock 업데이트
                 localBlock.value = {
                     ...blockData,
                     category: categoryMap[blockData.category] || blockData.category,
+                    isHearted: blockData.isHearted,
                 };
+
             } catch (error) {
                 console.error('블록 정보를 가져오는 중 오류 발생:', error);
             }
         };
+
+
+
 
         const updateBlock = async () => {
             if (valid.value) {
@@ -231,7 +234,7 @@ export default {
         const handlePlaceSelected = (place) => {
             localBlock.value.placeName = place.name;
         };
-        
+
         // 사진 관련 로직
         const getPhotos = async () => {
             try {
@@ -239,7 +242,7 @@ export default {
                 const response = await axios.get(`http://localhost:8088/api/v1/photo/${blockId}/list`);
                 blockPhotos.value = response.data.result.photoList;
                 console.log(blockPhotos.value);
-            } catch(e){
+            } catch (e) {
                 console.log(e);
             }
         };
@@ -260,7 +263,7 @@ export default {
         };
 
 
-        
+
         onMounted(async () => {
             selectedBlock.value = route.params.blockId;
             await fetchBlock();
@@ -296,11 +299,6 @@ export default {
                 await axios.post(
                     `http://localhost:8088/api/v1/block/${localBlock.blockId}/heart`,
                     {}, // 빈 본문으로 요청
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰을 헤더에 포함
-                        },
-                    }
                 );
             } catch (error) {
                 console.error("좋아요 업데이트 중 오류 발생:", error);
@@ -321,13 +319,13 @@ export default {
         toggleMenu() {
             this.menuOpen = !this.menuOpen;
             if (this.menuOpen) {
-            this.$nextTick(() => {
-                const buttonRect = this.$refs.moreVertButton.getBoundingClientRect();
-                const modalMenu = this.$refs.modalMenu;
+                this.$nextTick(() => {
+                    const buttonRect = this.$refs.moreVertButton.getBoundingClientRect();
+                    const modalMenu = this.$refs.modalMenu;
 
-                modalMenu.style.top = `${buttonRect.bottom + window.scrollY}px`; // 버튼의 아래쪽에 위치 설정
-                modalMenu.style.left = `${buttonRect.right - modalMenu.offsetWidth}px`; // 버튼의 왼쪽 정렬에 맞춤
-            });
+                    modalMenu.style.top = `${buttonRect.bottom + window.scrollY}px`; // 버튼의 아래쪽에 위치 설정
+                    modalMenu.style.left = `${buttonRect.right - modalMenu.offsetWidth}px`; // 버튼의 왼쪽 정렬에 맞춤
+                });
             }
         },
         editBlock() {
@@ -341,23 +339,31 @@ export default {
 <style>
 .blockHeader {
     display: flex;
-    align-items: center; /* 요소들을 수평으로 정렬 */
-    justify-content: space-between; /* 요소들 사이의 간격을 고르게 배치 */
-    padding: 10px 0; /* 패딩 추가 */
+    align-items: center;
+    /* 요소들을 수평으로 정렬 */
+    justify-content: space-between;
+    /* 요소들 사이의 간격을 고르게 배치 */
+    padding: 10px 0;
+    /* 패딩 추가 */
 }
 
 .category-buttons v-btn {
-    margin-right: 10px; /* 버튼 간 간격 추가 */
+    margin-right: 10px;
+    /* 버튼 간 간격 추가 */
 }
+
 .blockHeader span {
-    margin-left: auto; /* 맵 아이콘을 오른쪽으로 밀기 */
+    margin-left: auto;
+    /* 맵 아이콘을 오른쪽으로 밀기 */
 }
+
 .container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    width: 100%; 
+    width: 100%;
 }
+
 /* 수정 & 삭제 모달 */
 .modal-menu {
     position: absolute;
@@ -371,18 +377,22 @@ export default {
     flex-direction: column;
     width: 150px;
 }
+
 .menu-item {
     padding: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
 }
+
 .menu-item:hover {
     background-color: #f0f0f0;
 }
+
 .menu-item v-icon {
     margin-right: 8px;
 }
+
 .projectBoard {
     flex: 1;
     margin: 20px 0;
@@ -398,7 +408,7 @@ export default {
     right: 0;
     background-color: white;
     padding: 80px 50px 0 20px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
 
@@ -426,11 +436,13 @@ export default {
     transition: opacity 0.3s ease-in-out;
     opacity: 1;
 }
+
 .slider-image {
     width: 500px;
     height: 500px;
     object-fit: cover;
 }
+
 .slider-btn {
     position: absolute;
     top: 50%;
@@ -443,19 +455,24 @@ export default {
     cursor: pointer;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 .prev-btn {
     left: 10px;
 }
+
 .next-btn {
     right: 10px;
 }
+
 .slider-btn v-icon {
     font-size: 24px;
     color: black;
 }
+
 .photo-container {
     position: relative;
 }
+
 .comment-text {
     white-space: pre-wrap;
     /* 줄바꿈과 공백을 유지 */
@@ -465,4 +482,3 @@ export default {
     /* 단어가 넘칠 때 줄바꿈 */
 }
 </style>
-
