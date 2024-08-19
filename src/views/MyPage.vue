@@ -315,7 +315,7 @@ export default {
   align-items: center;
   padding: 20px;
   background-color: #E5EEF3;
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
