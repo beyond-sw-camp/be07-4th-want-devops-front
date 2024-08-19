@@ -244,6 +244,9 @@
                 <div class="block-date">
                   {{ formatDate(task.startTime) }} ~ {{ formatDate(task.endTime) }}
                 </div>
+                <div class="place-name">
+                  {{ task.placeName }}
+                </div>
                 <div class="block-heart">
                   <v-icon @click.stop="toggleLike(task)">
                     <template v-if="task.liked"> mdi-heart </template>
@@ -369,6 +372,7 @@ async function fetchTasks() {
       id: block.blockId,
       title: block.title,
       content: block.content,
+      placeName: block.placeName,
       startTime: block.startTime,
       endTime: block.endTime,
       heartCount: block.heartCount,
@@ -767,7 +771,7 @@ onMounted(() => {
 
 .enter-button {
   position: absolute; /* 버튼을 절대 위치로 설정 */
-  top: 1px; /* 상단에서 10px 떨어진 위치 */
+  top: -5px; /* 상단에서 10px 떨어진 위치 */
   right: 10px; /* 오른쪽에서 10px 떨어진 위치 */
   color: white; /* 버튼 텍스트 색상 */
   padding: 5px 5px; /* 버튼 패딩 */
@@ -808,6 +812,16 @@ onMounted(() => {
 .block-date {
   position: absolute;
   bottom: 5px; /* 하단에서 5px 위로 이동 */
+  right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
+  font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
+  color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
+  white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+  font-weight: bold;
+}
+
+.place-name {
+  position: absolute;
+  bottom: 27px; /* 하단에서 5px 위로 이동 */
   right: 10px; /* 우측에서 10px 왼쪽으로 이동 */
   font-size: 12px; /* 날짜 텍스트 크기를 작게 설정 */
   color: black; /* 날짜 텍스트 색상을 회색으로 설정 */
