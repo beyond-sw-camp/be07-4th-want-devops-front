@@ -4,7 +4,7 @@
       <router-link to="/" class="text-primary font-weight-bold logo">WANT</router-link>
     </v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-btn>여행지 추천</v-btn>
+    <v-btn to="/popular/destinations">여행지 추천</v-btn>
 
 
     <!-- 로그인 여부에 따라 다른 버튼을 보여줌 -->

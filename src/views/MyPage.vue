@@ -93,7 +93,7 @@
 
 
 <script>
-import router from "@/router";
+// import router from "@/router";
 import axios from "axios";
 
 export default {
@@ -220,7 +220,7 @@ export default {
       this.currentProject = null;
     },
     goToMyPage(projectId) {
-      router.push({ name: "ProjectDetail", params: { projectId: projectId } });
+      this.$router.push({ path: `/project/${projectId}/detail` });
     },
     async confirmDeletion() {
       try {

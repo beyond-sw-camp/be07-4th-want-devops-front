@@ -17,6 +17,11 @@
               {{ projectDetail.projectStates[0].country }}&gt;
             </h4>
             <h4 class="project-location" v-else>&lt;여행지: 미정&gt;</h4>
+            <button @click="showMapListModal = true">Show Google List Map</button>
+            <CustomModal v-model:modelValue="showMapListModal">
+              <GoogleMapList :projectId="projectId"/>
+            </CustomModal>
+
           </div>
 
           <v-dialog v-model="dialog" max-width="500">
@@ -269,7 +274,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -279,6 +284,8 @@ import DxScheduler, {
 } from "devextreme-vue/scheduler";
 import DxDraggable from "devextreme-vue/draggable";
 import DxScrollView from "devextreme-vue/scroll-view";
+import CustomModal from "@/components/CustomModal.vue";
+import GoogleMapList from "@/components/GoogleMapList.vue";
 import { EventSourcePolyfill } from "event-source-polyfill";
 
 const store = useStore();
@@ -297,6 +304,7 @@ const showInviteModal = ref(false);
 const inviteEmail = ref("");
 const selectedCategory = ref(null);
 const maxHeartCount = ref(0);
+const showMapListModal = ref(false);
 // 카테고리와 관련된 데이터 정의
 const categoryMap = ref({
   SPOT: "명소",
@@ -653,6 +661,8 @@ function formatDate(dateTime) {
 }
 
 // SSE 연결 설정
+let eventSource;
+
 function connectSSE() {
   const eventSource = new EventSourcePolyfill(
     `${process.env.VUE_APP_API_BASE_URL}/api/notifications/${projectId}`,
@@ -667,12 +677,22 @@ function connectSSE() {
     console.log("SSE connection opened");
   };
 
-  eventSource.onmessage = function (event) {
+  eventSource.addEventListener('connected', (event) => {
+    console.log("SSE connected:", event);
+  });
+
+  eventSource.addEventListener('message', (event) => {
     const notificationMessage = event.data;
     displayNotification(notificationMessage);
+    router.go(0);
+  });
 
-    window.location.reload();
-  };
+  // eventSource.onmessage = function (event) {
+  //   const notificationMessage = event.data;
+  //   displayNotification(notificationMessage);
+  //
+  //   window.location.reload();
+  // };
 
   eventSource.onerror = function (error) {
     eventSource.close();
@@ -686,9 +706,23 @@ function displayNotification(message) {
   console.log("New notification received:", message);
   // 이곳에서 UI에 알림을 표시하는 로직을 추가할 수 있음
 }
+function handleBeforeUnload() {
+  if (eventSource) {
+    eventSource.close(); // 페이지가 언로드되기 전에 SSE 연결을 종료
+    console.log("SSE connection closed due to page unload");
+  }
+}
 
 onMounted(() => {
   connectSSE(); // 컴포넌트가 마운트될 때 SSE 연결 설정
+});
+onBeforeUnmount(() => {
+  if (eventSource) {
+    eventSource.close(); // 컴포넌트 언마운트 시에도 SSE 연결 종료
+    console.log("SSE connection closed due to component unmount");
+  }
+
+  window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 </script>
 

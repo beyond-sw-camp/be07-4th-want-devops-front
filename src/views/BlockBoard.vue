@@ -1,112 +1,99 @@
 <template>
-    <v-app>
-        <v-container>
-            <div class="slider-container">
-                <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
-                    <v-icon>mdi-chevron-left</v-icon>
-                </button>
-                <div class="slider">
-                    <div
-                        class="slider-item"
-                        v-for="(photo, index) in blockPhotos"
-                        :key="photo.photoId"
-                        :class="{ active: index === activeIndex }"
-                    >
-                        <div class="photo-container">
-                            <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
-                            <span class="material-symbols-outlined delete-btn" @click="deletePhoto(photo.photoId)">
-                                delete
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="blockPhotos.length <= 10" class="slider-item add-photo-item" @click="triggerFileUpload">
-                        <v-icon large>mdi-plus</v-icon>
-                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                    </div>
-                    <div v-if="blockPhotos.length === 0" class="slider-item add-photo-item camera-item" @click="triggerFileUpload">
-                        <v-icon large>mdi-camera</v-icon>
-                        <p>사진을 추가하세요</p>
-                        <input type="file" ref="photoInput" style="display: none;" @change="uploadPhoto" />
-                    </div>
-                </div>
-                <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
-                    <v-icon>mdi-chevron-right</v-icon>
-                </button>
+
+<div class="container">
+    <div class="projectBoard">
+        <div class="blockHeader">
+            <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
+                <v-btn v-for="item in filteredCategories" :key="item.category" style="font-size: 17px; font-weight: 700"
+                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff', marginRight: '10px' }">
+                    #{{ item.label }}
+                </v-btn>
             </div>
-            <v-card>
-                <v-row>
-                    <!-- 왼쪽: 제목, 장소명, 이미지, 내용 -->
-                    <v-col cols="8">
-                        <v-form ref="form" v-model="valid" @submit.prevent="updateBlock">
-                            <v-card-title>
-                                <v-text-field v-model="localBlock.title" label="제목" required />
-                            </v-card-title>
-                            <span @click="showMapModal = true" style="color: blue; cursor: pointer;">
-                                <v-card-subtitle>
-                                    <template v-if="localBlock.placeName">
-                                        {{ localBlock.placeName }}
-                                    </template>
-                                    <template v-else>
-                                        📍 지도에서 장소 지정하기
-                                    </template>
-                                </v-card-subtitle>
-                                <CustomModal v-model:modelValue="showMapModal">
-                                    <GoogleMap @place-selected="handlePlaceSelected" />
-                                </CustomModal>
-                            </span>
-                            <!-- 블럭내 이미지 -->
-                    
-                            <v-textarea v-model="localBlock.content" label="내용" style="margin-left: 15px;" />
-                        </v-form>
-                    </v-col>
+            <div class="blockTitle" style="font-size: 32px;">
+                {{ localBlock.title }}
+            </div>
+            <span @click="showMapModal = true" style="cursor: pointer;">
+                <v-card-subtitle>
+                    <template v-if="localBlock.placeName">
+                        📍 {{ localBlock.placeName }}
+                    </template>
+                    <template v-else>
+                        🗺️ 지도에서 장소 지정하기
+                    </template>
+                </v-card-subtitle>
+                <CustomModal v-model:modelValue="showMapModal">
+                    <GoogleMap @place-selected="handlePlaceSelected" />
+                </CustomModal>
+            </span>
+            <span 
+            @click.stop="toggleMenu" 
+            ref="moreVertButton"
+            class="material-symbols-outlined" 
+            style="margin-left: 5px; cursor: pointer;">
+            more_vert
+            </span>
 
-                    <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
-                    <v-col cols="4">
-                        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
-                        <div class="category-buttons-wrapper">
-                            <div class="category-buttons">
-                                <v-btn v-for="item in filteredCategories" :key="item.category"
-                                    :style="{ backgroundColor: `rgb(${item.color.join(',')})`, color: '#fff' }">
-                                    #{{ item.label }}
-                                </v-btn>
-                            </div>
-                        </div>
-                        <v-list-item :style="getStyle()">
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    {{ localBlock.title }}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <div class="block-heart">
-                                <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
-                                <v-icon @click.stop="toggleLike(localBlock)">
-                                    <!-- 좋아요 상태에 따라 아이콘 변경 -->
-                                    <template v-if="localBlock.isHearted">
-                                        mdi-heart
-                                    </template>
-                                    <template v-else>
-                                        mdi-heart-outline
-                                    </template>
-                                </v-icon>
-                                <span class="heart-count" style="font-size: small;"> 좋아요 {{ localBlock.heartCount }}
-                                    개</span>
-                            </div>
-                        </v-list-item>
-                        <CommentSection :blockId="blockId" />
-                    </v-col>
-                </v-row>
-                <div style="float: right; width:fit-content; margin-top: 16px;">
-                    <v-btn type="submit" color="primary">저장</v-btn>
-                    <v-btn @click="cancel" color="secondary">취소</v-btn>
-                    <v-btn @click="deleteBlock" color="red" class="ml-2">삭제</v-btn>
+            <!-- 모달 -->
+            <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+            <div class="menu-item" @click="editBlock">
+                <v-icon>mdi-pencil</v-icon> 수정하기
+            </div>
+            <div class="menu-item" @click="deleteBlock">
+                <v-icon>mdi-delete</v-icon> 삭제하기
+            </div>
+            </div>
+        </div>
+        <hr>
+        <div class="slider-container">
+            <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
+                <v-icon>mdi-chevron-left</v-icon>
+            </button>
+            <div class="slider">
+                <div
+                    class="slider-item"
+                    v-for="(photo, index) in blockPhotos"
+                    :key="photo.photoId"
+                    :class="{ active: index === activeIndex }"
+                >
+                    <div class="photo-container">
+                        <v-img :src="photo.url" alt="블록 이미지" class="slider-image"></v-img>
+                    </div>
                 </div>
-            </v-card>
+                
+            </div>
+            <button v-if="blockPhotos.length >= 1" class="slider-btn next-btn" @click="nextSlide">
+                <v-icon>mdi-chevron-right</v-icon>
+            </button>
+        </div>
+        <hr>
+        <div class="blockContent" style="margin: 0 20px;">
+            {{ localBlock.content }}
+        </div>
+            
+    </div>
 
+    <!-- 오른쪽: 카테고리명, 선택한 블록, 좋아요, 댓글 -->
+    <div class="projectComment" style="display: inline-block; background-color: #F6F6F6">
+        <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
+            <div class="block-heart" style="margin: 60px 10px 30px;">
+                <!-- 좋아요 눌린 블럭은 하트 아이콘으로 표시 -->
+                <v-icon @click.stop="toggleLike(localBlock)">
+                    <!-- 좋아요 상태에 따라 아이콘 변경 -->
+                    <template v-if="localBlock.isHearted">
+                        mdi-heart
+                    </template>
+                    <template v-else>
+                        mdi-heart-outline
+                    </template>
+                </v-icon>
+                <span class="heart-count" style="font-size: 17px; font-weight: 700;"> 좋아요 {{ localBlock.heartCount }}개</span>
+            </div>
+            <hr>
+        <CommentSection :blockId="blockId" />
+    </div>
+</div>
+        
 
-        </v-container>
-    </v-app>
 </template>
 
 
@@ -133,6 +120,7 @@ export default {
                 RESTAURANT: [173, 216, 230],
                 ETC: [192, 192, 192],
             },
+            menuOpen: false,
         }
     },
     computed: {
@@ -167,7 +155,6 @@ export default {
         });
         const blockPhotos = ref([]);
         const activeIndex = ref(0);
-        const oldFiles = ref([]);
 
         const valid = ref(true);
         const startDateMenu = ref(false);
@@ -237,6 +224,7 @@ export default {
                     console.error('블록 삭제 중 오류 발생:', error);
                     alert('블록 삭제 중 오류가 발생했습니다.');
                 }
+                this.menuOpen = false;
             }
         }
 
@@ -256,7 +244,7 @@ export default {
             }
         };
         const nextSlide = () => {
-            activeIndex.value = (activeIndex.value + 1) % (blockPhotos.value.length + 1);
+            activeIndex.value = (activeIndex.value + 1) % blockPhotos.value.length;
             updateSliderPosition();
         };
 
@@ -270,62 +258,9 @@ export default {
             const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
-        const deletePhoto = async (photoId, photoUrl) => {
-            // URL을 oldFiles에 추가
-            oldFiles.value.push(photoUrl);
 
-            // 업데이트 요청
-            try {
-                const formData = new FormData();
-                formData.append('blockId', selectedBlock.value);
-                formData.append('oldFiles', JSON.stringify(oldFiles.value));
-                formData.append('newFiles', JSON.stringify([])); // 새로운 파일 없음
 
-                await axios.put('http://localhost:8088/api/v1/photo/update', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                // 삭제된 사진을 블록 사진 목록에서 제거
-                blockPhotos.value = blockPhotos.value.filter(photo => photo.photoId !== photoId);
-                alert('사진이 성공적으로 삭제되었습니다.');
-            } catch (error) {
-                console.error('사진 삭제 중 오류 발생:', error);
-                alert('사진 삭제 중 오류가 발생했습니다.');
-            }
-        };
-        const triggerFileUpload = () => {
-            document.querySelector("input[type='file']").click();
-        };
-        const uploadPhoto = async (event) => {
-            const files = event.target.files;
-            if (files.length > 0) {
-                const formData = new FormData();
-                formData.append('blockId', selectedBlock.value); // 블록 ID를 추가합니다.
-
-                for (const file of files) {
-                    formData.append('files', file);
-                }
-                try {
-                    const response = await axios.post(
-                        'http://localhost:8088/api/v1/photo/upload', // 업로드 API 엔드포인트
-                        formData,
-                        {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                            },
-                        }
-                    );
-                    const photoList = response.data.result.photoList;
-                    blockPhotos.value.push(...photoList.map(photo => ({ ...photo, url: photo.url })));
-                    alert('사진이 성공적으로 업로드되었습니다.');
-                } catch (error) {
-                    console.error('사진 업로드 중 오류 발생:', error);
-                    alert('사진 업로드 중 오류가 발생했습니다.');
-                }
-            }
-        };
+        
         onMounted(async () => {
             selectedBlock.value = route.params.blockId;
             await fetchBlock();
@@ -343,14 +278,12 @@ export default {
             updateBlock,
             cancel,
             deleteBlock,
-            deletePhoto,
             handlePlaceSelected,
             blockPhotos,
             nextSlide,
             prevSlide,
-            triggerFileUpload,
-            uploadPhoto,
-            oldFiles,
+
+
         };
     },
     methods: {
@@ -385,11 +318,91 @@ export default {
                 color: "#000",
             };
         },
+        toggleMenu() {
+            this.menuOpen = !this.menuOpen;
+            if (this.menuOpen) {
+            this.$nextTick(() => {
+                const buttonRect = this.$refs.moreVertButton.getBoundingClientRect();
+                const modalMenu = this.$refs.modalMenu;
+
+                modalMenu.style.top = `${buttonRect.bottom + window.scrollY}px`; // 버튼의 아래쪽에 위치 설정
+                modalMenu.style.left = `${buttonRect.right - modalMenu.offsetWidth}px`; // 버튼의 왼쪽 정렬에 맞춤
+            });
+            }
+        },
+        editBlock() {
+            const blockId = this.blockId; // 현재 블록 ID 가져오기
+            this.$router.push(`/block/${blockId}/detail`); // 해당 블록의 detail 페이지로 이동
+        },
     }
 };
 </script>
 
 <style>
+.blockHeader {
+    display: flex;
+    align-items: center; /* 요소들을 수평으로 정렬 */
+    justify-content: space-between; /* 요소들 사이의 간격을 고르게 배치 */
+    padding: 10px 0; /* 패딩 추가 */
+}
+
+.category-buttons v-btn {
+    margin-right: 10px; /* 버튼 간 간격 추가 */
+}
+.blockHeader span {
+    margin-left: auto; /* 맵 아이콘을 오른쪽으로 밀기 */
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%; 
+}
+/* 수정 & 삭제 모달 */
+.modal-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+}
+.menu-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+.menu-item v-icon {
+    margin-right: 8px;
+}
+.projectBoard {
+    flex: 1;
+    margin: 20px 0;
+    padding: 20px;
+    width: 60vw;
+}
+
+.projectComment {
+    width: 450px;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: white;
+    padding: 80px 50px 0 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px;
+}
+
+/* 사진 슬라이더 부분 */
 .slider-container {
     display: flex;
     align-items: center;
@@ -411,16 +424,13 @@ export default {
     min-width: 500px;
     height: 500px;
     transition: opacity 0.3s ease-in-out;
-    opacity: 1; /* 기본적으로 모든 이미지 뚜렷하게 */
+    opacity: 1;
 }
-
-
 .slider-image {
     width: 500px;
     height: 500px;
     object-fit: cover;
 }
-
 .slider-btn {
     position: absolute;
     top: 50%;
@@ -433,53 +443,19 @@ export default {
     cursor: pointer;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
-
 .prev-btn {
     left: 10px;
 }
-
 .next-btn {
     right: 10px;
 }
-
 .slider-btn v-icon {
     font-size: 24px;
     color: black;
 }
-
 .photo-container {
     position: relative;
 }
-
-.add-photo-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
-    cursor: pointer;
-}
-
-.delete-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    color: white;
-    border-radius: 50%;
-    padding: 5px;
-    cursor: pointer;
-    z-index: 3;
-    display: none;
-}
-
-.photo-container:hover .delete-btn {
-    display: block; /* 사진에 커서가 올라가면 삭제 버튼 표시 */
-}
-.camera-item p {
-    margin-left: 8px;
-}
-
 .comment-text {
     white-space: pre-wrap;
     /* 줄바꿈과 공백을 유지 */
