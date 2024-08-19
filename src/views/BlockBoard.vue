@@ -175,7 +175,7 @@ export default {
         };
 
         const goback = () => {
-            router.go(-1);
+            router.push(`/project/${localBlock.value.projectId}/detail`);
         }
 
         const fetchBlock = async () => {
