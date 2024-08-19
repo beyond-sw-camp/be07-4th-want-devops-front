@@ -33,20 +33,23 @@
         :key="invitation.projectId"
         @click="openModal(invitation)"
       >
-        <span style="font-weight: 700">[{{ invitation.projectTitle }}]</span>
-        에 초대되었습니다
+        <span style="font-weight: 700">📩 [{{ invitation.projectTitle }}] </span>
+        의 초대 요청
       </div>
     </div>
   </div>
 
   <div class="modal-wrap" v-show="modalCheck">
-    <div class="modal-container">
+    <div class="modal-container" style="width: 600px">
       <!-- 닫는 버튼 -->
-      <button class="close-btn" @click="modalOpen">×</button>
+
+      <span class="material-symbols-outlined close-btn" @click="modalOpen">
+        close
+      </span>
 
       <div v-if="selectedInvitation">
         <h2>
-          <strong>[{{ selectedInvitation.projectTitle }}]</strong>에 초대되었습니다
+          <strong>[ {{ selectedInvitation.projectTitle }} ]</strong>에 초대되었습니다.
         </h2>
         <p>
           <strong>여행지:</strong> {{ selectedInvitation.projectStates[0].country }}
@@ -59,8 +62,8 @@
         <p><strong>초대 보낸 사람:</strong> {{ selectedInvitation.inviterName }}</p>
       </div>
       <div class="modal-btn">
-        <v-btn @click="handleInvitation('accept')">수락</v-btn>
-        <v-btn @click="handleInvitation('reject')">거절</v-btn>
+        <v-btn @click="handleInvitation('reject')" color="#999">거절</v-btn>
+        <v-btn @click="handleInvitation('accept')" color="primary">수락</v-btn>
       </div>
     </div>
   </div>
@@ -232,7 +235,7 @@ export default {
 .modal-container {
   background: #ffffff;
   border-radius: 12px;
-  padding: 30px;
+  padding: 50px 60px;
   box-sizing: border-box;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease-in-out;
@@ -244,8 +247,8 @@ export default {
 
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 30px;
+  right: 30px;
   background: none;
   border: none;
   font-size: 24px;
@@ -269,13 +272,13 @@ export default {
   font-size: 16px;
   line-height: 1.5;
   color: #555;
-  margin-bottom: 20px;
+  margin: 0 10px 10px;
 }
 
 .modal-container .modal-btn {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
 .modal-container .modal-btn v-btn {
