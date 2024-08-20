@@ -23,7 +23,7 @@
         ></v-badge>
       </v-btn>
       <v-btn @click="doLogout">로그아웃</v-btn>
-      <v-avatar class="ml-2">
+      <v-avatar class="ml-2" style="margin-right: 20px">
         <v-img :src="profileUrl"></v-img>
       </v-avatar>
     </template>
@@ -50,30 +50,33 @@ export default {
       this.profileUrl = localStorage.getItem('profileUrl');
     }
 
-    const connectSSE = () => {
-      let sse = new EventSourcePolyfill(`${process.env.VUE_APP_API_BASE_URL}/api/subscribe`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+    if (this.userRole === 'ADMIN') {
+      const connectSSE = () => {
+        let sse = new EventSourcePolyfill(`${process.env.VUE_APP_API_BASE_URL}/api/subscribe`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-      sse.addEventListener('subscribed', (event) => {
-        console.log(event);
-      });
+        sse.addEventListener('subscribed', (event) => {
+          console.log(event);
+        });
 
-      sse.addEventListener('invite', (event) => {
-        this.hasInvite = true; // Set hasInvite to true when an invite is received
-        console.log(event.data);
-      });
+        sse.addEventListener('invite', (event) => {
+          this.hasInvite = true; // Set hasInvite to true when an invite is received
+          console.log(event.data);
+        });
 
-      sse.onerror = (error) => {
-        console.log('SSE connection error:', error);
-        sse.close(); // Close the connection
+        sse.onerror = (error) => {
+          console.log('SSE connection error:', error);
+          sse.close(); // Close the connection
+        };
       };
-    };
 
-    connectSSE(); // Initial connection
+      connectSSE(); // Initial connection
+    }
   },
+
 
   methods: {
     redirectToGoogle() {
