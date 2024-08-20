@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="header">
-            <h1>인기 여행지</h1>
+            <h1><strong><span style="color:dodgerblue;">🛫 WANT</span> 에서 인기 있는 여행지를 확인해보세요 ! </strong></h1>
         </div>
 
         <div class="destination-list">
@@ -13,7 +13,7 @@
                         </div>
                         <v-card-title>{{ destination.city }}</v-card-title>
                         <v-card-subtitle>{{ destination.country }}</v-card-subtitle>
-                        <v-card-subtitle v-if="destination.projectCount !== undefined">
+                        <v-card-subtitle v-if="destination.projectCount !== undefined" style="margin-bottom:10px">
                             프로젝트 수: {{ destination.projectCount }}
                         </v-card-subtitle>
                     </v-card>
