@@ -267,6 +267,7 @@ export default {
   text-align: center;
   background-color: #fff;
   border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 .question a {
   font-size: 13px;
