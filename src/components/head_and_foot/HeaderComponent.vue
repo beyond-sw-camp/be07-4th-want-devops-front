@@ -1,7 +1,9 @@
 <template>
   <v-app-bar app color="white" elevate-on-scroll>
     <v-toolbar-title>
-      <router-link to="/" class="text-primary font-weight-bold logo">WANT</router-link>
+      <router-link to="/">
+        <img src="@/assets/img/want_png.png" alt="WANT Logo" class="logo" />
+      </router-link>
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn to="/popular/destinations">여행지 추천</v-btn>
@@ -14,13 +16,7 @@
     <template v-if="isLogin">
       <v-btn @click="handleMyPageClick">
         나의 일정
-        <v-badge
-            v-if="hasInvite"
-            color="red"
-            dot
-            offset-x="-15"
-            offset-y="-13"
-        ></v-badge>
+        <v-badge v-if="hasInvite" color="red" dot offset-x="-15" offset-y="-13"></v-badge>
       </v-btn>
       <v-btn @click="doLogout">로그아웃</v-btn>
       <v-avatar class="ml-2" style="margin-right: 20px">
@@ -31,7 +27,7 @@
 </template>
 
 <script>
-import {EventSourcePolyfill} from "event-source-polyfill";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 export default {
   name: 'HeaderComponent',
@@ -103,6 +99,9 @@ export default {
 </script>
 <style>
 .logo {
-  text-decoration-line: none;
+  height: 40px;
+  /* 원하는 높이로 조절 */
+  width: auto;
+  /* 비율을 유지하기 위해 자동 너비 조정 */
 }
 </style>
