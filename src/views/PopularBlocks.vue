@@ -24,7 +24,7 @@
                             <v-list-item-group v-if="!loading && blocks.length">
                                 <v-list-item v-for="block in sortedBlocks" :key="block.blockId" class="list-item">
                                     <v-list-item-content class="item-content" style="padding: 0 20px;">
-                                        <div class="block-heart">
+                                        <div class="block-heart-section">
                                             <div class="heart-imozi" style="font-size:30px">
                                                 🩵
                                             </div>
@@ -301,7 +301,7 @@ export default {
 }
 
 /* 블록 하트 스타일 */
-.block-heart {
+.block-heart-section {
     display: flex;
     flex-direction: column;
     align-items: center;
