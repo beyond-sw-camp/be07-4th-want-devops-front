@@ -22,6 +22,20 @@
 </table>
 <br>
 
+## 🛫 WANT 프로젝트 소개
+<br><br><br>
+
+## 📚 기술 스택
+<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
+<img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+<img src="[https://img.shields.io/badge/vuedotjs-007396?style=for-the-badge&logo=java&logoColor=whit](https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white)e">
+<img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"> 
+<img src="https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=Amazon%20S3&logoColor=white">
+<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
+<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
+<img src="[https://img.shields.io/badge/](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white)googlemaps[-4285F4?style=for-the-badge&logo=CSS3&logoColor=white](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white)">
+<br>
+
 ## WBS
 <img width="942" alt="WANT_WBS" src="https://github.com/user-attachments/assets/a42f9f90-8f75-4c70-80ec-6612182c1248">
 <br>
@@ -35,3 +49,6 @@
 <img width="670" alt="스크린샷 2024-08-21 오전 12 10 49" src="https://github.com/user-attachments/assets/bb1bd6d5-d41f-4752-9d41-14e8b6b5f1eb">
 </div>
 
+## Test Result
+### 프로젝트 생성
+움짤 넣기
