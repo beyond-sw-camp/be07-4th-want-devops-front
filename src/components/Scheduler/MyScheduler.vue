@@ -546,6 +546,8 @@ const sortedFilteredDataSource = computed(() => {
   return filteredTasks.sort((a, b) => b.heartCount - a.heartCount);
 });
 
+let originalTasks = [...tasks.value];
+
 async function filterByCategory(category) {
   // 선택한 카테고리 업데이트
   if (selectedCategory.value === category) {
@@ -556,10 +558,11 @@ async function filterByCategory(category) {
 
   // 클라이언트 측에서 필터링
   if (selectedCategory.value) {
-    tasks.value = tasks.value.filter((task) => task.category === selectedCategory.value);
+    tasks.value = originalTasks.filter((task) => task.category === selectedCategory.value);
   } else {
     // 선택된 카테고리가 없으면 모든 태스크 표시
     await fetchTasks(); // 전체 데이터 다시 가져오기
+    originalTasks = [...tasks.value];
   }
 }
 
