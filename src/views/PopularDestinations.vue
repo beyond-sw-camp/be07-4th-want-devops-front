@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="header">
+        <div class="header" style="margin:60px 0 50px">
             <h1><strong><span style="color:dodgerblue;">🛫 WANT</span> 에서 인기 있는 여행지를 확인해보세요 ! </strong></h1>
         </div>
 
