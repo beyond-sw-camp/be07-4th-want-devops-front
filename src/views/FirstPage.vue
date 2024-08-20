@@ -6,7 +6,7 @@
           기존에 경험하지 못한<br /> 새로운 여행 플래너
         </h1>
         <p class="fade-in">
-          고민만 하던 여행 계획을<br /> <img src="@/assets/img/want_png.png" alt="WANT Logo" class="logo" /> 를 통해 한 번에 스케줄링 해보세요 !
+          고민만 하던 여행 계획을<br />WANT 를 통해 한 번에 스케줄링 해보세요 !
         </p>
         <v-btn v-if="isLogin" class="black-btn fade-in" @click="startMyRoad" to="/project/create">시작하기</v-btn>
         <v-btn v-if="!isLogin" class="black-btn fade-in" @click="redirectToGoogle">시작하기</v-btn>
@@ -98,10 +98,5 @@ export default {
 .black-btn:hover {
   background-color: #333 !important;
   /* 호버 시 배경색 변경 */
-}
-
-.logo {
-  height: 30px; /* 원하는 높이로 조절 */
-  width: auto;  /* 비율을 유지하기 위해 자동 너비 조정 */
 }
 </style>
