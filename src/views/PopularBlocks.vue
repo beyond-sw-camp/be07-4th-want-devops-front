@@ -32,6 +32,14 @@
                                         <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
                                     </v-list-item-content>
+
+                                  <v-list-item-action class="map-item-action">
+                                    <v-btn @click="openMapModal(block)" icon>
+                                      <v-icon>mdi-map-marker</v-icon>
+                                    </v-btn>
+                                  </v-list-item-action>
+
+
                                     <v-list-item-action class="block-item-action">
                                         <v-btn @click="showProjectSelection(block)" icon>
                                             <v-icon>mdi-export-variant</v-icon>
@@ -73,6 +81,14 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+      <!-- 맵 모달 -->
+      <CustomModal v-model:modelValue="isMapModalVisible">
+        <ShowMap
+            :latitude="selectedBlock.latitude"
+            :longitude="selectedBlock.longitude"
+            :placeName="selectedBlock.placeName"
+        />
+      </CustomModal>
     </div>
 </template>
 
@@ -86,13 +102,20 @@ import gyeongjuImage from '@/assets/img/gyeongju.jpg';
 import jejuImage from '@/assets/img/jeju.jpg';
 import fukuokaImage from '@/assets/img/fukuoka.jpg';
 import osakaImage from '@/assets/img/osaka.jpg';
+import CustomModal from "@/components/CustomModal.vue";
+import ShowMap from "@/components/ShowMap.vue";
 
 export default {
+  components: {
+    CustomModal,
+    ShowMap
+  },
     data() {
         return {
             blocks: [],
             loading: true,
             error: null,
+          isMapModalVisible: false, // 변경된 모달 상태 변수
             showProjectDialog: false,
             selectedProject: null,
             projects: [],
@@ -138,6 +161,10 @@ export default {
                 console.error('프로젝트를 가져오는 중 오류 발생:', e);
             }
         },
+      openMapModal(block) {
+        this.selectedBlock = block;
+        this.isMapModalVisible = true;
+      },
         showProjectSelection(block) {
             this.selectedBlock = block;
             this.showProjectDialog = true;
@@ -174,7 +201,7 @@ export default {
                 11: 'busan',
                 12: 'paris',
         // 필요한 도시 ID-이름 매핑 추가
-    };
+        };
             const cityImages = {
                 seoul: seoulImage,
                 paris: parisImage,
@@ -189,8 +216,10 @@ export default {
             };
             const cityName = cityIdToNameMap[cityId];
             return cityImages[cityName] || require('@/assets/img/airplane.jpg');
-        }
-    }
+        },
+
+    },
+
 };
 </script>
 
@@ -226,5 +255,10 @@ export default {
     position: absolute;
     top: 10px;
     right: 10px;
+}
+.map-item-action {
+  position: absolute;
+  top: 10px;
+  right: 70px;
 }
 </style>
