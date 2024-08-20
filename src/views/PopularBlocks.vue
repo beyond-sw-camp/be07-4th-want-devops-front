@@ -60,12 +60,19 @@
                 <v-card-title>프로젝트 선택</v-card-title>
                 <v-card-subtitle>블록을 등록할 프로젝트를 선택하세요.</v-card-subtitle>
                 <v-card-text>
-                    <select v-model="selectedProject" required>
-                        <option value="" disabled>프로젝트 선택</option>
-                        <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
-                            {{ project.projectTitle }}
-                        </option>
-                    </select>
+                    <div style="display: flex; align-items: center;">
+                        <select ref="projectSelect" v-model="selectedProject" required style="flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px;">
+                            <option value="" disabled>프로젝트 선택</option>
+                            <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
+                                {{ project.projectTitle }}
+                            </option>
+                        </select>
+                        <v-icon 
+                            style="margin-left: 8px; cursor: pointer;"
+                            @click="openSelect">
+                            mdi-arrow-down-drop-circle-outline
+                        </v-icon>
+                    </div>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn @click="handleBlockImport">가져가기</v-btn>
@@ -173,8 +180,8 @@ export default {
                 10: 'gyeongju',
                 11: 'busan',
                 12: 'paris',
-        // 필요한 도시 ID-이름 매핑 추가
-    };
+                // 필요한 도시 ID-이름 매핑 추가
+            };
             const cityImages = {
                 seoul: seoulImage,
                 paris: parisImage,
@@ -184,15 +191,21 @@ export default {
                 jeju: jejuImage,
                 osaka: osakaImage,
                 gyeongju: gyeongjuImage,
-
                 // 필요한 도시 이미지 추가
             };
             const cityName = cityIdToNameMap[cityId];
             return cityImages[cityName] || require('@/assets/img/airplane.jpg');
+        },
+        openSelect() {
+            const selectElement = this.$refs.projectSelect;
+            if (selectElement) {
+                selectElement.focus();  // Open the dropdown
+            }
         }
     }
 };
 </script>
+
 
 <style>
 .header {
