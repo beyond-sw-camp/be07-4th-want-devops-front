@@ -99,7 +99,7 @@ export default {
 </script>
 <style>
 .logo {
-  height: 40px;
+  height: 50px;
   /* 원하는 높이로 조절 */
   width: auto;
   /* 비율을 유지하기 위해 자동 너비 조정 */
