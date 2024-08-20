@@ -165,14 +165,14 @@ export default {
         },
         getCityImageUrl(cityId) {
             const cityIdToNameMap = {
-                1: 'seoul',
-                2: 'osaka',
-                3: 'newyork',
-                4: 'fukuoka',
-                5: 'jeju',
-                6: 'gyeongju',
-                7: 'busan',
-                8: 'paris',
+                5: 'seoul',
+                6: 'osaka',
+                7: 'newyork',
+                8: 'fukuoka',
+                9: 'jeju',
+                10: 'gyeongju',
+                11: 'busan',
+                12: 'paris',
         // 필요한 도시 ID-이름 매핑 추가
     };
             const cityImages = {
