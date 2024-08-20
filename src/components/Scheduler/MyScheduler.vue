@@ -10,11 +10,12 @@
 
 
             <div class="projectLocation" style="display: flex;">
-              <div class="map-btn" elevation="0" variant="text" @click="showMapListModal = true" style="padding: 0; cursor: pointer">
+              <div class="map-btn" elevation="0" variant="text" @click="showMapListModal = true"
+                style="padding: 0; cursor: pointer">
                 <img src="@/assets/img/googleMap.png" alt="Google Map" style="height: 25px; margin:  0 5px 0 15px">
               </div>
               <CustomModal v-model:modelValue="showMapListModal">
-                <GoogleMapList :projectId="projectId"/>
+                <GoogleMapList :projectId="projectId" />
               </CustomModal>
               <div class="project-location" v-if="projectDetail.projectStates.length">
                 {{ projectDetail.projectStates[0].city }},
@@ -28,17 +29,13 @@
             <v-avatar v-for="member in projectDetail.projectMembers" :key="member.userId" class="ma-2" size="large">
               <img :src="member.userProfile" alt="User profile" />
             </v-avatar>
-            <span 
-              @click.stop="toggleMenu" 
-              ref="moreVertButton" 
-              class="material-symbols-outlined" 
-              style="margin: auto; cursor: pointer;"
-            >
+            <span @click.stop="toggleMenu" ref="moreVertButton" class="material-symbols-outlined"
+              style="margin: auto; cursor: pointer;">
               more_vert
             </span>
-             <!-- More 메뉴 모달 -->
+            <!-- More 메뉴 모달 -->
             <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
-              <div class="menu-item" @click="showInviteModal=true">
+              <div class="menu-item" @click="showInviteModal = true">
                 <v-icon>mdi-account-plus</v-icon> 초대하기
               </div>
               <div class="menu-item" @click="openModal">
@@ -62,7 +59,7 @@
               <v-row align="center">
                 <v-col cols="10"> 팀 초대 </v-col>
                 <v-col cols="2" class="text-right">
-                    <v-icon @click="closeInviteModal">mdi-close</v-icon>
+                  <v-icon @click="closeInviteModal">mdi-close</v-icon>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -92,7 +89,7 @@
               <v-row align="center">
                 <v-col cols="10"> 팀 탈퇴 </v-col>
                 <v-col cols="2" class="text-right">
-                    <v-icon @click="closeDialog">mdi-close</v-icon>
+                  <v-icon @click="closeDialog">mdi-close</v-icon>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -187,22 +184,22 @@
       </div>
     </div>
     <hr>
-    
+
     <!-- Block 생성 버튼 -->
     <v-btn @click="createBlock" color="#666" class="create-button">블럭 생성</v-btn>
 
     <div class="block-list" style="height: 80%">
       <DxScrollView id="scroll">
-        <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 80px;">
+        <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 90px;">
           <template v-if="tasks.length === 0">
-        <div class="empty-list">
-          Drop here to add to the list
-        </div>
-      </template>
+            <div class="empty-list" style="width: 320px; height: 80px">
+              📍 일정에서 제외하기
+            </div>
+          </template>
           <DxDraggable v-for="task in sortedFilteredDataSource" :style="getStyle(task.category, task.heartCount)"
             :key="task.blockId" :clone="true" :group="draggingGroupName" :data="task" :on-drag-start="onItemDragStart"
             :on-drag-end="onItemDragEnd" class="item">
-            
+
             <div class="block-content">
               <div class="block-heart">
                 <v-icon @click.stop="toggleLike(task)">
@@ -211,7 +208,7 @@
                 </v-icon>
                 <span class="heart-count">{{ task.heartCount }}&nbsp;&nbsp;</span>
               </div>
-  
+
 
               <div class="block-info">
                 <div class="block-title">
@@ -222,12 +219,12 @@
                   {{ task.placeName }}
                 </div>
               </div>
-  
+
               <span class="material-symbols-outlined edit-block" @click="() => goToBlockBoard(task.id)">
                 edit_square
               </span>
             </div>
-            
+
 
 
           </DxDraggable>
@@ -724,47 +721,58 @@ const toggleMenu = () => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 58vw;
 }
+
 .left-section {
   display: flex;
   align-items: center;
   /* 왼쪽 요소들이 서로 붙어서 정렬되도록 설정 */
 }
+
 .right-section {
   position: relative;
   align-items: center;
 }
+
 .project-title {
   font-size: 40px;
   margin: 0;
 }
+
 .project-location {
   display: flex;
-  align-items: center; 
+  align-items: center;
 }
+
 .scheduler-row {
   margin-top: 30px;
 }
+
 .avatar-container {
   display: flex;
   align-items: center;
 }
+
 .more-vert {
   cursor: pointer;
 }
 
 .modal-menu {
   position: absolute;
-  top: 100%; /* 부모 요소의 아래쪽에 위치 */
-  left: 0;  /* 부모 요소와 왼쪽 정렬 */
+  top: 100%;
+  /* 부모 요소의 아래쪽에 위치 */
+  left: 0;
+  /* 부모 요소와 왼쪽 정렬 */
   background-color: white;
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
+
 .modal-menu .menu-item {
   padding: 10px 20px;
   cursor: pointer;
 }
+
 .modal-menu .menu-item:hover {
   background-color: #f5f5f5;
 }
@@ -844,43 +852,55 @@ const toggleMenu = () => {
 .category-buttons .v-btn {
   margin: 0 5px;
 }
+
 .block-info {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+
 .block-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .block-title {
   font-weight: bold;
-  text-align: left; /* 왼쪽 정렬 */
+  text-align: left;
+  /* 왼쪽 정렬 */
   flex-grow: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .block-location {
   font-size: 13px;
 }
+
 .block-heart {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-right: 10px; /* block-heart와 block-title 사이의 간격 */
-  width: auto; /* block-heart의 너비를 고정 */
+  margin-right: 10px;
+  /* block-heart와 block-title 사이의 간격 */
+  width: auto;
+  /* block-heart의 너비를 고정 */
 }
+
 .block-heart v-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px; /* 아이콘 크기 조정 */
+  font-size: 24px;
+  /* 아이콘 크기 조정 */
 }
+
 .heart-count {
-  margin-top: 2px; /* 하트 아이콘과 카운트 사이의 간격 */
+  margin-top: 2px;
+  /* 하트 아이콘과 카운트 사이의 간격 */
   font-size: 12px;
   color: #444;
   font-weight: bold;
