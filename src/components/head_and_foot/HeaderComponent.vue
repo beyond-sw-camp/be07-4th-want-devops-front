@@ -46,7 +46,7 @@ export default {
       this.profileUrl = localStorage.getItem('profileUrl');
     }
 
-    if (this.userRole === 'ADMIN') {
+    if (this.userRole === 'MEMBER') {
       const connectSSE = () => {
         let sse = new EventSourcePolyfill(`${process.env.VUE_APP_API_BASE_URL}/api/subscribe`, {
           headers: {
@@ -72,6 +72,7 @@ export default {
       connectSSE(); // Initial connection
     }
   },
+
 
 
   methods: {
