@@ -2,17 +2,19 @@
   <div class="container">
     <div class="map-container" ref="mapContainer"></div>
     <div class="search-container">
-      <input id="country" type="text" placeholder="Enter a country code (e.g., tw)" v-model="country" @input="updateCountry" />
-      <input id="place" type="text" placeholder="Enter a location" />
+      <input class="form-control" id="country" type="text" placeholder="🗺️ 지역 코드를 입력하세요(e.g., kr)" v-model="country" @input="updateCountry" />
+      <input class="form-control" id="place" type="text" placeholder="🔎 장소를 입력하세요" />
+      
       <div v-if="placeInfo" class="place-info">
-        <p><strong>Place Name:</strong> {{ placeInfo.name }}</p>
-        <p><strong>Latitude:</strong> {{ placeInfo.lat }}</p>
-        <p><strong>Longitude:</strong> {{ placeInfo.lng }}</p>
+        <p>📍 {{ placeInfo.name }}</p>
       </div>
-      <v-row justify="left">
-        <v-btn color="secondary" @click="savePlace">SAVE</v-btn>
-      </v-row>
+
+      <v-btn color="secondary" @click="savePlace" class="save-btn">SAVE</v-btn>
     </div>
+    <!-- Snackbar -->
+    <v-snackbar v-model="snackbar" timeout="3000" color="success">
+      장소가 저장되었습니다.
+    </v-snackbar>
   </div>
 </template>
 
@@ -28,6 +30,7 @@ export default {
     const placeInfo = ref(null); // 핀의 정보를 저장할 변수
     const country = ref('kr'); // 기본 나라 코드
     let map, autocomplete, marker; // map, autocomplete, marker 변수 선언
+    const snackbar = ref(false); // 스낵바의 상태 관리
 
     onMounted(async () => {
       try {
@@ -142,10 +145,12 @@ export default {
     const savePlace = () => {
       if (placeInfo.value) {
         emit('place-selected', placeInfo.value);
+        snackbar.value = true; // 스낵바 표시
+        console.log(snackbar);
       }
     };
 
-    return { mapContainer, placeInfo, country, updateCountry, savePlace };
+    return { mapContainer, placeInfo, country, updateCountry, savePlace, snackbar };
   }
 };
 </script>
@@ -162,17 +167,27 @@ export default {
 }
 
 .search-container {
-  width: 30%;
-  padding: 10px;
+  width: 50%;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+.search-container input {
+  margin-bottom: 10px;
 }
 
 .place-info {
-  margin-top: 20px;
+  color: #333;
+  font-size: 16px;
 }
-
 input {
-  margin-bottom: 10px;
   width: 100%;
-  padding: 5px;
+}
+.save-btn {
+  margin-top: auto; /* SAVE 버튼을 아래쪽에 배치 */
+}
+.v-snackbar {
+  bottom: 20px;
 }
 </style>

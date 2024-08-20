@@ -2,7 +2,11 @@
 <template>
   <div v-if="modelValue" class="modal-overlay" @click="close">
     <div class="modal-content" @click.stop>
-      <button class="close-button" @click="close">X</button>
+      <div class="modal-content-header">
+        <span class="material-symbols-outlined closeMapBtn" @click="close">
+          close
+        </span>
+      </div>
       <slot></slot>
     </div>
   </div>
@@ -43,18 +47,16 @@ export default {
   padding: 20px;
   border-radius: 8px;
   max-width: 1000px;
-  width: 700px !important; /* 너비를 700px로 설정 */
+  width: 900px !important; /* 너비를 700px로 설정 */
   position: relative;
 }
-
-.close-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: black;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 1000; /* Ensure the button is on top of other content */
+.modal-content-header {
+  display: flex;
 }
+.modal-content-header .closeMapBtn {
+  margin-left: auto;
+}
+
+
+
 </style>
