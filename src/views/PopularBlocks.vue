@@ -61,11 +61,15 @@
                 <v-card-subtitle>블록을 등록할 프로젝트를 선택하세요.</v-card-subtitle>
                 <v-card-text>
                     <div style="display: flex; align-items: center;">
-                        <select ref="projectSelect" v-model="selectedProject" required style="flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px;">
-                            <option value="" disabled>프로젝트 선택</option>
-                            <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
-                                {{ project.projectTitle }}
-                            </option>
+                        <select ref="projectSelect" v-model="selectedProject" required 
+                            style="flex: 1; 
+                            border: 2px solid #007BFF; /* 테두리 두께, 스타일, 색상 설정 */
+                            border-radius: 4px; 
+                            padding: 8px;">
+                        <option value="" disabled>프로젝트 선택</option>
+                        <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
+                            {{ project.projectTitle }}
+                        </option>
                         </select>
                         <v-icon 
                             style="margin-left: 8px; cursor: pointer;"
@@ -196,12 +200,6 @@ export default {
             const cityName = cityIdToNameMap[cityId];
             return cityImages[cityName] || require('@/assets/img/airplane.jpg');
         },
-        openSelect() {
-            const selectElement = this.$refs.projectSelect;
-            if (selectElement) {
-                selectElement.focus();  // Open the dropdown
-            }
-        }
     }
 };
 </script>
