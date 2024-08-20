@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="header">
-            <h1><strong><span style="color:dodgerblue;">📍{{ stateCity }}</span> 에서 인기 있는 추천 장소를 확인해보세요 ! </strong></h1>
+            <h1 style="margin: 50px 0 80px"><strong><span style="color:dodgerblue;">📍{{ stateCity }}</span> 에서 인기 있는 추천 블럭을 확인해보세요 ! </strong></h1>
         </div>
 
         <div class="block-list">
@@ -17,13 +17,13 @@
                 <v-col cols="12" md="8">
                     <v-card>
                         <v-card-title>
-                            <h2><strong>추천 장소</strong></h2>
+                            <h2><strong>추천 블럭</strong></h2>
                             <hr>
                         </v-card-title>
                         <v-list>
                             <v-list-item-group v-if="!loading && blocks.length">
                                 <v-list-item v-for="block in sortedBlocks" :key="block.blockId" class="list-item">
-                                    <v-list-item-content class="item-content">
+                                    <v-list-item-content class="item-content" style="padding: 0 20px;">
                                         <div class="block-heart">
                                             <div class="heart-imozi" style="font-size:30px">
                                                 🩵
@@ -35,7 +35,6 @@
                                             <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
                                             <v-list-item-subtitle>장소: {{ block.placeName }}</v-list-item-subtitle>
                                             <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
-                                            <v-list-item-subtitle>좋아요 {{ block.heartCount }} 개</v-list-item-subtitle>
                                         </div>
                                     </v-list-item-content>
                                     <div class="action-container">
@@ -77,18 +76,12 @@
                 <v-card-subtitle>블록을 등록할 프로젝트를 선택하세요.</v-card-subtitle>
                 <v-card-text>
                     <div style="display: flex; align-items: center;">
-                        <select ref="projectSelect" v-model="selectedProject" required style="flex: 1; 
-                            border: 2px solid #007BFF; /* 테두리 두께, 스타일, 색상 설정 */
-                            border-radius: 4px; 
-                            padding: 8px;">
+                        <select ref="projectSelect" class="form-select" v-model="selectedProject" required style="flex: 1;">
                             <option value="" disabled>프로젝트 선택</option>
                             <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
                                 {{ project.projectTitle }}
                             </option>
                         </select>
-                        <v-icon style="margin-left: 8px; cursor: pointer;" @click="openSelect">
-                            mdi-arrow-down-drop-circle-outline
-                        </v-icon>
                     </div>
                 </v-card-text>
                 <v-card-actions>

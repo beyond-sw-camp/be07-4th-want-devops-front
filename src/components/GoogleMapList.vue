@@ -4,16 +4,6 @@
       <div id="map"></div>
     </div>
     <div class="list-container">
-      <h2 v-html="currentDate"></h2>
-      <ul>
-        <li v-for="(block, index) in blocks" :key="index" class="block-item">
-          <div class="block-marker">{{ index + 1 }}</div>
-          <div class="block-info">
-            <div class="block-title">{{ block.title }}</div>
-            <div class="block-address">{{ block.address }}</div>
-          </div>
-        </li>
-      </ul>
       <div class="pagination-controls">
         <button @click="prevPage" :disabled="currentPage === 0" class="pagination-button prev-button">
           <i class="fas fa-chevron-left"></i>
@@ -22,8 +12,22 @@
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
-
+      <h2 v-html="currentDate"></h2>
+      <ul style="margin-top: 20px">
+        <li v-for="(block, index) in blocks" :key="index" class="block-item">
+          <div class="block-marker-info">
+            <div class="block-marker">{{ index + 1 }}</div>
+            <div v-if="index < blocks.length - 1" class="material-symbols-outlined" style="margin-top: 8px">
+              more_vert
+            </div>
+          </div>
+          <div class="block-info">
+            <div class="block-title">{{ block.title }}</div>
+          </div>
+        </li>
+      </ul>
     </div>
+    
   </div>
 </template>
 
@@ -242,20 +246,26 @@ h2 {
 .block-item {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  text-align: left;
 }
-
+.block-marker-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 10px;
+}
 .block-marker {
   width: 24px;
   height: 24px;
-  background-color: red;
+  background-color: rgb(0, 168, 206);
   color: white;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 10px;
   flex-shrink: 0;
+  font-weight: 700;
 }
 
 .block-info {
@@ -264,12 +274,17 @@ h2 {
 
 .block-title {
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .block-address {
   font-size: 0.9em;
   color: #666;
+}
+.material-symbols-outlined .more-icon {
+  font-weight: 300;
+  font-size: 24px;
+  color: #666;
+  margin-top: 10px; /* 아이콘과 마커 사이의 간격 */
 }
 
 .date-text {
@@ -279,17 +294,19 @@ h2 {
 }
 
 .pagination-controls {
-  position: absolute; /* Positioning it within the list-container */
-  bottom: 10px; /* Distance from the bottom */
-  right: 10px; /* Distance from the right */
   display: flex;
+  justify-content: center; /* 가운데 정렬 */
+  align-items: center;
+  margin-bottom: 10px; /* Controls와 상단 요소 사이 간격 */
+  gap: 5px
 }
 
 .pagination-button {
-  background-color: #007bff;
+  background-color: rgb(254, 223, 24);
   border: none;
   color: white;
-  font-size: 18px;
+  font-size: 10px;
+  font-weight: 700;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
@@ -297,7 +314,6 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 10px; /* Space between buttons */
 }
 
 .pagination-button:disabled {
