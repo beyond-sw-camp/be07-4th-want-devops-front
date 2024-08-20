@@ -32,6 +32,14 @@
                                         <v-list-item-subtitle>좌표: {{ block.latitude }}, {{ block.longitude }}</v-list-item-subtitle>
                                         <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
                                     </v-list-item-content>
+
+                                  <v-list-item-action class="map-item-action">
+                                    <v-btn @click="openMapModal(block)" icon>
+                                      <v-icon>mdi-map-marker</v-icon>
+                                    </v-btn>
+                                  </v-list-item-action>
+
+
                                     <v-list-item-action class="block-item-action">
                                         <v-btn @click="showProjectSelection(block)" icon>
                                             <v-icon>mdi-export-variant</v-icon>
@@ -60,12 +68,23 @@
                 <v-card-title>프로젝트 선택</v-card-title>
                 <v-card-subtitle>블록을 등록할 프로젝트를 선택하세요.</v-card-subtitle>
                 <v-card-text>
-                    <select v-model="selectedProject" required>
+                    <div style="display: flex; align-items: center;">
+                        <select ref="projectSelect" v-model="selectedProject" required 
+                            style="flex: 1; 
+                            border: 2px solid #007BFF; /* 테두리 두께, 스타일, 색상 설정 */
+                            border-radius: 4px; 
+                            padding: 8px;">
                         <option value="" disabled>프로젝트 선택</option>
                         <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
                             {{ project.projectTitle }}
                         </option>
-                    </select>
+                        </select>
+                        <v-icon 
+                            style="margin-left: 8px; cursor: pointer;"
+                            @click="openSelect">
+                            mdi-arrow-down-drop-circle-outline
+                        </v-icon>
+                    </div>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn @click="handleBlockImport">가져가기</v-btn>
@@ -73,6 +92,14 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+      <!-- 맵 모달 -->
+      <CustomModal v-model:modelValue="isMapModalVisible">
+        <ShowMap
+            :latitude="selectedBlock.latitude"
+            :longitude="selectedBlock.longitude"
+            :placeName="selectedBlock.placeName"
+        />
+      </CustomModal>
     </div>
 </template>
 
@@ -86,13 +113,20 @@ import gyeongjuImage from '@/assets/img/gyeongju.jpg';
 import jejuImage from '@/assets/img/jeju.jpg';
 import fukuokaImage from '@/assets/img/fukuoka.jpg';
 import osakaImage from '@/assets/img/osaka.jpg';
+import CustomModal from "@/components/CustomModal.vue";
+import ShowMap from "@/components/ShowMap.vue";
 
 export default {
+  components: {
+    CustomModal,
+    ShowMap
+  },
     data() {
         return {
             blocks: [],
             loading: true,
             error: null,
+          isMapModalVisible: false, // 변경된 모달 상태 변수
             showProjectDialog: false,
             selectedProject: null,
             projects: [],
@@ -138,6 +172,10 @@ export default {
                 console.error('프로젝트를 가져오는 중 오류 발생:', e);
             }
         },
+      openMapModal(block) {
+        this.selectedBlock = block;
+        this.isMapModalVisible = true;
+      },
         showProjectSelection(block) {
             this.selectedBlock = block;
             this.showProjectDialog = true;
@@ -173,8 +211,8 @@ export default {
                 10: 'gyeongju',
                 11: 'busan',
                 12: 'paris',
-        // 필요한 도시 ID-이름 매핑 추가
-    };
+            };
+
             const cityImages = {
                 seoul: seoulImage,
                 paris: parisImage,
@@ -184,15 +222,15 @@ export default {
                 jeju: jejuImage,
                 osaka: osakaImage,
                 gyeongju: gyeongjuImage,
-
                 // 필요한 도시 이미지 추가
             };
             const cityName = cityIdToNameMap[cityId];
             return cityImages[cityName] || require('@/assets/img/airplane.jpg');
-        }
-    }
+        },
+    },
 };
 </script>
+
 
 <style>
 .header {
@@ -226,5 +264,10 @@ export default {
     position: absolute;
     top: 10px;
     right: 10px;
+}
+.map-item-action {
+  position: absolute;
+  top: 10px;
+  right: 70px;
 }
 </style>
