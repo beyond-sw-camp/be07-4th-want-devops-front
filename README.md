@@ -51,4 +51,5 @@
 
 ## Test Result
 ### 프로젝트 생성
-움짤 넣기
+![프로젝트 생성(1)](https://github.com/user-attachments/assets/1eacd24f-3c2a-4515-aa73-c0d8480f535b)
+![프로젝트 생성(2)](https://github.com/user-attachments/assets/fb42df42-0f9c-48e0-b603-c07c1c78f701)
