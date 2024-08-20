@@ -190,11 +190,9 @@ export default {
                         category: categoryInEnglish,
                         latitude: localBlock.value.latitude,
                         longitude: localBlock.value.longitude,
-                    }, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
                     });
+                    await updatePhoto();
+
                     alert('블록이 성공적으로 업데이트되었습니다.');
                     router.push(`/block/${localBlock.value.blockId}/board`);
                 } catch (error) {
