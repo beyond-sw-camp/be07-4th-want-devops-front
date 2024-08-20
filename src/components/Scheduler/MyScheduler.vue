@@ -194,6 +194,11 @@
     <div class="block-list" style="height: 80%">
       <DxScrollView id="scroll">
         <DxDraggable id="list" :group="draggingGroupName" :on-drag-start="onListDragStart" style="height: 80px;">
+          <template v-if="tasks.length === 0">
+        <div class="empty-list">
+          Drop here to add to the list
+        </div>
+      </template>
           <DxDraggable v-for="task in sortedFilteredDataSource" :style="getStyle(task.category, task.heartCount)"
             :key="task.blockId" :clone="true" :group="draggingGroupName" :data="task" :on-drag-start="onItemDragStart"
             :on-drag-end="onItemDragEnd" class="item">
