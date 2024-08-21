@@ -41,7 +41,7 @@
 <img src="https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=Amazon%20S3&logoColor=white">
 <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
-<img src="https://img.shields.io/badge/googlemaps-4285F4?style=for-the-badge&logo=CSS3&logoColor=white">
+<img src="https://img.shields.io/badge/googleMaps-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white">
 <br><br><br>
 
 ## WBS
