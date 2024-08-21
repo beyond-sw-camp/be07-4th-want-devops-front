@@ -26,7 +26,7 @@
 
 ## 🛫 WANT 프로젝트 소개
 
-<img width="511" alt="스크린샷 2024-08-21 오전 9 55 14" src="https://github.com/user-attachments/assets/3c74b8f4-0245-4de1-80f5-32edcd8acd4b">
+<img width="511" src="https://github.com/user-attachments/assets/2f7bdb2a-c10e-4253-ae79-0c3fbca0deb8">
 <pre><code> 
 코로나19 이후, 여행의 패턴과 요구가 크게 변화했습니다.
 사람들은 안전하고 개인화(맞춤화)된 여행을 원하며, 이에 따라 여행 계획을 세우는 데 있어 보다 세심한 접근을 요구하고 있습니다.
@@ -67,7 +67,7 @@
 ## 📑 테스트 결과
 </div>
 
-### 메인 페이지 관련 기능 테스트
+### 🧪 메인 페이지 관련 기능 테스트
 
 <details>
   <summary><b>소셜 로그인 / 로그아웃</b></summary>
@@ -85,7 +85,7 @@
   </div>
 </details>
 
-### 마이 페이지 관련 기능 테스트
+### 🧪 마이 페이지 관련 기능 테스트
 
 <details>
   <summary><b>일정 조회 / 일정 탈퇴</b></summary>
@@ -97,7 +97,7 @@
   </div>
 </details>
 
-### 추천 페이지 관련 기능 테스트
+### 🧪 추천 페이지 관련 기능 테스트
 
 <details>
   <summary><b>인기 여행지 조회 및 명소 스크랩</b></summary>
@@ -115,7 +115,7 @@
   </div>
 </details>
 
-### 일정 페이지 관련 기능 테스트
+### 🧪 일정 페이지 관련 기능 테스트
 
 <details>
   <summary><b>일정 초대 및 일정 탈퇴 / 일정 경로 조회</b></summary>
@@ -160,7 +160,7 @@
   </div>
 </details>
 
-### 블럭 관련 기능 테스트
+### 🧪 블럭 관련 기능 테스트
 <details>
   <summary><b>블럭 상세페이지 연결</b></summary>
   <div markdown="12">
