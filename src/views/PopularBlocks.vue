@@ -28,7 +28,7 @@
                                             <div class="heart-imozi" style="font-size:30px">
                                                 🩵
                                             </div>
-                                            <span class="heart-count"> 좋아요 {{ block.heartCount }}개</span>
+                                            <span class="heart-count"> 인기도 {{ block.popularCount }}</span>
                                         </div>
                                         <div class="block-infos" style="margin-left: 50px;">
                                             <v-list-item-title>{{ block.title }}</v-list-item-title>
@@ -139,7 +139,7 @@ export default {
     },
     computed: {
         sortedBlocks() {
-            return this.blocks.slice().sort((a, b) => b.heartCount - a.heartCount);
+            return this.blocks.slice().sort((a, b) => b.popularCount - a.popularCount);
         }
     },
     methods: {
