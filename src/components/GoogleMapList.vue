@@ -66,6 +66,23 @@ export default {
       // Return HTML string with line breaks and smaller text
       return `${dayNumber}일차<br><span class="date-text">${formattedDate}</span>`;
     });
+
+    const countryMapping = {
+      'KOREA': 'kr',
+      'JAPAN': 'jp',
+      'USA': 'us',
+      'FRANCE': 'fr',
+      'TAIWAN': 'tw',
+    };
+
+    const centers = {
+      'kr': { lat: 37.5665, lng: 126.9780 },
+      'us': { lat: 37.7749, lng: -122.4194 },
+      'jp': { lat: 35.6895, lng: 139.6917 },
+      'fr': { lat: 48.8566, lng: 2.3522 },
+      'tw': { lat: 25.0330, lng: 121.5654 },
+    };
+
     // Fetches project date range and initialize dates
     const fetchDates = async () => {
       try {
@@ -115,64 +132,84 @@ export default {
       }
     };
 
+    const loadProjectCenter = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8088/api/v1/project/${props.projectId}/detail`);
+        const projectCountry = response.data.result.projectStates[0].country;
+
+        const countryCode = countryMapping[projectCountry.toUpperCase()];
+        return centers[countryCode] || centers['kr'];
+      } catch (error) {
+        console.error('Failed to load project state:', error);
+        return centers['kr'];
+      }
+    };
+
     // Initialize and render Google Map with blocks
-    const initMap = () => {
+    const initMap = async () => {
       console.log("Initializing map...");
-      loadGoogleMapsApi(apiKey)
-          .then(maps => {
-            console.log("Google Maps API loaded successfully.");
-            const map = new maps.Map(document.getElementById('map'), {
-              center: {lat: 37.5651, lng: 126.9760},
-              zoom: 14,
-            });
+      const googleMaps = await loadGoogleMapsApi(apiKey);
 
-            const bounds = new maps.LatLngBounds();
-            const path = [];
+      let center = centers['kr']; // Default to Seoul
 
-            blocks.value.forEach(block => {
-              const lat = parseFloat(block.latitude);
-              const lng = parseFloat(block.longitude);
-              if (isNaN(lat) || isNaN(lng)) {
-                console.error('Invalid coordinates for block:', block);
-                return;
-              }
+      if (blocks.value.length > 0) {
+        const firstBlock = blocks.value[0];
+        const lat = parseFloat(firstBlock.latitude);
+        const lng = parseFloat(firstBlock.longitude);
 
-              const position = {lat, lng};
-              console.log(`Adding marker for block: ${block.title}, position:`, position);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          center = { lat, lng };
+        }
+      } else {
+        center = await loadProjectCenter();
+      }
 
-              // Create a marker for each block
-              new maps.Marker({
-                position,
-                map,
-                title: block.title,
-              });
+      const map = new googleMaps.Map(document.getElementById('map'), {
+        center,
+        zoom: 14, 
+      });
 
-              path.push(position);
-              bounds.extend(position);
-            });
+      const bounds = new googleMaps.LatLngBounds();
+      const path = [];
 
-            // Draw a polyline connecting the blocks if there are multiple blocks
-            if (path.length > 1) {
-              console.log("Drawing polyline with path:", path);
-              new maps.Polyline({
-                path,
-                geodesic: true,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2,
-                map,
-              });
-            }
+      blocks.value.forEach(block => {
+        const lat = parseFloat(block.latitude);
+        const lng = parseFloat(block.longitude);
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error('Invalid coordinates for block:', block);
+          return;
+        }
 
-            // Adjust the map view to fit all markers
-            if (!bounds.isEmpty()) {
-              console.log("Fitting map to bounds:", bounds);
-              map.fitBounds(bounds);
-            }
-          })
-          .catch(error => {
-            console.error('Error loading Google Maps API:', error);
-          });
+        const position = { lat, lng };
+        console.log(`Adding marker for block: ${block.title}, position:`, position);
+
+        new googleMaps.Marker({
+          position,
+          map,
+          title: block.title,
+        });
+
+        path.push(position);
+        bounds.extend(position);
+      });
+
+      // 선 그리기
+      if (path.length > 1) {
+        console.log("Drawing polyline with path:", path);
+        new googleMaps.Polyline({
+          path,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2,
+          map,
+        });
+      }
+      // 지도 범위
+      if (!bounds.isEmpty()) {
+        console.log("Fitting map to bounds:", bounds);
+        map.fitBounds(bounds);
+      }
     };
 
     // Change page to the previous date
