@@ -651,7 +651,9 @@ function connectSSE() {
   eventSource.addEventListener('message', (event) => {
     const notificationMessage = event.data;
     displayNotification(notificationMessage);
-    router.go(0);
+    
+    fetchTasks();
+    fetchAppointments();
   });
 
   // eventSource.onmessage = function (event) {
