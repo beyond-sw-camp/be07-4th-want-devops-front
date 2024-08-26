@@ -56,7 +56,7 @@
             </select>
           </div>
         </v-row>
-        <v-row justify="center">
+        <v-row justify="center" class="createBtn">
           <v-btn color="secondary" @click="validateStep1">NEXT</v-btn>
         </v-row>            
       </div>
@@ -86,7 +86,7 @@
                   >
               </div>
           </v-row>
-          <v-row justify="center">
+          <v-row justify="center" class="createBtn">
               <v-btn color="secondary" @click="validateStep2">NEXT</v-btn>
           </v-row>
       </div>
@@ -110,7 +110,7 @@
                   />
               </div>
           </v-row>
-          <v-row justify="center">
+          <v-row justify="center" class="createBtn">
               <v-btn color="primary" @click="validateStep3">DONE!</v-btn>
           </v-row>
       </div> 
@@ -234,7 +234,7 @@ export default {
   background-color: #fff;
   text-align: center;
   width: 500px;
-  bottom: 120px;
+  bottom: 30px;
   border-radius: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -274,15 +274,21 @@ export default {
   padding: 0 20px;
 }
 .question-title {
-  padding: 80px 0 30px;
-  font-size: 40px;
+  padding: 40px 0 10px;
+  font-size: 32px;
 }
 .question-input {
-  margin: 20px;
-  padding-bottom: 60px;
-  font-size: 36px;
+  margin: 10px;
+  font-size: 24px;
 }
-
+.createBtn {
+  position: absolute;
+  left: 50%; /* 가로로 가운데 정렬 */
+  transform: translateX(-48%); /* 가운데 정렬 보정 */
+  bottom: 20%; /* 하단에서 20px 위로 배치 */
+  width: 100%; /* 버튼이 question 너비에 맞게 */
+  text-align: center; /* 버튼을 가운데 정렬 */
+}
 
 
 
