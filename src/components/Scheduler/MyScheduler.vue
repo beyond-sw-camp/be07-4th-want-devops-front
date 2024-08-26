@@ -325,7 +325,7 @@ onMounted(async () => {
   } catch (error) {
     console.error("Error initializing data:", error);
     if (error.message === "Access Denied") {
-      router.push({ name: "AccessDenied" });
+      router.push({ name: "Home" });
     }
   }
   fetchTasks();

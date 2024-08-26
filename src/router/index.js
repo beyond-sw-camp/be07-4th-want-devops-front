@@ -10,7 +10,6 @@ import BlockDetail from "@/views/BlockDetail.vue";
 import BlockBoard from "@/views/BlockBoard.vue";
 import PopularBlocks from "@/views/PopularBlocks.vue";
 // import MyScheduler from "@/components/Scheduler/MyScheduler.vue";
-import AccessDenied from "@/components/Scheduler/AccessDenied.vue";
 import { myPageRouter } from "./myPageRouter";
 import PopularDestinations from "@/views/PopularDestinations.vue";
 
@@ -83,12 +82,6 @@ const routes = [
     name: "SecondPage",
     component: () => import("@/views/SecondTestPage.vue"),
   },
-  {
-    path: "/accessDenied",
-    name: "AccessDenied",
-    component: AccessDenied,
-  },
-
   ...practiceRouter,
   ...projectRouter,
   ...myPageRouter,
