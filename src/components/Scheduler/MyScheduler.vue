@@ -591,6 +591,12 @@ function toggleLike(block) {
 
 async function createBlock() {
   try {
+
+    if (tasks.value.length >= 10) {
+      alert('블럭 생성은 최대 10개까지 가능합니다.');
+      return;
+    }
+
     // 선택된 카테고리 값을 사용하거나, 없으면 기본값 "ETC" 사용
     const categoryToUse = selectedCategory.value || 'ETC';
 
