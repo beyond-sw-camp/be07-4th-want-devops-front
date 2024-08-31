@@ -59,8 +59,7 @@
               </div>
             </div>
             <div class="projectImage" @click="goToMyPage(project.projectId)">
-              <!-- 추후에 프로젝트 이미지로 수정 -->
-              <img src="@/assets/img/airplane.jpg" alt="프로젝트 이미지" />
+              <img :src="getCityImage(project.city)" alt="프로젝트 이미지" />
             </div>
             <div class="projectTitle">{{ project.projectTitle }}</div>
             <div class="projectDate">
@@ -232,7 +231,59 @@ export default {
         this.closeModal(); // 모달 닫기
       }
     },
+    getCityImage(cityName) {
+      const cityImages = {
+        서울: require('@/assets/img/seoul.jpg'),
+        대구: require('@/assets/img/daegu.jpg'),
+        인천: require('@/assets/img/incheon.jpg'),
+        광주: require('@/assets/img/gwangju.jpg'),
+        대전: require('@/assets/img/daejeon.jpg'),
+        울산: require('@/assets/img/ulsan.jpg'),
+        세종: require('@/assets/img/sejong.jpg'),
+        제주: require('@/assets/img/jeju.jpg'),
+        경주: require('@/assets/img/gyeongju.jpg'),
+        부산: require('@/assets/img/busan.jpg'),
 
+        // 일본 (Japan)
+        도쿄: require('@/assets/img/tokyo.jpg'),
+        오사카: require('@/assets/img/osaka.jpg'),
+        나고야: require('@/assets/img/nagoya.jpg'),
+        삿포로: require('@/assets/img/sapporo.jpg'),
+        후쿠오카: require('@/assets/img/fukuoka.jpg'),
+        교토: require('@/assets/img/kyoto.jpg'),
+        고베: require('@/assets/img/kobe.jpg'),
+        요코하마: require('@/assets/img/yokohama.jpg'),
+
+        // 미국 (United States)
+        뉴욕: require('@/assets/img/newyork.jpg'),
+        로스앤젤레스: require('@/assets/img/losangeles.jpg'),
+        샌프란시스코: require('@/assets/img/sanfrancisco.jpg'),
+        라스베이거스: require('@/assets/img/lasvegas.jpg'),
+        마이애미: require('@/assets/img/miami.jpg'),
+
+        // 중국 (China)
+        베이징: require('@/assets/img/beijing.jpg'),
+        상하이: require('@/assets/img/shanghai.jpg'),
+        광저우: require('@/assets/img/guangzhou.jpg'),
+        시안: require('@/assets/img/xian.jpg'),
+        청두: require('@/assets/img/chengdu.jpg'),
+
+        // 영국 (United Kingdom)
+        런던: require('@/assets/img/london.jpg'),
+        에든버러: require('@/assets/img/edinburgh.jpg'),
+        맨체스터: require('@/assets/img/manchester.jpg'),
+        리버풀: require('@/assets/img/liverpool.jpg'),
+        버밍엄: require('@/assets/img/birmingham.jpg'),
+
+        // 이탈리아 (Italy)
+        로마: require('@/assets/img/rome.jpg'),
+        베네치아: require('@/assets/img/venice.jpg'),
+        피렌체: require('@/assets/img/florence.jpg'),
+        밀라노: require('@/assets/img/milan.jpg'),
+        나폴리: require('@/assets/img/napoli.jpg'),
+      };
+      return cityImages[cityName.toLowerCase()] || '@/assets/img/airplane.jpg'; // 기본 이미지를 설정
+    }, 
   },
 };
 </script>
@@ -323,10 +374,17 @@ export default {
   transform: translateY(-5px);
   cursor: pointer;
 }
+.projectImage {
+  width: 100%;
+  height: 150px; /* 모든 이미지를 200px 높이로 고정 */
+  overflow: hidden; /* 컨테이너를 벗어난 이미지는 잘림 */
+}
+
 .projectImage img {
   width: 100%;
-  height: 150px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: cover; /* 이미지가 컨테이너에 꽉 차도록 조정 */
+  border-radius: 8px; /* 이미지 모서리를 둥글게 처리 */
 }
 .projectTitle {
   margin-top: 10px;
