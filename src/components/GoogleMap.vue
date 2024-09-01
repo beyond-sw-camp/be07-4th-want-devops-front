@@ -143,7 +143,7 @@ export default {
     // 프로젝트 상태를 로드하여 country 값을 설정하는 함수
     const loadState = async () => {
       try {
-        const response = await axios.get(`http://localhost:8088/api/v1/project/${props.projectId}/detail`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${props.projectId}/detail`);
         const projectCountry = response.data.result.projectStates[0].country;
 
         // 국가명을 2자리 코드로 변환

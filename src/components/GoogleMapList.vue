@@ -88,7 +88,7 @@ export default {
       try {
         console.log("Fetching project details...");
 
-        const projectResponse = await axios.get(`http://localhost:8088/api/v1/project/${props.projectId}/detail`);
+        const projectResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${props.projectId}/detail`);
         console.log("Project details response:", projectResponse.data);
         const {startTravel, endTravel} = projectResponse.data.result;
 
@@ -122,7 +122,7 @@ export default {
     const fetchBlocksForDate = async (date) => {
       try {
         console.log(`Fetching blocks for date: ${date}`);
-        const apiUrl = `http://localhost:8088/api/v1/project/${props.projectId}/block/list/date?date=${date}`;
+        const apiUrl = `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${props.projectId}/block/list/date?date=${date}`;
         const response = await axios.get(apiUrl);
         console.log(`Blocks fetched for date ${date}:`, response.data.result);
         blocks.value = response.data.result;
@@ -134,7 +134,7 @@ export default {
 
     const loadProjectCenter = async () => {
       try {
-        const response = await axios.get(`http://localhost:8088/api/v1/project/${props.projectId}/detail`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${props.projectId}/detail`);
         const projectCountry = response.data.result.projectStates[0].country;
 
         const countryCode = countryMapping[projectCountry.toUpperCase()];
