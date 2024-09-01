@@ -9,7 +9,7 @@
                 <!-- 좌측 이미지 영역 -->
                 <v-col cols="12" md="4">
                     <v-card>
-                        <v-img :src="getCityImageUrl($route.params.stateId)" height="300px"></v-img>
+                        <v-img :src="cityImageUrl" height="300px"></v-img>
                     </v-card>
                 </v-col>
 
@@ -100,14 +100,6 @@
 
 <script>
 import axios from 'axios';
-import seoulImage from '@/assets/img/seoul.jpg';
-import parisImage from '@/assets/img/paris.jpg';
-import newYorkImage from '@/assets/img/newyork.jpg';
-import busanImage from '@/assets/img/busan.jpg';
-import gyeongjuImage from '@/assets/img/gyeongju.jpg';
-import jejuImage from '@/assets/img/jeju.jpg';
-import fukuokaImage from '@/assets/img/fukuoka.jpg';
-import osakaImage from '@/assets/img/osaka.jpg';
 import CustomModal from "@/components/CustomModal.vue";
 import ShowMap from "@/components/ShowMap.vue";
 
@@ -130,12 +122,13 @@ export default {
             currentPage: 0,
             pageSize: 5,
             stateCity: '', // 도시 이름을 저장하는 데이터 속성
+            cityImageUrl: '', // 도시 이미지 URL을 저장하는 데이터 속성
         };
     },
     created() {
         this.loadBlocks();
         this.loadProjects();
-        this.setCityName();
+        this.setCityInfo();
     },
     computed: {
         sortedBlocks() {
@@ -169,22 +162,55 @@ export default {
                 console.error('프로젝트를 가져오는 중 오류 발생:', e);
             }
         },
-        setCityName() {
+        setCityInfo() {
             const cityId = this.$route.params.stateId;
-            this.stateCity = this.getCityName(cityId);
+            const cityInfo = this.getCityInfo(cityId);
+            this.stateCity = cityInfo.name;
+            this.cityImageUrl = cityInfo.image;
         },
-        getCityName(cityId) {
-            const cityIdToNameMap = {
-                5: '서울',
-                6: '오사카',
-                7: '뉴욕',
-                8: '후쿠오카',
-                9: '제주',
-                10: '경주',
-                11: '부산',
-                12: '파리',
+        getCityInfo(cityId) {
+            const cityInfoMap = {
+                2: { name: '서울', image: require('@/assets/img/seoul.jpg') },
+                3: { name: '대구', image: require('@/assets/img/daegu.jpg') },
+                4: { name: '인천', image: require('@/assets/img/incheon.jpg') },
+                5: { name: '광주', image: require('@/assets/img/gwangju.jpg') },
+                6: { name: '대전', image: require('@/assets/img/daejeon.jpg') },
+                7: { name: '울산', image: require('@/assets/img/ulsan.jpg') },
+                8: { name: '세종', image: require('@/assets/img/sejong.jpg') },
+                9: { name: '제주', image: require('@/assets/img/jeju.jpg') },
+                10: { name: '경주', image: require('@/assets/img/gyeongju.jpg') },
+                11: { name: '부산', image: require('@/assets/img/busan.jpg') },
+                13: { name: '도쿄', image: require('@/assets/img/tokyo.jpg') },
+                14: { name: '오사카', image: require('@/assets/img/osaka.jpg') },
+                15: { name: '나고야', image: require('@/assets/img/nagoya.jpg') },
+                16: { name: '삿포로', image: require('@/assets/img/sapporo.jpg') },
+                17: { name: '후쿠오카', image: require('@/assets/img/fukuoka.jpg') },
+                18: { name: '교토', image: require('@/assets/img/kyoto.jpg') },
+                19: { name: '고베', image: require('@/assets/img/kobe.jpg') },
+                20: { name: '요코하마', image: require('@/assets/img/yokohama.jpg') },
+                22: { name: '뉴욕', image: require('@/assets/img/newyork.jpg') },
+                23: { name: '로스앤젤레스', image: require('@/assets/img/losangeles.jpg') },
+                24: { name: '샌프란시스코', image: require('@/assets/img/sanfrancisco.jpg') },
+                25: { name: '라스베이거스', image: require('@/assets/img/lasvegas.jpg') },
+                26: { name: '마이애미', image: require('@/assets/img/miami.jpg') },
+                28: { name: '베이징', image: require('@/assets/img/beijing.jpg') },
+                29: { name: '상하이', image: require('@/assets/img/shanghai.jpg') },
+                30: { name: '광저우', image: require('@/assets/img/guangzhou.jpg') },
+                31: { name: '시안', image: require('@/assets/img/xian.jpg') },
+                32: { name: '청두', image: require('@/assets/img/chengdu.jpg') },
+                34: { name: '런던', image: require('@/assets/img/london.jpg') },
+                35: { name: '에든버러', image: require('@/assets/img/edinburgh.jpg') },
+                36: { name: '맨체스터', image: require('@/assets/img/manchester.jpg') },
+                37: { name: '리버풀', image: require('@/assets/img/liverpool.jpg') },
+                38: { name: '버밍엄', image: require('@/assets/img/birmingham.jpg') },
+                40: { name: '로마', image: require('@/assets/img/rome.jpg') },
+                41: { name: '베네치아', image: require('@/assets/img/venice.jpg') },
+                42: { name: '피렌체', image: require('@/assets/img/florence.jpg') },
+                43: { name: '밀라노', image: require('@/assets/img/milan.jpg') },
+                44: { name: '나폴리', image: require('@/assets/img/napoli.jpg') },
             };
-            return cityIdToNameMap[cityId] || '알 수 없는 도시';
+
+            return cityInfoMap[cityId] || { name: '알 수 없는 도시', image: require('@/assets/img/airplane.jpg') };
         },
         openMapModal(block) {
             this.selectedBlock = block;
@@ -212,31 +238,6 @@ export default {
             } else {
                 alert('프로젝트를 선택하세요.');
             }
-        },
-        getCityImageUrl(cityId) {
-            const cityIdToNameMap = {
-                5: 'seoul',
-                6: 'osaka',
-                7: 'newyork',
-                8: 'fukuoka',
-                9: 'jeju',
-                10: 'gyeongju',
-                11: 'busan',
-                12: 'paris',
-            };
-
-            const cityImages = {
-                seoul: seoulImage,
-                paris: parisImage,
-                newyork: newYorkImage,
-                busan: busanImage,
-                fukuoka: fukuokaImage,
-                jeju: jejuImage,
-                osaka: osakaImage,
-                gyeongju: gyeongjuImage,
-            };
-            const cityName = cityIdToNameMap[cityId];
-            return cityImages[cityName] || require('@/assets/img/airplane.jpg');
         },
     },
 };
