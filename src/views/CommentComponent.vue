@@ -198,7 +198,7 @@ export default {
       try {
         const blockId = route.params.blockId;
         const response = await axios.get(
-            `http://localhost:8088/api/v1/block_comment/list/${blockId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/list/${blockId}`,
             { params: { page: currentPage.value } }
         );
 
@@ -223,7 +223,7 @@ export default {
     const submitComment = async () => {
       if (valid.value && newComment.value) {
         try {
-          await axios.post(`http://localhost:8088/api/v1/block_comment/create`, {
+          await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/create`, {
             blockId: selectedBlock.value,
             contents: newComment.value,
           });
@@ -262,7 +262,7 @@ export default {
       const blockId = route.params.blockId;
 
       try {
-        const response = await axios.get(`http://localhost:8088/api/v1/block/${blockId}`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}`);
         const blockData = response.data.result;
 
         localBlock.value = {
@@ -286,7 +286,7 @@ export default {
             ...localBlock.value,
             category: reverseCategoryMap[localBlock.value.category],
           };
-          await axios.put(`http://localhost:8088/api/v1/block/update/${blockId}`, payload);
+          await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/update/${blockId}`, payload);
           router.push(`/block/${blockId}`); // 업데이트 후 페이지 이동
         } catch (error) {
           console.error("블록 업데이트 중 오류 발생:", error);
@@ -298,7 +298,7 @@ export default {
     const deleteBlock = async () => {
       const blockId = route.params.blockId;
       try {
-        await axios.delete(`http://localhost:8088/api/v1/block/delete/${blockId}`);
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/delete/${blockId}`);
         router.push(`/`); // 삭제 후 메인 페이지로 이동
       } catch (error) {
         console.error("블록 삭제 중 오류 발생:", error);

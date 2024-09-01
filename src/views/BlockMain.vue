@@ -125,7 +125,7 @@ export default {
         const projectId = 1;
         // 카테고리를 파라미터 형식으로 전달
         const response = await axios.get(
-          `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`);
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/not/active/block/list`);
         const blockList = response.data.result;
         console.log(response);
         if (blockList && Array.isArray(blockList)) {
@@ -193,7 +193,7 @@ export default {
       block.heartCount = newHeartCount;
       try {
         await axios.post(
-          `http://localhost:8088/api/v1/block/${block.blockId}/heart`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${block.blockId}/heart`,
           {}, // 빈 본문으로 요청
         );
       } catch (error) {
@@ -207,7 +207,7 @@ export default {
     async handleUpdate(updatedBlock) {
       try {
         const response = await axios.patch(
-          `http://localhost:8088/api/v1/block/detail/${updatedBlock.id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/detail/${updatedBlock.id}`,
           updatedBlock,
           {
             headers: {

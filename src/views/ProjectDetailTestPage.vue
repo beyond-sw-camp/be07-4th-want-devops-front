@@ -101,7 +101,7 @@ export default {
   methods: {
     async fetchProjectDetail() {
       try {
-        const response = await axios.get(`http://localhost:8088/api/v1/project/${this.projectId}/detail`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${this.projectId}/detail`);
         this.title = response.data.result.projectTitle;
         // Assuming the API response also includes travel dates
         this.startTravel = response.data.result.startTravel;
@@ -122,7 +122,7 @@ export default {
       };
       console.log('Updating project title with:', request);
       try {
-        const response = await axios.patch(`http://localhost:8088/api/v1/project/${this.projectId}/update/title`, request);
+        const response = await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${this.projectId}/update/title`, request);
         console.log('Response:', response);
         this.title = this.modalTitle;
         this.isModalOpen = false;
@@ -139,7 +139,7 @@ export default {
       };
       console.log('Updating project dates with:', request);
       try {
-        const response = await axios.patch(`http://localhost:8088/api/v1/project/${this.projectId}/update/travel-dates`, request);
+        const response = await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${this.projectId}/update/travel-dates`, request);
         console.log('Response:', response);
         this.isDateModalOpen = false;
         console.log('Saving dates:', {startTravel: this.startTravel, endTravel: this.endTravel});
@@ -160,7 +160,7 @@ export default {
       };
       console.log('Inviting member with:', request);
       try {
-        const response = await axios.post(`http://localhost:8088/api/v1/project/invite`, request);
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/invite`, request);
         this.isInviteModalOpen = false;
         console.log('Response:', response);
       } catch (error) {

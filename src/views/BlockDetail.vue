@@ -168,7 +168,7 @@ export default {
         const fetchBlock = async () => {
             try {
                 const blockId = route.params.blockId;
-                const response = await axios.get(`http://localhost:8088/api/v1/block/${blockId}/detail`);
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/detail`);
                 const blockData = response.data.result;
                 console.log(blockData);
                 localBlock.value = {
@@ -185,7 +185,7 @@ export default {
                 try {
                     const categoryInEnglish = reverseCategoryMap[localBlock.value.category] || localBlock.value.category;
 
-                    await axios.patch(`http://localhost:8088/api/v1/block/${selectedBlock.value}/update`, {
+                    await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${selectedBlock.value}/update`, {
                         ...localBlock.value,
                         category: categoryInEnglish,
                         latitude: localBlock.value.latitude,
@@ -209,7 +209,7 @@ export default {
         const deleteBlock = async () => {
             if (confirm('정말로 이 블록을 삭제하시겠습니까?')) {
                 try {
-                    await axios.delete(`http://localhost:8088/api/v1/block/${selectedBlock.value}/delete`);
+                    await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${selectedBlock.value}/delete`);
                     alert('블록이 성공적으로 삭제되었습니다.');
                     router.push(`/project/${localBlock.value.projectId}/board`);
                 } catch (error) {
@@ -230,7 +230,7 @@ export default {
         const getPhotos = async () => {
             try {
                 const blockId = route.params.blockId;
-                const response = await axios.get(`http://localhost:8088/api/v1/photo/${blockId}/list`);
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/photo/${blockId}/list`);
                 blockPhotos.value = response.data.result.photoList;
                 console.log(blockPhotos.value);
             } catch (e) {
@@ -301,7 +301,7 @@ export default {
                     // 삭제만 있는 경우
                     delFiles.forEach(fileId => formData.append('delFiles', fileId));
 
-                    const response = await axios.put(`http://localhost:8088/api/v1/photo/delete`, formData, {
+                    const response = await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/v1/photo/delete`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -312,7 +312,7 @@ export default {
                     // 추가만 있는 경우
                     newFiles.value.forEach(file => formData.append('files', file));
 
-                    const response = await axios.post(`http://localhost:8088/api/v1/photo/upload`, formData, {
+                    const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/photo/upload`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -324,7 +324,7 @@ export default {
                     delFiles.forEach(fileId => formData.append('delFiles', fileId));
                     newFiles.value.forEach(file => formData.append('newFiles', file));
 
-                    const response = await axios.put(`http://localhost:8088/api/v1/photo/update`, formData, {
+                    const response = await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/v1/photo/update`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -377,7 +377,7 @@ export default {
             localBlock.heartCount = newHeartCount;
             try {
                 await axios.post(
-                    `http://localhost:8088/api/v1/block/${localBlock.blockId}/heart`,
+                    `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${localBlock.blockId}/heart`,
                     {}, // 빈 본문으로 요청
                     {
                         headers: {
