@@ -185,7 +185,7 @@ export default {
         const fetchBlock = async () => {
             try {
                 const blockId = route.params.blockId;
-                const response = await axios.get(`http://localhost:8088/api/v1/block/${blockId}/detail`);
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${blockId}/detail`);
                 const blockData = response.data.result;
 
                 // 서버에서 받은 데이터로 localBlock 업데이트
@@ -211,7 +211,7 @@ export default {
                 try {
                     const categoryInEnglish = reverseCategoryMap[localBlock.value.category] || localBlock.value.category;
 
-                    await axios.patch(`http://localhost:8088/api/v1/block/${selectedBlock.value}/update`, {
+                    await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${selectedBlock.value}/update`, {
                         ...localBlock.value,
                         category: categoryInEnglish
                     }, {
@@ -234,7 +234,7 @@ export default {
         const deleteBlock = async () => {
             if (confirm('정말로 이 블록을 삭제하시겠습니까?')) {
                 try {
-                    await axios.delete(`http://localhost:8088/api/v1/block/${selectedBlock.value}/delete`);
+                    await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${selectedBlock.value}/delete`);
                     alert('블록이 성공적으로 삭제되었습니다.');
                     router.push(`/project/${localBlock.value.projectId}/detail`);
                 } catch (error) {
@@ -252,7 +252,7 @@ export default {
         const getPhotos = async () => {
             try {
                 const blockId = route.params.blockId;
-                const response = await axios.get(`http://localhost:8088/api/v1/photo/${blockId}/list`);
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/photo/${blockId}/list`);
                 blockPhotos.value = response.data.result.photoList;
                 console.log(blockPhotos.value);
             } catch (e) {
@@ -309,7 +309,7 @@ export default {
             localBlock.heartCount = newHeartCount;
             try {
                 await axios.post(
-                    `http://localhost:8088/api/v1/block/${localBlock.blockId}/heart`,
+                    `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${localBlock.blockId}/heart`,
                     {}, // 빈 본문으로 요청
                 );
             } catch (error) {

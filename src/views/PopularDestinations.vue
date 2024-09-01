@@ -34,7 +34,7 @@ export default {
     },
     async created() {
         try {
-            const response = await axios.get('http://localhost:8088/api/v1/popular/destinations');
+            const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/popular/destinations`);
             const cities = response.data.result;
             this.destinations = cities.map(city => ({
                 id: city.id,

@@ -59,7 +59,7 @@ const projectId = 1;  // 여기에 실제 프로젝트 ID를 설정하세요
 
 async function fetchTasks() {
   try {
-    const response = await axios.get(`http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`);
+    const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/not/active/block/list`);
     tasks.value = response.data.result.content.map(block => ({
       blockId: block.blockId,
       title: block.title,
@@ -75,7 +75,7 @@ async function fetchTasks() {
 
 async function fetchAppointments() {
   try {
-    const response = await axios.get(`http://localhost:8088/api/v1/project/${projectId}/active/block/list`);
+    const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/active/block/list`);
     appointments.value = response.data.result.content.map(block => ({
       text: block.title,
       startDate: new Date(block.startTime),

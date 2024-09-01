@@ -41,7 +41,7 @@ export default {
         console.log('Token Type:', token_type);
 
         // 2. 액세스 토큰을 서버의 인증 엔드포인트로 전송
-        const validateResponse = await axios.post('http://localhost:8088/auth/google', {
+        const validateResponse = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/auth/google`, {
           idToken: id_token
         });
 

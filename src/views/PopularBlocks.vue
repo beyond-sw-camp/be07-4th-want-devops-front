@@ -138,7 +138,7 @@ export default {
     methods: {
         async loadBlocks() {
             try {
-                const response = await axios.get(`http://localhost:8088/api/v1/city/${this.$route.params.stateId}`);
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/city/${this.$route.params.stateId}`);
                 this.blocks = response.data.result || [];
             } catch (e) {
                 this.error = '블록을 가져오는 중 오류가 발생했습니다.';
@@ -149,7 +149,7 @@ export default {
         },
         async loadProjects() {
             try {
-                const response = await axios.get(`http://localhost:8088/api/v1/project/list`, {
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/list`, {
                     params: {
                         page: this.currentPage,
                         size: this.pageSize,
@@ -228,7 +228,7 @@ export default {
                         projectId: this.selectedProject
                     };
                     console.log(requestBody);
-                    await axios.post('http://localhost:8088/api/v1/block/import', requestBody);
+                    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/import`, requestBody);
                     alert('블록을 성공적으로 가져왔습니다.');
                     this.showProjectDialog = false;
                 } catch (error) {

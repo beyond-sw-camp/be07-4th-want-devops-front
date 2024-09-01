@@ -93,7 +93,7 @@ export default {
   async created() {
     await this.getMyInfo();
     try {
-      const response = await axios.get("http://localhost:8088/member/invitations", {
+      const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/member/invitations`, {
         params: {
           page: 0,
           size: 30,
@@ -113,7 +113,7 @@ export default {
   methods: {
     async getMyInfo() {
       try {
-        const response = await axios.get("http://localhost:8088/member/me");
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/member/me`);
         this.profileUrl = response.data.profileUrl;
         this.userName = response.data.name;
         this.userEmail = response.data.email;

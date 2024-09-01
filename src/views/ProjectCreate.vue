@@ -142,7 +142,7 @@ export default {
   },
   async created() {
     try {
-      const responseCountry = await axios.get('http://localhost:8088/api/v1/state/country');
+      const responseCountry = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/state/country`);
       this.countryList = responseCountry.data.result;
     } catch (e) {
       console.error(e);
@@ -153,7 +153,7 @@ export default {
       if (!this.selectedCountry) return;
 
       try {
-        const responseCity = await axios.get('http://localhost:8088/api/v1/state/city', {
+        const responseCity = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/state/city`, {
           params: {
             countryName: this.selectedCountry
           }
@@ -206,7 +206,7 @@ export default {
       console.log(projectData);
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:8088/api/v1/project/create', projectData, {
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/project/create`, projectData, {
           headers: {
             'Authorization': `Bearer ${token}`, // Authorization 헤더 설정
             'Content-Type': 'application/json' // 데이터 전송 형식 설정

@@ -112,7 +112,7 @@ export default {
 
       try {
         const response = await axios.get(
-            `http://localhost:8088/api/v1/block_comment/list/${props.blockId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/list/${props.blockId}`,
             { params: { page } }
         );
 
@@ -136,7 +136,7 @@ export default {
     const submitComment = async () => {
       if (newComment.value) {
         try {
-          await axios.post(`http://localhost:8088/api/v1/block_comment/create`, {
+          await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/create`, {
             blockId: props.blockId,
             contents: newComment.value,
           });
@@ -215,7 +215,7 @@ export default {
 
     const deleteComment = async (commentId) => {
       try {
-        await axios.delete(`http://localhost:8088/api/v1/block_comment/delete/${commentId}`);
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/delete/${commentId}`);
         await fetchComments(0, true);
       } catch (error) {
         console.error('댓글 삭제 중 오류 발생:', error);
@@ -225,7 +225,7 @@ export default {
     const updateComment = async () => {
       if (editComment.value && commentToEdit.value) {
         try {
-          await axios.patch(`http://localhost:8088/api/v1/block_comment/update`, {
+          await axios.patch(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block_comment/update`, {
             commentId: commentToEdit.value.commentId,
             contents: editComment.value,
           });
