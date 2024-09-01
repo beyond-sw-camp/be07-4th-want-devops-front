@@ -336,7 +336,7 @@ onMounted(async () => {
 async function fetchTasks() {
   try {
     const response = await axios.get(
-      `http://localhost:8088/api/v1/project/${projectId}/not/active/block/list`
+      `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/not/active/block/list`
     );
     tasks.value = response.data.result.map((block) => ({
       id: block.blockId,
@@ -359,7 +359,7 @@ async function fetchTasks() {
 async function fetchAppointments() {
   try {
     const response = await axios.get(
-      `http://localhost:8088/api/v1/project/${projectId}/active/block/list`
+      `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/active/block/list`
     );
     appointments.value = response.data.result.content.map((block) => ({
       id: block.blockId,
@@ -570,7 +570,7 @@ function toggleLike(block) {
 
   axios
     .post(
-      `http://localhost:8088/api/v1/block/${block.id}/heart`,
+      `${process.env.VUE_APP_API_BASE_URL}/api/v1/block/${block.id}/heart`,
       {},
       {
         headers: {
@@ -606,7 +606,7 @@ async function createBlock() {
       category: categoryToUse,
     };
 
-    const response = await axios.post('http://localhost:8088/api/v1/block/create', requestBody);
+    const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/create`, requestBody);
 
     // 성공 시 처리
     tasks.value.push(response.data);
@@ -661,13 +661,6 @@ function connectSSE() {
     fetchTasks();
     fetchAppointments();
   });
-
-  // eventSource.onmessage = function (event) {
-  //   const notificationMessage = event.data;
-  //   displayNotification(notificationMessage);
-  //
-  //   window.location.reload();
-  // };
 
   eventSource.onerror = function (error) {
     console.error("SSE connection error:", error);
