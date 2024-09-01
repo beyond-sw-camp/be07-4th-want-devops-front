@@ -68,19 +68,21 @@ export default {
     });
 
     const countryMapping = {
-      'KOREA': 'kr',
-      'JAPAN': 'jp',
-      'USA': 'us',
-      'FRANCE': 'fr',
-      'TAIWAN': 'tw',
+      'KOREA': 'kr',    // 대한민국
+      'JAPAN': 'jp',    // 일본
+      'USA': 'us',      // 미국
+      'CHINA': 'cn',    // 중국
+      'UK': 'uk',       // 영국 (UK)
+      'ITALY': 'it',    // 이탈리아
     };
 
     const centers = {
-      'kr': { lat: 37.5665, lng: 126.9780 },
-      'us': { lat: 37.7749, lng: -122.4194 },
-      'jp': { lat: 35.6895, lng: 139.6917 },
-      'fr': { lat: 48.8566, lng: 2.3522 },
-      'tw': { lat: 25.0330, lng: 121.5654 },
+      'kr': { lat: 37.5665, lng: 126.9780 }, // 대한민국 - 서울
+      'us': { lat: 40.7128, lng: -74.0060 }, // 미국 - 뉴욕
+      'jp': { lat: 35.6895, lng: 139.6917 }, // 일본 - 도쿄
+      'cn': { lat: 39.9042, lng: 116.4074 }, // 중국 - 베이징
+      'uk': { lat: 51.5074, lng: -0.1278 },  // 영국 - 런던 (UK)
+      'it': { lat: 41.9028, lng: 12.4964 },  // 이탈리아 - 로마
     };
 
     // Fetches project date range and initialize dates
