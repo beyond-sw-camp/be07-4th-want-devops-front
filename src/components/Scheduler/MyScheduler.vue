@@ -1,4 +1,4 @@
-<template>
+<template>  
   <div class="container">
     <div class="projectScheduler">
       <!-- Project Detail -->
@@ -171,7 +171,6 @@
       <DxScrolling mode="virtual" />
     </DxScheduler>
   </div>
-
 
   <div class="projectBlockList">
     <!-- 카테고리 버튼 : 누르면 해당 카테고리만, 다시 누르면 전체 조회. -->
@@ -806,6 +805,7 @@ const toggleMenu = () => {
   padding: 100px 30px 0 30px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  z-index: 1;
 }
 
 .item {
@@ -1006,4 +1006,5 @@ const toggleMenu = () => {
   -webkit-user-drag: none;
   /* 드래그 방지 */
 }
+
 </style>
