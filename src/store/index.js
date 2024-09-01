@@ -19,7 +19,7 @@ export default createStore({
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:8088/api/v1/project/${projectId}/detail`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/v1/project/${projectId}/detail`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -40,7 +40,7 @@ export default createStore({
     async fetchUser({ commit }) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:8088/member/me`, {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/member/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
