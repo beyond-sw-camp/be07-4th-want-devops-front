@@ -852,6 +852,11 @@ const toggleMenu = () => {
   margin: 0 5px;
 }
 
+.category-buttons .v-btn:focus {
+  font-weight: 700;
+  font-size: 17px;
+}
+
 .block-info {
   display: flex;
   flex-direction: column;
