@@ -88,6 +88,7 @@ export default {
           return;
         }
 
+
         // Autocomplete 옵션 설정
         const options = {
           types: ['establishment'], // 필요에 따라 다른 타입으로 변경 가능
