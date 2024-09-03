@@ -7,14 +7,14 @@
         <div class="block-list">
             <v-row justify="center">
                 <!-- 좌측 이미지 영역 -->
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="6">
                     <v-card>
                         <v-img :src="cityImageUrl" height="300px"></v-img>
                     </v-card>
                 </v-col>
 
                 <!-- 우측 블록 리스트 영역 -->
-                <v-col cols="12" md="8">
+                <v-col cols="12" md="6">
                     <v-card>
                         <v-card-title>
                             <h2><strong>추천 블럭</strong></h2>
@@ -22,34 +22,31 @@
                         </v-card-title>
                         <v-list>
                             <v-list-item-group v-if="!loading && blocks.length">
-                                <v-list-item v-for="block in sortedBlocks" :key="block.blockId" class="list-item">
+                                <v-list-item v-for="(block, index) in sortedBlocks" :key="block.blockId" class="list-item">
                                     <v-list-item-content class="item-content" style="padding: 0 20px;">
-                                        <div class="block-heart-section">
-                                            <div class="heart-imozi" style="font-size:30px">
-                                                🩵
-                                            </div>
-                                            <span class="heart-count"> 인기도 {{ block.popularCount }}</span>
+                                        <div class="block-number" :class="{ 'special-number': index < 3 }" style="width: 50px; text-align: center;">
+                                            {{ index + 1 }}
                                         </div>
                                         <div class="block-infos" style="margin-left: 50px;">
-                                            <v-list-item-title>{{ block.title }}</v-list-item-title>
-                                            <v-list-item-subtitle>{{ block.content }}</v-list-item-subtitle>
-                                            <v-list-item-subtitle>장소: {{ block.placeName }}</v-list-item-subtitle>
-                                            <v-list-item-subtitle>카테고리: {{ block.category }}</v-list-item-subtitle>
+                                            <v-list-item-subtitle>{{ block.category }}</v-list-item-subtitle>
+                                            <v-list-item-title>{{ block.placeName }}</v-list-item-title>
+                                        </div>
+                                        <div class="action-container">
+                                            <v-list-item-action class="map-item-action" style="height: 30px;">
+                                                <v-btn @click="openMapModal(block)" icon>
+                                                    <v-icon>mdi-map-marker</v-icon>
+                                                </v-btn>
+                                                <span style="font-size: 12px; color:#666; margin-top: 4px;">위치</span>
+                                            </v-list-item-action>
+                                            <v-list-item-action class="block-item-action" style="height: 30px;">
+                                                <v-btn @click="showProjectSelection(block)" icon>
+                                                    <v-icon>mdi-export-variant</v-icon>
+                                                </v-btn>
+                                                <span class="heart-count" style="font-size: 12px; color:#666;"> 2000{{ block.popularCount }}</span>
+                                            </v-list-item-action>
                                         </div>
                                     </v-list-item-content>
-                                    <div class="action-container">
-                                        <v-list-item-action class="map-item-action">
-                                            <v-btn @click="openMapModal(block)" icon>
-                                                <v-icon>mdi-map-marker</v-icon>
-                                            </v-btn>
-                                        </v-list-item-action>
-                        
-                                        <v-list-item-action class="block-item-action">
-                                            <v-btn @click="showProjectSelection(block)" icon>
-                                                <v-icon>mdi-export-variant</v-icon>
-                                            </v-btn>
-                                        </v-list-item-action>
-                                    </div>
+                                    
                                     <hr>
                                 </v-list-item>
                             </v-list-item-group>
@@ -269,19 +266,38 @@ export default {
     align-items: center;
     gap: 16px; /* 여백을 추가 */
 }
+/* 숫자 순서 스타일 */
+.block-number {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 10px;
+}
 
+/* 특별 숫자 스타일 (1, 2, 3 강조) */
+.special-number {
+    font-size: 33px;
+    color: dodgerblue;
+    font-weight: bolder;
+}
 /* 리스트 항목 제목 스타일 */
 .v-list-item-title {
     font-weight: bold;
+    font-size: 24px !important;
+
 }
 
 /* 리스트 항목 부제목 스타일 */
 .v-list-item-subtitle {
     color: #555;
+
 }
 
 /* 블록 아이템 액션 스타일 */
 .block-item-action {
+    display: flex;
+    flex-direction: column; /* 수직 정렬 */
+    align-items: center; /* 수평 가운데 정렬 */
+    justify-content: center; /* 수직 가운데 정렬 */
     position: absolute;
     top: 10px;
     right: 10px;
@@ -289,6 +305,10 @@ export default {
 
 /* 맵 아이템 액션 스타일 */
 .map-item-action {
+    display: flex;
+    flex-direction: column; /* 수직 정렬 */
+    align-items: center; /* 수평 가운데 정렬 */
+    justify-content: center; /* 수직 가운데 정렬 */
     position: absolute;
     top: 10px;
     right: 70px; /* 오른쪽 여백 */
