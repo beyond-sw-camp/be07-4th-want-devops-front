@@ -8,7 +8,14 @@
 export default {
   methods: {
     redirectToGoogle() {
-      window.location.href = `${process.env.VUE_APP_API_BASE_URL}/auth/google/start`;
+      const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
+      const redirectUri = process.env.VUE_APP_GOOGLE_REDIRECT_URI;
+      const responseType = 'code'; // 인가 코드 요청
+      const scope = 'openid profile email';
+
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+
+      window.location.href = googleAuthUrl;
     }
   }
 }
@@ -19,4 +26,5 @@ export default {
   background-color: #4285F4;
   color: white;
 }
+
 </style>
