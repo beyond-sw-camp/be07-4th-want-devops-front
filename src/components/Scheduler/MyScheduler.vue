@@ -1,5 +1,5 @@
 <template>  
-  <div class="container">
+  <div class="schedulerContainer">
     <div class="projectScheduler">
       <!-- Project Detail -->
       <div v-if="projectDetail" class="header-row">
