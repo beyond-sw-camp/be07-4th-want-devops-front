@@ -44,10 +44,10 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: clear s3 bucket
-        run: aws s3 rm s3://front.devhot.kr/ --recursive
+        run: aws s3 rm s3://want.devhot.kr/ --recursive
 
       - name: upload file in s3 bucket
-        run: aws s3 cp ./dist s3://front.devhot.kr/ --recursive
+        run: aws s3 cp ./dist s3://want.devhot.kr/ --recursive
       
 
       - name: invalidate cloudfront cache
