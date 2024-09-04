@@ -157,7 +157,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .profile img {
   width: 100px;
   height: 100px;

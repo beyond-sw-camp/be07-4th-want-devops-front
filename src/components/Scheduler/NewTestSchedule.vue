@@ -127,7 +127,7 @@ function onItemDragEnd(e) {
 }
 </script>
 
-<style>
+<style scoped>
 #scroll,
 #list {
   position: absolute;

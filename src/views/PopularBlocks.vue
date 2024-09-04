@@ -240,7 +240,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* Header 스타일 */
 .header {
     text-align: center;
