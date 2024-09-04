@@ -20,6 +20,7 @@ export default {
   async mounted() {
     const urlParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlParams.get('code');
+    console.log("########## authorizationCode: ", authorizationCode);
 
     if (authorizationCode) {
       try {
