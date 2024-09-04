@@ -26,6 +26,7 @@ jobs:
           echo "VUE_APP_API_BASE_URL=${{ secrets.VUE_APP_API_BASE_URL }}" >> .env
           echo "VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}" >> .env
           echo "VUE_APP_GOOGLE_REDIRECT_URI=${{ secrets.VUE_APP_GOOGLE_REDIRECT_URI }}" >> .env
+          echo "VUE_APP_GOOGLE_MAPS_API_KEY=${{ secrets.VUE_APP_GOOGLE_MAPS_API_KEY }}" >> .env
   
 # 3. npm install
       - name: npm install
