@@ -24,7 +24,7 @@ export default {
     if (authorizationCode) {
       try {
         // 1. 인가 코드를 백엔드로 전송하여 액세스 토큰 요청 및 사용자 정보 처리
-        const validateResponse = await axios.post(`http://localhost:8088/auth/google`, {
+        const validateResponse = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/auth/google`, {
           code: authorizationCode
         });
 
@@ -40,7 +40,6 @@ export default {
         try {
           const decodedToken = jwtDecode(accessToken);
           console.log('Decoded Token:', decodedToken);
-          alert('decodedToken: ' + decodedToken);
 
           // 필요한 데이터 추출
           const role = decodedToken.auth;
