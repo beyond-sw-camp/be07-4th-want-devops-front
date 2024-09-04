@@ -346,9 +346,9 @@ export default {
         },
     }
 };
-</script scoped>
+</script>
 
-<style>
+<style scoped>
 .blockHeader {
     display: flex;
     align-items: center;
