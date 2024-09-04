@@ -1,5 +1,3 @@
-// src/components/GoogleLogin.vue
-
 <template>
   <div>
     <v-btn class="start-button" @click="redirectToGoogle">Login with Google</v-btn>
