@@ -20,6 +20,13 @@ jobs:
         uses: actions/setup-node@v2
         with: 
           node-version: '20'
+
+      - name: Create .env file
+        run: |
+          echo "VUE_APP_API_BASE_URL=${{ secrets.VUE_APP_API_BASE_URL }}" >> .env
+          echo "VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}" >> .env
+          echo "VUE_APP_GOOGLE_REDIRECT_URI=${{ secrets.VUE_APP_GOOGLE_REDIRECT_URI }}" >> .env
+  
 # 3. npm install
       - name: npm install
         working-directory: .
