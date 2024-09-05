@@ -29,11 +29,11 @@
                         📍 {{ localBlock.placeName }}
                     </template>
                     <template v-else>
-                        🗺️ 지도에서 장소 지정하기 {{ localBlock.projectId }}
+                        🗺️ 지도에서 장소 지정하기
                     </template>
                 </v-card-subtitle>
                 <CustomModal v-model:modelValue="showMapModal">
-                    <GoogleMap :projectId = "localBlock.projectId" @place-selected="handlePlaceSelected" />
+                    <GoogleMap :projectId="localBlock.projectId" @place-selected="handlePlaceSelected" />
                 </CustomModal>
             </span>
         </v-form>
@@ -405,7 +405,7 @@ export default {
 };
 </script>
 
-<style >
+<style>
 .slider-container {
     display: flex;
     align-items: center;
@@ -417,6 +417,7 @@ export default {
     height: 500px;
     margin: auto;
 }
+
 .slider {
     display: flex;
     transition: transform 0.5s ease-in-out;
