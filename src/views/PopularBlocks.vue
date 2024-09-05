@@ -18,9 +18,9 @@
                 <v-col cols="12" md="6">
                     <v-card>
                         <v-card-title>
-                            <h2><strong>추천 블럭</strong></h2>
+                            <h2 style="text-align: center; width: fit-content; margin: 0 auto;"><strong>🖼️ 인기 명소</strong></h2>
                             <hr>
-                        </v-card-title>
+                        </v-card-title>                        
                         <v-list>
                             <v-list-item-group v-if="!loading && locations.length">
                                 <v-list-item v-for="(location, index) in locations" :key="location.locationId"
