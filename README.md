@@ -44,6 +44,12 @@
 <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white">
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white">
 <img src="https://img.shields.io/badge/googleMaps-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white">
+<img src="https://img.shields.io/badge/Amazon%20CloudFront-6B728E.svg?style=for-the-badge&logo=amazoncloudfront&logoColor=white">
+<img src="https://img.shields.io/badge/Amazon%20EKS-5A9BD3?style=for-the-badge&logo=amazoneks&logoColor=white"/>
+<img src="https://img.shields.io/badge/Amazon%20ECR-4A6FFF.svg?style=for-the-badge&logo=amazonwebservices&logoColor=white">
+<img src="https://img.shields.io/badge/Amazon%20ECS-FF9900?style=for-the-badge&logo=amazonecs&logoColor=white"/>
+<img src="https://img.shields.io/badge/-aws elastic load balancing-8C4FFF?style=for-the-badge&logo=awselasticloadbalancing&logoColor=white"/>
+<img src="https://img.shields.io/badge/-aws secrets manager-DD344C?style=for-the-badge&logo=awssecretsmanager&logoColor=white"/>
 <br><br><br>
 
 ## ⚙️ WBS
