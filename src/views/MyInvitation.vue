@@ -158,6 +158,9 @@ export default {
 </script>
 
 <style scoped>
+.profile {
+  padding: 40px;
+}
 .profile img {
   width: 100px;
   height: 100px;
@@ -200,6 +203,7 @@ export default {
   align-items: flex-start;
   gap: 20px;
   width: 60%;
+  height: auto;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
@@ -207,7 +211,6 @@ export default {
 }
 
 .invitation {
-  display: flex;
   align-items: center;
   width: 100%;
   background-color: #fff;

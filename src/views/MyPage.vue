@@ -289,7 +289,7 @@ export default {
 </script>
 
 
-<style scoped>
+<style >
 .profile {
   padding: 40px;
 }
