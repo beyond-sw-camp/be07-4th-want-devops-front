@@ -7,7 +7,7 @@
             </div>
             <hr>
             <div class="blockFormHeader" style="display: flex; gap: 10px">
-                <div class="form-floating" style="width: 20%; font-size: 18px;">
+                <div class="form-floating" style="width: 20%; font-size: 15px;">
                     <select class="form-select" v-model="localBlock.category">
                         <option value="" disabled :selected="!localBlock.category">카테고리를 선택해주세요</option>
                         <option v-for="(item, index) in translatedCategories" :key="index" G :value="item.category">
@@ -258,7 +258,7 @@ export default {
 
         const updateSliderPosition = () => {
             const slider = document.querySelector('.slider');
-            const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
+            const offset = -activeIndex.value * 400; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
 
@@ -405,7 +405,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style >
 .slider-container {
     display: flex;
     align-items: center;
@@ -417,7 +417,54 @@ export default {
     height: 400px;
     margin: auto;
 }
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
 
+.slider-item {
+    min-width: 400px;
+    height: 400px;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1;
+}
+
+.slider-image {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+.slider-btn v-icon {
+    font-size: 24px;
+    color: black;
+}
+
+.photo-container {
+    position: relative;
+}
 
 .add-photo-item {
     display: flex;
@@ -433,7 +480,7 @@ export default {
     right: 10px;
     background-color: rgba(255, 255, 255, 0.8);
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    color: white;
+    color: #666;
     border-radius: 50%;
     padding: 5px;
     cursor: pointer;

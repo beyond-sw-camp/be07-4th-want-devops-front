@@ -34,7 +34,7 @@
               more_vert
             </span>
             <!-- More 메뉴 모달 -->
-            <div v-if="menuOpen" class="modal-menu" ref="modalMenu">
+            <div v-if="menuOpen" class="modal-menu" ref="modalMenu" >
               <div class="menu-item" @click="showInviteModal = true">
                 <v-icon>mdi-account-plus</v-icon> 초대하기
               </div>
@@ -46,7 +46,7 @@
         </div>
 
 
-        <!-- 새롭게 태어난 팀 초대 창 -->
+        <!-- 팀 초대 창 -->
         <v-dialog v-model="showInviteModal" max-width="500">
           <v-card class="elevation-3" style="border-radius: 16px">
             <!-- 헤더 부분 -->
@@ -708,6 +708,10 @@ const toggleMenu = () => {
 </script>
 
 <style scoped>
+.schedulerContainer {
+  padding: 0 100px;
+}
+
 .projectHeader {
   display: flex;
   justify-content: space-between;
@@ -757,17 +761,17 @@ const toggleMenu = () => {
 .modal-menu {
   position: absolute;
   top: 100%;
-  /* 부모 요소의 아래쪽에 위치 */
   left: 0;
-  /* 부모 요소와 왼쪽 정렬 */
+  width: 110px;
   background-color: white;
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  font-size: 13px;
 }
 
 .modal-menu .menu-item {
-  padding: 10px 20px;
+  padding: 10px;
   cursor: pointer;
 }
 
@@ -796,9 +800,9 @@ const toggleMenu = () => {
   flex-direction: column;
   /* 세로 방향으로 정렬 */
   align-items: center;
-  width: 450px;
+  width: 400px;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
   background-color: white;
@@ -913,7 +917,7 @@ const toggleMenu = () => {
 }
 
 .create-button {
-  margin-top: 10px;
+  margin-bottom: 20px;
   width: 80%;
 }
 

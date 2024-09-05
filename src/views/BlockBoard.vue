@@ -48,7 +48,7 @@
                     </div>
                 </div>
             </div>
-            <hr>
+            <hr style="width: 58vw;">
             <div class="slider-container">
                 <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
                     <v-icon>mdi-chevron-left</v-icon>
@@ -67,7 +67,7 @@
                 </button>
             </div>
             <hr>
-            <div class="blockContent" style="margin: 0 20px;">
+            <div class="blockContent" style="margin: 0 20px; width: 58vw;">
                 {{ localBlock.content }}
             </div>
 
@@ -357,6 +357,7 @@ export default {
     /* 요소들 사이의 간격을 고르게 배치 */
     padding: 10px 0;
     /* 패딩 추가 */
+    width: 58vw;
 }
 
 .category-buttons v-btn {
@@ -409,11 +410,11 @@ export default {
     flex: 1;
     margin: 20px 0;
     padding: 20px;
-    width: 60vw;
+    width: 58vw;
 }
 
 .projectComment {
-    width: 450px;
+    width: 400px;
     height: 100vh;
     position: absolute;
     top: 0;
