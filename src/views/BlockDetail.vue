@@ -33,7 +33,7 @@
                     </template>
                 </v-card-subtitle>
                 <CustomModal v-model:modelValue="showMapModal">
-                    <GoogleMap :projectId ="localBlock.projectId" @place-selected="handlePlaceSelected" />
+                    <GoogleMap :projectId = "localBlock.projectId" @place-selected="handlePlaceSelected" />
                 </CustomModal>
             </span>
         </v-form>
