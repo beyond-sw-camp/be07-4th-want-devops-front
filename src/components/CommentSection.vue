@@ -13,7 +13,10 @@
           <div class="comment-header">
             <img :src="comment.memberProfile" class="avatar" alt="Profile Picture" />
             <div class="comment-info">
-              <strong>{{ comment.memberName }}</strong> &mdash; {{ formatDate(comment.createdTime) }}
+              <strong>{{ comment.memberName }}</strong> 
+              <span style="font-size: 12px">
+                &mdash; {{ formatDate(comment.createdTime) }}
+              </span>
             </div>
             <div class="modalContainer" style="width:fit-content">
               <span class="material-symbols-outlined moreBtn" @click="toggleMenu(comment.commentId)">
@@ -259,9 +262,9 @@ export default {
 </script>
 
 <style scoped>
-  .comment-container {
-    max-height: 65vh;
-    overflow-y: auto;
+.comment-container {
+  max-height: 65vh;
+  overflow-y: auto;
 }
 
   .comment-item {
@@ -288,6 +291,7 @@ export default {
 
   .comment-info {
   flex: 1;
+  font-size: 15px;
   /* Takes up remaining space */
 }
 

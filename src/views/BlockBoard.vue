@@ -1,12 +1,12 @@
 <template>
 
-    <div class="container">
+    <div class="boardContainer">
         <div class="projectBoard">
             <div class="blockHeader">
                 <v-btn class="back-button" @click="goback" variant="text">
                     <v-icon size="xx-large">mdi-keyboard-backspace</v-icon>
                 </v-btn>
-                <div class="blockTitle" style="font-size: 32px;">
+                <div class="blockTitle" style="font-size: 28px;">
                     {{ localBlock.title }}
                 </div>
                 <div class="category-buttons" style="display: flex; align-items: center; margin: 0 0 0 20px;">
@@ -48,7 +48,7 @@
                     </div>
                 </div>
             </div>
-            <hr style="width: 58vw;">
+            <hr>
             <div class="slider-container">
                 <button v-if="blockPhotos.length > 1" class="slider-btn prev-btn" @click="prevSlide">
                     <v-icon>mdi-chevron-left</v-icon>
@@ -67,7 +67,7 @@
                 </button>
             </div>
             <hr>
-            <div class="blockContent" style="margin: 0 20px; width: 58vw;">
+            <div class="blockContent" style="padding: 0 20px; width: 58vw;">
                 {{ localBlock.content }}
             </div>
 
@@ -349,6 +349,12 @@ export default {
 </script>
 
 <style scoped>
+.boardContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
 .blockHeader {
     display: flex;
     align-items: center;
@@ -357,7 +363,6 @@ export default {
     /* 요소들 사이의 간격을 고르게 배치 */
     padding: 10px 0;
     /* 패딩 추가 */
-    width: 58vw;
 }
 
 .category-buttons v-btn {
@@ -368,13 +373,6 @@ export default {
 .blockHeader span {
     margin-left: auto;
     /* 맵 아이콘을 오른쪽으로 밀기 */
-}
-
-.container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
 }
 
 /* 수정 & 삭제 모달 */
@@ -407,16 +405,14 @@ export default {
 }
 
 .projectBoard {
-    flex: 1;
-    margin: 20px 0;
-    padding: 20px;
+    margin: 30px 100px 50px;
     width: 58vw;
 }
 
 .projectComment {
     width: 400px;
     height: 100vh;
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     background-color: white;
@@ -427,20 +423,18 @@ export default {
 
 /* 사진 슬라이더 부분 */
 .slider-container {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    width: 500px;
-    max-width: 500px;
     height: 500px;
+    margin: auto;
 }
 
 .slider {
     display: flex;
     transition: transform 0.5s ease-in-out;
     height: 100%;
+    margin: auto;
 }
 
 .slider-item {
@@ -448,6 +442,7 @@ export default {
     height: 500px;
     transition: opacity 0.3s ease-in-out;
     opacity: 1;
+    
 }
 
 .slider-image {
