@@ -163,7 +163,7 @@
     <!-- Scheduler and Block List -->
 
     <DxScheduler time-zone="Asia/Seoul" id="scheduler" :data-source="appointments" :current-date="currentDate"
-      :views="views" :height="750" :start-day-hour="1" :end-day-hour="23" :editing="true"
+      :views="views" :height="550" :start-day-hour="1" :end-day-hour="23" :editing="true"
       :on-appointment-updated="onAppointmentUpdated" :show-all-day-panel="false"
       @appointment-form-opening="onAppointmentFormOpening">
       <DxAppointmentDragging :group="draggingGroupName" :on-remove="onAppointmentRemove" :on-add="onAppointmentAdd" />
@@ -761,7 +761,7 @@ const toggleMenu = () => {
 .modal-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+  right: 0;
   width: 110px;
   background-color: white;
   border: 1px solid #ccc;
