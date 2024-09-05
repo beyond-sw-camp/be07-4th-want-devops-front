@@ -262,7 +262,7 @@ export default {
         };
 
         const prevSlide = () => {
-            activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length + 1) % (blockPhotos.value.length + 1);
+            activeIndex.value = (activeIndex.value - 1 + blockPhotos.value.length + 1) % blockPhotos.value.length;
             updateSliderPosition();
         };
 
