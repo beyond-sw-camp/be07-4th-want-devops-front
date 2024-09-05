@@ -258,7 +258,7 @@ export default {
 
         const updateSliderPosition = () => {
             const slider = document.querySelector('.slider');
-            const offset = -activeIndex.value * 400; // 이미지 크기와 동일한 너비로 오프셋 계산
+            const offset = -activeIndex.value * 500; // 이미지 크기와 동일한 너비로 오프셋 계산
             slider.style.transform = `translateX(${offset}px)`;
         };
 
@@ -412,9 +412,9 @@ export default {
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    width: 400px;
-    max-width: 400px;
-    height: 400px;
+    width: 500px;
+    max-width: 500px;
+    height: 500px;
     margin: auto;
 }
 .slider {
@@ -424,15 +424,15 @@ export default {
 }
 
 .slider-item {
-    min-width: 400px;
-    height: 400px;
+    min-width: 500px;
+    height: 500px;
     transition: opacity 0.3s ease-in-out;
     opacity: 1;
 }
 
 .slider-image {
-    width: 400px;
-    height: 400px;
+    width: 500px;
+    height: 500px;
     object-fit: cover;
 }
 
