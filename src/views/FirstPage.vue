@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center" style="width: 70vw;">
     <v-row>
-      <v-col cols="4" class="content">
+      <v-col cols="5" class="content">
         <h1 class="fade-in" style="font-size: 32px; font-weight: 700; margin-bottom: 20px">
 
           기존에 경험하지 못한<br /> 새로운 여행 플래너
@@ -12,7 +12,7 @@
         <v-btn v-if="isLogin" class="black-btn fade-in" @click="startMyRoad" to="/project/create">시작하기</v-btn>
         <v-btn v-if="!isLogin" class="black-btn fade-in" @click="redirectToGoogle">시작하기</v-btn>
       </v-col>
-      <v-col cols="8" class="map">
+      <v-col cols="7" class="map">
         <img src="@/assets/img/main.gif" class="backImage" alt="Map" style="width: 40vw; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
       </v-col>
     </v-row>
