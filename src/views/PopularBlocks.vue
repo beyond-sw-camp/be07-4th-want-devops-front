@@ -1,10 +1,11 @@
 <template>
     <div>
         <div class="header">
-            <h1 style="margin: 50px 0 80px"><strong><span style="color:dodgerblue;">📍{{ stateCity }}</span> 에서 인기 있는 추천 블럭을 확인해보세요 ! </strong></h1>
+            <h1 style="margin: 50px 0 80px"><strong><span style="color:dodgerblue;">📍{{ stateCity }}</span> 에서 인기 있는 추천
+                    블럭을 확인해보세요 ! </strong></h1>
         </div>
 
-        <div class="block-list">
+        <div class="location-list">
             <v-row justify="center">
                 <!-- 좌측 이미지 영역 -->
                 <v-col cols="12" md="6">
@@ -21,32 +22,35 @@
                             <hr>
                         </v-card-title>
                         <v-list>
-                            <v-list-item-group v-if="!loading && blocks.length">
-                                <v-list-item v-for="(block, index) in sortedBlocks" :key="block.blockId" class="list-item">
+                            <v-list-item-group v-if="!loading && locations.length">
+                                <v-list-item v-for="(location, index) in locations" :key="location.locationId"
+                                    class="list-item">
                                     <v-list-item-content class="item-content" style="padding: 0 20px;">
-                                        <div class="block-number" :class="{ 'special-number': index < 3 }" style="width: 50px; text-align: center;">
+                                        <div class="location-number" :class="{ 'special-number': index < 3 }"
+                                            style="width: 50px; text-align: center;">
                                             {{ index + 1 }}
                                         </div>
-                                        <div class="block-infos" style="margin-left: 50px;">
-                                            <v-list-item-subtitle>{{ block.category }}</v-list-item-subtitle>
-                                            <v-list-item-title>{{ block.placeName }}</v-list-item-title>
+                                        <div class="location-infos" style="margin-left: 50px;">
+                                            <v-list-item-subtitle>{{ location.category }}</v-list-item-subtitle>
+                                            <v-list-item-title>{{ location.placeName }}</v-list-item-title>
                                         </div>
                                         <div class="action-container">
                                             <v-list-item-action class="map-item-action" style="height: 30px;">
-                                                <v-btn @click="openMapModal(block)" icon>
+                                                <v-btn @click="openMapModal(location)" icon>
                                                     <v-icon>mdi-map-marker</v-icon>
                                                 </v-btn>
                                                 <span style="font-size: 12px; color:#666; margin-top: 4px;">위치</span>
                                             </v-list-item-action>
-                                            <v-list-item-action class="block-item-action" style="height: 30px;">
-                                                <v-btn @click="showProjectSelection(block)" icon>
+                                            <v-list-item-action class="location-item-action" style="height: 30px;">
+                                                <v-btn @click="showProjectSelection(location)" icon>
                                                     <v-icon>mdi-export-variant</v-icon>
                                                 </v-btn>
-                                                <span class="heart-count" style="font-size: 12px; color:#666;"> 2000{{ block.popularCount }}</span>
+                                                <span class="heart-count" style="font-size: 12px; color:#666;">{{
+                                                    location.popularCount }}</span>
                                             </v-list-item-action>
                                         </div>
                                     </v-list-item-content>
-                                    
+
                                     <hr>
                                 </v-list-item>
                             </v-list-item-group>
@@ -55,13 +59,13 @@
                                     <v-list-item-title>블록을 불러오는 중입니다...</v-list-item-title>
                                 </v-list-item-content>
                             </v-list-item>
-                            <v-list-item v-else-if="!blocks.length && !loading">
+                            <v-list-item v-else-if="!locations.length && !loading">
                                 <v-list-item-content>
                                     <v-list-item-title>블록이 없습니다.</v-list-item-title>
                                 </v-list-item-content>
                             </v-list-item>
                         </v-list>
-                        
+
                     </v-card>
                 </v-col>
             </v-row>
@@ -73,7 +77,8 @@
                 <v-card-subtitle>블록을 등록할 프로젝트를 선택하세요.</v-card-subtitle>
                 <v-card-text>
                     <div style="display: flex; align-items: center;">
-                        <select ref="projectSelect" class="form-select" v-model="selectedProject" required style="flex: 1;">
+                        <select ref="projectSelect" class="form-select" v-model="selectedProject" required
+                            style="flex: 1;">
                             <option value="" disabled>프로젝트 선택</option>
                             <option v-for="project in projects" :key="project.projectId" :value="project.projectId">
                                 {{ project.projectTitle }}
@@ -82,15 +87,15 @@
                     </div>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn @click="handleBlockImport">가져가기</v-btn>
+                    <v-btn @click="handlelocationImport">가져가기</v-btn>
                     <v-btn @click="showProjectDialog = false">취소</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
         <!-- 맵 모달 -->
         <CustomModal v-model:modelValue="isMapModalVisible">
-            <ShowMap :latitude="selectedBlock.latitude" :longitude="selectedBlock.longitude"
-                :placeName="selectedBlock.placeName" />
+            <ShowMap :latitude="selectedlocation.latitude" :longitude="selectedlocation.longitude"
+                :placeName="selectedlocation.placeName" />
         </CustomModal>
     </div>
 </template>
@@ -107,14 +112,14 @@ export default {
     },
     data() {
         return {
-            blocks: [],
+            locations: [],
             loading: true,
             error: null,
             isMapModalVisible: false,
             showProjectDialog: false,
             selectedProject: null,
             projects: [],
-            selectedBlock: null,
+            selectedlocation: null,
             filterOption: 'all',
             currentPage: 0,
             pageSize: 5,
@@ -123,20 +128,20 @@ export default {
         };
     },
     created() {
-        this.loadBlocks();
+        this.loadlocations();
         this.loadProjects();
         this.setCityInfo();
     },
     computed: {
-        sortedBlocks() {
-            return this.blocks.slice().sort((a, b) => b.popularCount - a.popularCount);
+        sortedlocations() {
+            return this.locations.slice().sort((a, b) => b.popularCount - a.popularCount);
         }
     },
     methods: {
-        async loadBlocks() {
+        async loadlocations() {
             try {
                 const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/v1/city/${this.$route.params.stateId}`);
-                this.blocks = response.data.result || [];
+                this.locations = response.data.result || [];
             } catch (e) {
                 this.error = '블록을 가져오는 중 오류가 발생했습니다.';
                 console.error(e);
@@ -209,23 +214,23 @@ export default {
 
             return cityInfoMap[cityId] || { name: '알 수 없는 도시', image: require('@/assets/img/airplane.jpg') };
         },
-        openMapModal(block) {
-            this.selectedBlock = block;
+        openMapModal(location) {
+            this.selectedlocation = location;
             this.isMapModalVisible = true;
         },
-        showProjectSelection(block) {
-            this.selectedBlock = block;
+        showProjectSelection(location) {
+            this.selectedlocation = location;
             this.showProjectDialog = true;
         },
-        async handleBlockImport() {
-            if (this.selectedProject && this.selectedBlock) {
+        async handlelocationImport() {
+            if (this.selectedProject && this.selectedlocation) {
                 try {
                     const requestBody = {
-                        blockId: this.selectedBlock.blockId,
+                        locationId: this.selectedlocation.locationId,
                         projectId: this.selectedProject
                     };
                     console.log(requestBody);
-                    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/import`, requestBody);
+                    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/location/import`, requestBody);
                     alert('블록을 성공적으로 가져왔습니다.');
                     this.showProjectDialog = false;
                 } catch (error) {
@@ -248,7 +253,7 @@ export default {
 }
 
 /* 블록 리스트 스타일 */
-.block-list {
+.location-list {
     margin: 20px auto;
     max-width: 1200px;
 }
@@ -264,10 +269,12 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 16px; /* 여백을 추가 */
+    gap: 16px;
+    /* 여백을 추가 */
 }
+
 /* 숫자 순서 스타일 */
-.block-number {
+.location-number {
     font-size: 24px;
     font-weight: bold;
     margin-right: 10px;
@@ -279,6 +286,7 @@ export default {
     color: dodgerblue;
     font-weight: bolder;
 }
+
 /* 리스트 항목 제목 스타일 */
 .v-list-item-title {
     font-weight: bold;
@@ -293,11 +301,14 @@ export default {
 }
 
 /* 블록 아이템 액션 스타일 */
-.block-item-action {
+.location-item-action {
     display: flex;
-    flex-direction: column; /* 수직 정렬 */
-    align-items: center; /* 수평 가운데 정렬 */
-    justify-content: center; /* 수직 가운데 정렬 */
+    flex-direction: column;
+    /* 수직 정렬 */
+    align-items: center;
+    /* 수평 가운데 정렬 */
+    justify-content: center;
+    /* 수직 가운데 정렬 */
     position: absolute;
     top: 10px;
     right: 10px;
@@ -306,30 +317,35 @@ export default {
 /* 맵 아이템 액션 스타일 */
 .map-item-action {
     display: flex;
-    flex-direction: column; /* 수직 정렬 */
-    align-items: center; /* 수평 가운데 정렬 */
-    justify-content: center; /* 수직 가운데 정렬 */
+    flex-direction: column;
+    /* 수직 정렬 */
+    align-items: center;
+    /* 수평 가운데 정렬 */
+    justify-content: center;
+    /* 수직 가운데 정렬 */
     position: absolute;
     top: 10px;
-    right: 70px; /* 오른쪽 여백 */
+    right: 70px;
+    /* 오른쪽 여백 */
 }
 
 /* 항목 콘텐츠 스타일 */
 .item-content {
     display: flex;
     align-items: center;
-    gap: 16px; /* 여백을 추가 */
+    gap: 16px;
+    /* 여백을 추가 */
 }
 
 /* 블록 하트 스타일 */
-.block-heart-section {
+.location-heart-section {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 /* 블록 정보 스타일 */
-.block-infos {
+.location-infos {
     flex: 1;
 }
 
@@ -340,13 +356,15 @@ export default {
 
 /* 하트 카운트 스타일 */
 .heart-count {
-    margin-top: 4px; /* 이모지와 텍스트 사이의 간격 조정 */
+    margin-top: 4px;
+    /* 이모지와 텍스트 사이의 간격 조정 */
 }
 
 /* 수평 선 스타일 */
 hr {
-    margin-left: 16px; /* 수평 선과 버튼 사이의 여백 */
-    border: 1px solid #ccc; /* 선 스타일 */
+    margin-left: 16px;
+    /* 수평 선과 버튼 사이의 여백 */
+    border: 1px solid #ccc;
+    /* 선 스타일 */
 }
-
 </style>

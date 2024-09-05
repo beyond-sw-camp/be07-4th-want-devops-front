@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="4" class="content">
         <h1 class="fade-in" style="font-size: 32px; font-weight: 700; margin-bottom: 20px">
+
           기존에 경험하지 못한<br /> 새로운 여행 플래너
         </h1>
         <p class="fade-in">
