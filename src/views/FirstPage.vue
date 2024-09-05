@@ -2,7 +2,7 @@
   <v-container class="fill-height d-flex justify-center align-center" style="width: 70vw;">
     <v-row>
       <v-col cols="2" md="4" class="content">
-        <h1 class="fade-in" style="font-weight: 700; margin-bottom: 20px">
+        <h1 class="fade-in" style="font-weight: 700; margin-bottom: 20px; font-size: 37px;">
           기존에 경험하지 못한<br /> 새로운 여행 플래너
         </h1>
         <p class="fade-in">
