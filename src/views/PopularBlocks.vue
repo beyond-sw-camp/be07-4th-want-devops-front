@@ -132,11 +132,7 @@ export default {
         this.loadProjects();
         this.setCityInfo();
     },
-    computed: {
-        sortedlocations() {
-            return this.locations.slice().sort((a, b) => b.popularCount - a.popularCount);
-        }
-    },
+
     methods: {
         async loadlocations() {
             try {
@@ -226,11 +222,10 @@ export default {
             if (this.selectedProject && this.selectedlocation) {
                 try {
                     const requestBody = {
-                        locationId: this.selectedlocation.locationId,
+                        location: this.selectedlocation,
                         projectId: this.selectedProject
                     };
-                    console.log(requestBody);
-                    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/location/import`, requestBody);
+                    await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/v1/block/import`, requestBody);
                     alert('블록을 성공적으로 가져왔습니다.');
                     this.showProjectDialog = false;
                 } catch (error) {
