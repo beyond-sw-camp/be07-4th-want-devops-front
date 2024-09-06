@@ -13,7 +13,8 @@
         <v-btn v-if="!isLogin" class="black-btn fade-in" @click="redirectToGoogle">시작하기</v-btn>
       </v-col>
       <v-col cols="7" class="map">
-        <img src="@/assets/img/main.gif" class="backImage" alt="Map" style="width: 40vw; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+        <img src="@/assets/img/final_main.gif" class="backImage" alt="Map"
+          style="width: 40vw; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
       </v-col>
     </v-row>
   </v-container>
